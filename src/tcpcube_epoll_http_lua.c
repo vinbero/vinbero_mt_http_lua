@@ -12,7 +12,7 @@ int tcpcube_epoll_http_module_init(struct tcpcube_module_args* module_args, stru
     return 0;
 }
 
-int tcpcube_epoll_http_module_tlinit(struct tcpcube_module* module)
+int tcpcube_epoll_http_module_tlinit(struct tcpcube_module* module, struct tcpcube_module_args* module_args)
 {
     return 0;
 }
