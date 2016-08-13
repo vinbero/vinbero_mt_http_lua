@@ -8,11 +8,11 @@ int tucube_epoll_http_module_init(struct tucube_module_args* module_args, struct
 int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_module_args* module_args);
 int tucube_epoll_http_module_clinit();
 
-int tucube_epoll_http_module_on_method_end();
-int tucube_epoll_http_module_on_url_end();
-int tucube_epoll_http_modue_on_version_end();
-int tucube_epoll_http_module_on_header_field_end();
-int tucube_epoll_http_module_on_header_value_end();
+int tucube_epoll_http_module_on_method();
+int tucube_epoll_http_module_on_url();
+int tucube_epoll_http_modue_on_protocol();
+int tucube_epoll_http_module_on_header_field();
+int tucube_epoll_http_module_on_header_value();
 
 int tucube_epoll_http_module_service(struct tucube_module* module, int* client_socket);
 
