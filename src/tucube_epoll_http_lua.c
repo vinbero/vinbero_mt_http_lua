@@ -112,13 +112,13 @@ int tucube_epoll_http_module_tldestroy(struct tucube_module* module)
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_close(tlmodule->L);
     free(tlmodule);
-    pthread_key_delete(*module->tlmodule_key);
     return 0;
 }
 
 int tucube_epoll_http_module_destroy(struct tucube_module* module)
 {
-    warnx("tucube_epoll_http_module_destroy()");
+    pthread_key_delete(*module->tlmodule_key);
+    free(module->tlmodule_key);
     free(module);
     return 0;
 }
