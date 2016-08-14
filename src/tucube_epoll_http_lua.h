@@ -9,7 +9,7 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
 int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_tcp_epoll_cldata_list* cldata_list);
 
 int tucube_epoll_http_module_on_method(char* token, ssize_t token_size);
-int tucube_epoll_http_module_on_url(char* token, ssize_t token_size);
+int tucube_epoll_http_module_on_uri(char* token, ssize_t token_size);
 int tucube_epoll_http_module_on_version(char* token, ssize_t token_size);
 int tucube_epoll_http_module_on_header_field(char* token, ssize_t token_size);
 int tucube_epoll_http_module_on_header_value(char* token, ssize_t token_size);

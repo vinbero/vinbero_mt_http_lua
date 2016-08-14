@@ -27,6 +27,7 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
 
 int tucube_epoll_http_module_on_method(char* token, ssize_t token_size)
 {
+warnx("on_method()");
     char* method = malloc(token_size + 1);
     method[token_size] = '\0';
     memcpy(method, token, token_size);
@@ -35,18 +36,20 @@ int tucube_epoll_http_module_on_method(char* token, ssize_t token_size)
     return 0;
 }
 
-int tucube_epoll_http_module_on_url(char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_uri(char* token, ssize_t token_size)
 {
-    char* url = malloc(token_size + 1);
-    url[token_size] = '\0';
-    memcpy(url, token, token_size);
-    warnx("%s", url);
-    free(url);
+warnx("on_uri()");
+    char* uri = malloc(token_size + 1);
+    uri[token_size] = '\0';
+    memcpy(uri, token, token_size);
+    warnx("%s", uri);
+    free(uri);
     return 0;
 }
 
 int tucube_epoll_http_module_on_version(char* token, ssize_t token_size)
 {
+warnx("on_version()");
     char* version = malloc(token_size + 1);
     version[token_size] = '\0';
     memcpy(version, token, token_size);
@@ -57,20 +60,22 @@ int tucube_epoll_http_module_on_version(char* token, ssize_t token_size)
 
 int tucube_epoll_http_module_on_header_field(char* token, ssize_t token_size)
 {
+warnx("on_header_field()");
     char* header_field = malloc(token_size + 1);
     header_field[token_size] = '\0';
     memcpy(header_field, token, token_size);
-    warnx("%s", header_field);
+    warnx("[%s]", header_field);
     free(header_field);
     return 0;
 }
 
 int tucube_epoll_http_module_on_header_value(char* token, ssize_t token_size)
 {
+warnx("on_header_value()");
     char* header_value = malloc(token_size + 1);
     header_value[token_size] = '\0';
     memcpy(header_value, token, token_size);
-    warnx("%s", header_value);
+    warnx("[%s]", header_value);
     free(header_value);
     return 0;
 }
