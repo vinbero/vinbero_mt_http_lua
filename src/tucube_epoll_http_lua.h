@@ -1,8 +1,14 @@
 #ifndef _TUCUBE_EPOLL_HTTP_LUA_H
 #define _TUCUBE_EPOLL_HTTP_LUA_H
 
+#include <lua.h>
 #include <tucube/tucube_module.h>
 #include "../../tucube_tcp_epoll/src/tucube_tcp_epoll_cldata.h"
+
+struct tucube_epoll_http_lua_tlmodule
+{
+   lua_State* L;
+};
 
 int tucube_epoll_http_module_init(struct tucube_module_args* module_args, struct tucube_module_list* module_list);
 int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_module_args* module_args);

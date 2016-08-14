@@ -1,21 +1,37 @@
 #include <err.h>
+#include <libgonc/gonc_list.h>
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <tucube/tucube_module.h>
-#include <libgonc/gonc_list.h>
 #include "../../tucube_tcp_epoll/src/tucube_tcp_epoll_cldata.h"
+#include "tucube_epoll_http_lua.h"
 
 int tucube_epoll_http_module_init(struct tucube_module_args* module_args, struct tucube_module_list* module_list)
 {
     struct tucube_module* module = malloc(sizeof(struct tucube_module));
     GONC_LIST_ELEMENT_INIT(module);
+    module->tlmodule_key = malloc(sizeof(pthread_key_t));
+    pthread_key_create(module->tlmodule_key, NULL);
     GONC_LIST_APPEND(module_list, module);
     return 0;
 }
 
 int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_module_args* module_args)
 {
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = malloc(sizeof(struct tucube_epoll_http_lua_tlmodule));
+    tlmodule->L = luaL_newstate();
+    luaL_openlibs(tlmodule->L);
+    lua_newtable(tlmodule->L);
+    lua_setglobal(tlmodule->L, "client_table");
+    if(luaL_loadfile(tlmodule->L, "test.lua") != LUA_OK)
+        errx(EXIT_FAILURE, "%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
+
+    pthread_setspecific(*module->tlmodule_key, tlmodule);   
     return 0;
 }
 
@@ -23,7 +39,6 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
 {
     return 0;
 }
-
 
 int tucube_epoll_http_module_on_method(char* token, ssize_t token_size)
 {
@@ -93,7 +108,10 @@ int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucu
 
 int tucube_epoll_http_module_tldestroy(struct tucube_module* module)
 {
-    warnx("tucube_epoll_http_module_tldestroy()");
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_close(tlmodule->L);
+    free(tlmodule);
+    pthread_key_delete(*module->tlmodule_key);
     return 0;
 }
 
