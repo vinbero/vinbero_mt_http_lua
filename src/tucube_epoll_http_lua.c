@@ -64,7 +64,7 @@ warnx("on_header_field()");
     char* header_field = malloc(token_size + 1);
     header_field[token_size] = '\0';
     memcpy(header_field, token, token_size);
-    warnx("[%s]", header_field);
+    warnx("%s", header_field);
     free(header_field);
     return 0;
 }
@@ -75,7 +75,7 @@ warnx("on_header_value()");
     char* header_value = malloc(token_size + 1);
     header_value[token_size] = '\0';
     memcpy(header_value, token, token_size);
-    warnx("[%s]", header_value);
+    warnx("%s", header_value);
     free(header_value);
     return 0;
 }
