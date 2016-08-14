@@ -35,7 +35,7 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     return 0;
 }
 
-int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_tcp_epoll_cldata_list* cldata_list)
+int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_tcp_epoll_cldata_list* cldata_list, int client_socket)
 {
     return 0;
 }
@@ -95,7 +95,7 @@ warnx("on_header_value()");
     return 0;
 }
 
-int tucube_epoll_http_module_service(struct tucube_module* module)
+int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
     return 0;
 }
