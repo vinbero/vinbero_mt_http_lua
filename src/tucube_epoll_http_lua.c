@@ -38,10 +38,19 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
 
 int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_tcp_epoll_cldata_list* cldata_list, int client_socket)
 {
+    struct tucube_tcp_epoll_cldata* cldata = malloc(sizeof(struct tucube_tcp_epoll_cldata));
+    GONC_LIST_ELEMENT_INIT(cldata);
+    cldata->integer = client_socket;
+    GONC_LIST_APPEND(cldata_list, cldata);
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_getglobal(tlmodule->L, "client_table");
+    lua_pushinteger(tlmodule->L, client_socket);
+    lua_newtable(tlmodule->L);
+    lua_settable(tlmodule->L, -3);
     return 0;
 }
 
-int tucube_epoll_http_module_on_method(char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_method(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
 warnx("on_method()");
     char* method = malloc(token_size + 1);
@@ -52,7 +61,7 @@ warnx("on_method()");
     return 0;
 }
 
-int tucube_epoll_http_module_on_uri(char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_uri(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
 warnx("on_uri()");
     char* uri = malloc(token_size + 1);
@@ -63,7 +72,7 @@ warnx("on_uri()");
     return 0;
 }
 
-int tucube_epoll_http_module_on_version(char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_version(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
 warnx("on_version()");
     char* version = malloc(token_size + 1);
@@ -74,7 +83,7 @@ warnx("on_version()");
     return 0;
 }
 
-int tucube_epoll_http_module_on_header_field(char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_header_field(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
 warnx("on_header_field()");
     char* header_field = malloc(token_size + 1);
@@ -85,7 +94,7 @@ warnx("on_header_field()");
     return 0;
 }
 
-int tucube_epoll_http_module_on_header_value(char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_header_value(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
 warnx("on_header_value()");
     char* header_value = malloc(token_size + 1);

@@ -14,11 +14,11 @@ int tucube_epoll_http_module_init(struct tucube_module_args* module_args, struct
 int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_module_args* module_args);
 int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_tcp_epoll_cldata_list* cldata_list, int cilent_socket);
 
-int tucube_epoll_http_module_on_method(char* token, ssize_t token_size);
-int tucube_epoll_http_module_on_uri(char* token, ssize_t token_size);
-int tucube_epoll_http_module_on_version(char* token, ssize_t token_size);
-int tucube_epoll_http_module_on_header_field(char* token, ssize_t token_size);
-int tucube_epoll_http_module_on_header_value(char* token, ssize_t token_size);
+int tucube_epoll_http_module_on_method(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size);
+int tucube_epoll_http_module_on_uri(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size);
+int tucube_epoll_http_module_on_version(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size);
+int tucube_epoll_http_module_on_header_field(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size);
+int tucube_epoll_http_module_on_header_value(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size);
 
 int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata);
 
