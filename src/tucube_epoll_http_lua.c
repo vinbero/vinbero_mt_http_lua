@@ -1,4 +1,5 @@
 #include <err.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <tucube/tucube_module.h>
@@ -24,51 +25,51 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
 }
 
 
-int tucube_epoll_http_module_on_method(char* token, ssize_t token_offset)
+int tucube_epoll_http_module_on_method(char* token, ssize_t token_size)
 {
-    char* method = malloc(sizeof(token_offset) + 1);
-    method[token_offset] = '\0';
-    memcpy(method, token, token_offset);
+    char* method = malloc(token_size + 1);
+    method[token_size] = '\0';
+    memcpy(method, token, token_size);
     warnx("%s", method);
     free(method);
     return 0;
 }
 
-int tucube_epoll_http_module_on_url(char* token, ssize_t token_offset)
+int tucube_epoll_http_module_on_url(char* token, ssize_t token_size)
 {
-    char* url = malloc(sizeof(token_offset) + 1);
-    url[token_offset] = '\0';
-    memcpy(url, token, token_offset);
+    char* url = malloc(token_size + 1);
+    url[token_size] = '\0';
+    memcpy(url, token, token_size);
     warnx("%s", url);
     free(url);
     return 0;
 }
 
-int tucube_epoll_http_module_on_protocol(char* token, ssize_t token_offset)
+int tucube_epoll_http_module_on_version(char* token, ssize_t token_size)
 {
-    char* protocol = malloc(sizeof(token_offset) + 1);
-    protocol[token_offset] = '\0';
-    memcpy(protocol, token, token_offset);
-    warnx("%s", protocol);
-    free(protocol);
+    char* version = malloc(token_size + 1);
+    version[token_size] = '\0';
+    memcpy(version, token, token_size);
+    warnx("%s", version);
+    free(version);
     return 0;
 }
 
-int tucube_epoll_http_module_on_header_field(char* token, ssize_t token_offset)
+int tucube_epoll_http_module_on_header_field(char* token, ssize_t token_size)
 {
-    char* header_field = malloc(sizeof(token_offset) + 1);
-    header_field[token_offset] = '\0';
-    memcpy(header_field, token, token_offset);
+    char* header_field = malloc(token_size + 1);
+    header_field[token_size] = '\0';
+    memcpy(header_field, token, token_size);
     warnx("%s", header_field);
     free(header_field);
     return 0;
 }
 
-int tucube_epoll_http_module_on_header_value(char* token, ssize_t token_offset)
+int tucube_epoll_http_module_on_header_value(char* token, ssize_t token_size)
 {
-    char* header_value = malloc(sizeof(token_offset) + 1);
-    header_value[token_offset] = '\0';
-    memcpy(header_value, token, token_offset);
+    char* header_value = malloc(token_size + 1);
+    header_value[token_size] = '\0';
+    memcpy(header_value, token, token_size);
     warnx("%s", header_value);
     free(header_value);
     return 0;
@@ -81,6 +82,7 @@ int tucube_epoll_http_module_service(struct tucube_module* module)
 
 int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
+    warnx("tucube_epoll_http_module_cldestroy()");
     return 0;
 }
 
@@ -92,6 +94,7 @@ int tucube_epoll_http_module_tldestroy(struct tucube_module* module)
 
 int tucube_epoll_http_module_destroy(struct tucube_module* module)
 {
+    warnx("tucube_epoll_http_module_destroy()");
     free(module);
     return 0;
 }
