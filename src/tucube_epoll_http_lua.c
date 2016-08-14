@@ -28,9 +28,10 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     luaL_openlibs(tlmodule->L);
     lua_newtable(tlmodule->L);
     lua_setglobal(tlmodule->L, "client_table");
+/*
     if(luaL_loadfile(tlmodule->L, "test.lua") != LUA_OK)
         errx(EXIT_FAILURE, "%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
-
+*/
     pthread_setspecific(*module->tlmodule_key, tlmodule);   
     return 0;
 }
