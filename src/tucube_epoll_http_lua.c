@@ -50,7 +50,7 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
     return 0;
 }
 
-int tucube_epoll_http_module_on_method(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_method(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
 warnx("on_method()");
     char* method = malloc(token_size + 1);
@@ -61,7 +61,7 @@ warnx("on_method()");
     return 0;
 }
 
-int tucube_epoll_http_module_on_uri(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_uri(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
 warnx("on_uri()");
     char* uri = malloc(token_size + 1);
@@ -72,7 +72,7 @@ warnx("on_uri()");
     return 0;
 }
 
-int tucube_epoll_http_module_on_version(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_version(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
 warnx("on_version()");
     char* version = malloc(token_size + 1);
@@ -83,7 +83,7 @@ warnx("on_version()");
     return 0;
 }
 
-int tucube_epoll_http_module_on_header_field(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
 warnx("on_header_field()");
     char* header_field = malloc(token_size + 1);
@@ -94,7 +94,7 @@ warnx("on_header_field()");
     return 0;
 }
 
-int tucube_epoll_http_module_on_header_value(struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
 warnx("on_header_value()");
     char* header_value = malloc(token_size + 1);
