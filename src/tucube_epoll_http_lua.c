@@ -24,15 +24,27 @@ int tucube_epoll_http_module_init(struct tucube_module_args* module_args, struct
 
 int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_module_args* module_args)
 {
+
+    char* lua_script_path = NULL;
+    GONC_LIST_FOR_EACH(module_args, struct tucube_module_arg, module_arg)
+    {
+        if(strncmp("lua-script-path", module_arg->name, sizeof("lua-script-path") - 1) == 0)
+	     lua_script_path = module_arg->value;
+    }
+
+    if(lua_script_path == NULL)    
+        errx(EXIT_FAILURE, "%s: %u: Argument lua-script-path is required");
+
     struct tucube_epoll_http_lua_tlmodule* tlmodule = malloc(sizeof(struct tucube_epoll_http_lua_tlmodule));
     tlmodule->L = luaL_newstate();
     luaL_openlibs(tlmodule->L);
     lua_newtable(tlmodule->L);
     lua_setglobal(tlmodule->L, "client_table");
-/*
-    if(luaL_loadfile(tlmodule->L, "test.lua") != LUA_OK)
+
+    if(luaL_loadfile(tlmodule->L, lua_script_path) != LUA_OK)
         errx(EXIT_FAILURE, "%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
-*/
+    lua_pcall(tlmodule->L, 0, 0, 0);
+
     pthread_setspecific(*module->tlmodule_key, tlmodule);   
     return 0;
 }
@@ -135,6 +147,7 @@ int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struc
 int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+/*
     lua_getglobal(tlmodule->L, "print");
     lua_getglobal(tlmodule->L, "client_table");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
@@ -145,15 +158,9 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
     lua_remove(tlmodule->L, -2);
     lua_pcall(tlmodule->L, 1, 0, 0);
     lua_pop(tlmodule->L, 1);
-
-    lua_getglobal(tlmodule->L, "print");
-    lua_getglobal(tlmodule->L, "client_table");
+*/
+    lua_getglobal(tlmodule->L, "service");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
-    lua_gettable(tlmodule->L, -2);
-    lua_remove(tlmodule->L, -2);
-    lua_pushstring(tlmodule->L, "HEADER_ACCEPT");
-    lua_gettable(tlmodule->L, -2);
-    lua_remove(tlmodule->L, -2);
     lua_pcall(tlmodule->L, 1, 0, 0);
     lua_pop(tlmodule->L, 1);
 
