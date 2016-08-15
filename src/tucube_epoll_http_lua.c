@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <tucube/tucube_module.h>
 #include "../../tucube_tcp_epoll/src/tucube_tcp_epoll_cldata.h"
@@ -36,15 +37,15 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     return 0;
 }
 
-int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_tcp_epoll_cldata_list* cldata_list, int client_socket)
+int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_tcp_epoll_cldata_list* cldata_list, int* client_socket)
 {
     struct tucube_tcp_epoll_cldata* cldata = malloc(sizeof(struct tucube_tcp_epoll_cldata));
     GONC_LIST_ELEMENT_INIT(cldata);
-    cldata->integer = client_socket;
+    cldata->pointer = client_socket;
     GONC_LIST_APPEND(cldata_list, cldata);
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "client_table");
-    lua_pushinteger(tlmodule->L, client_socket);
+    lua_pushinteger(tlmodule->L, *client_socket);
     lua_newtable(tlmodule->L);
     lua_settable(tlmodule->L, -3);
     lua_pop(tlmodule->L, 1);
@@ -55,7 +56,7 @@ int tucube_epoll_http_module_on_method(struct tucube_module* module, struct tucu
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "client_table");
-    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "METHOD");
     lua_pushlstring(tlmodule->L, token, token_size);
@@ -68,7 +69,7 @@ int tucube_epoll_http_module_on_uri(struct tucube_module* module, struct tucube_
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "client_table");
-    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "URI");
     lua_pushlstring(tlmodule->L, token, token_size);
@@ -81,7 +82,7 @@ int tucube_epoll_http_module_on_version(struct tucube_module* module, struct tuc
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "client_table");
-    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "VERSION");
     lua_pushlstring(tlmodule->L, token, token_size);
@@ -94,7 +95,7 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "client_table");
-    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_remove(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "recent_header_field");
@@ -120,7 +121,7 @@ int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struc
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "client_table");
-    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_remove(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "recent_header_field");
@@ -136,7 +137,7 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "print");
     lua_getglobal(tlmodule->L, "client_table");
-    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_remove(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "METHOD");
@@ -147,7 +148,7 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
 
     lua_getglobal(tlmodule->L, "print");
     lua_getglobal(tlmodule->L, "client_table");
-    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_remove(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "HEADER_ACCEPT");
