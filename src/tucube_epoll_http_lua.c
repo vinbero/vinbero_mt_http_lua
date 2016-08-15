@@ -36,14 +36,17 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
         errx(EXIT_FAILURE, "%s: %u: Argument lua-script-path is required");
 
     struct tucube_epoll_http_lua_tlmodule* tlmodule = malloc(sizeof(struct tucube_epoll_http_lua_tlmodule));
+
     tlmodule->L = luaL_newstate();
     luaL_openlibs(tlmodule->L);
+
     lua_newtable(tlmodule->L);
     lua_setglobal(tlmodule->L, "client_table");
 
     if(luaL_loadfile(tlmodule->L, lua_script_path) != LUA_OK)
         errx(EXIT_FAILURE, "%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
     lua_pcall(tlmodule->L, 0, 0, 0);
+    lua_pop(tlmodule->L, 1);
 
     pthread_setspecific(*module->tlmodule_key, tlmodule);   
     return 0;
@@ -70,6 +73,7 @@ int tucube_epoll_http_module_on_method(struct tucube_module* module, struct tucu
     lua_getglobal(tlmodule->L, "client_table");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
+    lua_remove(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "METHOD");
     lua_pushlstring(tlmodule->L, token, token_size);
     lua_settable(tlmodule->L, -3);
@@ -83,6 +87,7 @@ int tucube_epoll_http_module_on_uri(struct tucube_module* module, struct tucube_
     lua_getglobal(tlmodule->L, "client_table");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
+    lua_remove(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "URI");
     lua_pushlstring(tlmodule->L, token, token_size);
     lua_settable(tlmodule->L, -3);
@@ -96,6 +101,7 @@ int tucube_epoll_http_module_on_version(struct tucube_module* module, struct tuc
     lua_getglobal(tlmodule->L, "client_table");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
+    lua_remove(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "VERSION");
     lua_pushlstring(tlmodule->L, token, token_size);
     lua_settable(tlmodule->L, -3);
