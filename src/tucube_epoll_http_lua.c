@@ -55,13 +55,10 @@ int tucube_epoll_http_module_on_method(struct tucube_module* module, struct tucu
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "client_table");
-
     lua_pushinteger(tlmodule->L, cldata->integer);
     lua_gettable(tlmodule->L, -2);
-
     lua_pushstring(tlmodule->L, "METHOD");
     lua_pushlstring(tlmodule->L, token, token_size);
-
     lua_settable(tlmodule->L, -3);
     lua_pop(tlmodule->L, 1);
     return 0;
@@ -99,8 +96,21 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
     lua_getglobal(tlmodule->L, "client_table");
     lua_pushinteger(tlmodule->L, cldata->integer);
     lua_gettable(tlmodule->L, -2);
-    lua_pushstring(tlmodule->L, "HEADER_FIELD");
-    lua_pushlstring(tlmodule->L, token, token_size);
+    lua_remove(tlmodule->L, -2);
+    lua_pushstring(tlmodule->L, "recent_header_field");
+
+    char* header_field = malloc(sizeof("HEADER_") - 1 + token_size);
+    for(ssize_t index = 0; index < token_size; ++index)
+    {
+        if('a' <= token[index] && token[index] <= 'z')
+            token[index] -= ('a' - 'A');
+        else if(token[index] == '-')
+            token[index] = '_';
+    }
+    memcpy(header_field, "HEADER_", sizeof("HEADER_") - 1);
+    memcpy(header_field + sizeof("HEADER_") - 1, token, token_size);
+    lua_pushlstring(tlmodule->L, header_field, sizeof("HEADER_") - 1 + token_size);
+    free(header_field);
     lua_settable(tlmodule->L, -3);
     lua_pop(tlmodule->L, 1);
     return 0;
@@ -112,7 +122,9 @@ int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struc
     lua_getglobal(tlmodule->L, "client_table");
     lua_pushinteger(tlmodule->L, cldata->integer);
     lua_gettable(tlmodule->L, -2);
-    lua_pushstring(tlmodule->L, "HEADER_FIELD");
+    lua_remove(tlmodule->L, -2);
+    lua_pushstring(tlmodule->L, "recent_header_field");
+    lua_gettable(tlmodule->L, -2);
     lua_pushlstring(tlmodule->L, token, token_size);
     lua_settable(tlmodule->L, -3);
     lua_pop(tlmodule->L, 1);
@@ -132,6 +144,18 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
     lua_remove(tlmodule->L, -2);
     lua_pcall(tlmodule->L, 1, 0, 0);
     lua_pop(tlmodule->L, 1);
+
+    lua_getglobal(tlmodule->L, "print");
+    lua_getglobal(tlmodule->L, "client_table");
+    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_gettable(tlmodule->L, -2);
+    lua_remove(tlmodule->L, -2);
+    lua_pushstring(tlmodule->L, "HEADER_ACCEPT");
+    lua_gettable(tlmodule->L, -2);
+    lua_remove(tlmodule->L, -2);
+    lua_pcall(tlmodule->L, 1, 0, 0);
+    lua_pop(tlmodule->L, 1);
+
     return 0;
 }
 
