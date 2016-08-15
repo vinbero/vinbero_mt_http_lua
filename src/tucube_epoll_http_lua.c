@@ -47,72 +47,97 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
     lua_pushinteger(tlmodule->L, client_socket);
     lua_newtable(tlmodule->L);
     lua_settable(tlmodule->L, -3);
+    lua_pop(tlmodule->L, 1);
     return 0;
 }
 
 int tucube_epoll_http_module_on_method(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
-warnx("on_method()");
-    char* method = malloc(token_size + 1);
-    method[token_size] = '\0';
-    memcpy(method, token, token_size);
-    warnx("%s", method);
-    free(method);
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_getglobal(tlmodule->L, "client_table");
+
+    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_gettable(tlmodule->L, -2);
+
+    lua_pushstring(tlmodule->L, "METHOD");
+    lua_pushlstring(tlmodule->L, token, token_size);
+
+    lua_settable(tlmodule->L, -3);
+    lua_pop(tlmodule->L, 1);
     return 0;
 }
 
 int tucube_epoll_http_module_on_uri(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
-warnx("on_uri()");
-    char* uri = malloc(token_size + 1);
-    uri[token_size] = '\0';
-    memcpy(uri, token, token_size);
-    warnx("%s", uri);
-    free(uri);
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_getglobal(tlmodule->L, "client_table");
+    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_gettable(tlmodule->L, -2);
+    lua_pushstring(tlmodule->L, "URI");
+    lua_pushlstring(tlmodule->L, token, token_size);
+    lua_settable(tlmodule->L, -3);
+    lua_pop(tlmodule->L, 1);
     return 0;
 }
 
 int tucube_epoll_http_module_on_version(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
-warnx("on_version()");
-    char* version = malloc(token_size + 1);
-    version[token_size] = '\0';
-    memcpy(version, token, token_size);
-    warnx("%s", version);
-    free(version);
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_getglobal(tlmodule->L, "client_table");
+    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_gettable(tlmodule->L, -2);
+    lua_pushstring(tlmodule->L, "VERSION");
+    lua_pushlstring(tlmodule->L, token, token_size);
+    lua_settable(tlmodule->L, -3);
+    lua_pop(tlmodule->L, 1);
     return 0;
 }
 
 int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
-warnx("on_header_field()");
-    char* header_field = malloc(token_size + 1);
-    header_field[token_size] = '\0';
-    memcpy(header_field, token, token_size);
-    warnx("%s", header_field);
-    free(header_field);
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_getglobal(tlmodule->L, "client_table");
+    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_gettable(tlmodule->L, -2);
+    lua_pushstring(tlmodule->L, "HEADER_FIELD");
+    lua_pushlstring(tlmodule->L, token, token_size);
+    lua_settable(tlmodule->L, -3);
+    lua_pop(tlmodule->L, 1);
     return 0;
 }
 
 int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
-warnx("on_header_value()");
-    char* header_value = malloc(token_size + 1);
-    header_value[token_size] = '\0';
-    memcpy(header_value, token, token_size);
-    warnx("%s", header_value);
-    free(header_value);
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_getglobal(tlmodule->L, "client_table");
+    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_gettable(tlmodule->L, -2);
+    lua_pushstring(tlmodule->L, "HEADER_FIELD");
+    lua_pushlstring(tlmodule->L, token, token_size);
+    lua_settable(tlmodule->L, -3);
+    lua_pop(tlmodule->L, 1);
     return 0;
 }
 
 int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_getglobal(tlmodule->L, "print");
+    lua_getglobal(tlmodule->L, "client_table");
+    lua_pushinteger(tlmodule->L, cldata->integer);
+    lua_gettable(tlmodule->L, -2);
+    lua_remove(tlmodule->L, -2);
+    lua_pushstring(tlmodule->L, "METHOD");
+    lua_gettable(tlmodule->L, -2);
+    lua_remove(tlmodule->L, -2);
+    lua_pcall(tlmodule->L, 1, 0, 0);
+    lua_pop(tlmodule->L, 1);
     return 0;
 }
 
 int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
-    warnx("tucube_epoll_http_module_cldestroy()");
+    free(cldata);
     return 0;
 }
 
