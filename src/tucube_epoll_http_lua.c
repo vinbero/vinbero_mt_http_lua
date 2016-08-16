@@ -159,7 +159,6 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
     const char* result;
     size_t result_size;
     result = lua_tolstring(tlmodule->L, -1, &result_size);
-    write(STDOUT_FILENO, result, result_size);
     write(*(int*)cldata->pointer, result, result_size);    
     lua_pop(tlmodule->L, 1);
     return 0;
