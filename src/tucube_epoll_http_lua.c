@@ -12,6 +12,8 @@
 #include "../../tucube_tcp_epoll/src/tucube_tcp_epoll_cldata.h"
 #include "tucube_epoll_http_lua.h"
 
+const char* status_codes[600];
+
 int tucube_epoll_http_module_init(struct tucube_module_args* module_args, struct tucube_module_list* module_list)
 {
     struct tucube_module* module = malloc(sizeof(struct tucube_module));
@@ -19,6 +21,75 @@ int tucube_epoll_http_module_init(struct tucube_module_args* module_args, struct
     module->tlmodule_key = malloc(sizeof(pthread_key_t));
     pthread_key_create(module->tlmodule_key, NULL);
     GONC_LIST_APPEND(module_list, module);
+
+status_codes[100] = "Continue";
+status_codes[101] = "Switching Protocols";
+status_codes[102] = "Processing";
+
+status_codes[200] = "OK";
+status_codes[201] = "Created";
+status_codes[202] = "Accepted";
+status_codes[203] = "Non-authoritative Information";
+status_codes[204] = "No Content";
+status_codes[205] = "Reset Content";
+status_codes[206] = "Partial Content";
+status_codes[207] = "Multi-Status";
+status_codes[208] = "Already Reported";
+status_codes[226] = "IM Used";
+
+status_codes[300] = "Multiple Choices";
+status_codes[301] = "Moved Permanently";
+status_codes[302] = "Found";
+status_codes[303] = "See Other";
+status_codes[304] = "Not Modified";
+status_codes[305] = "Use Proxy";
+status_codes[307] = "Temporary Redirect";
+status_codes[308] = "Permanent Redirect";
+
+status_codes[400] = "Bad Request";
+status_codes[401] = "Unauthorized";
+status_codes[402] = "Payment Required";
+status_codes[403] = "Forbidden";
+status_codes[404] = "Not Found";
+status_codes[405] = "Method Not Allowed";
+status_codes[406] = "Not Acceptable";
+status_codes[407] = "Proxy Authentication Required";
+status_codes[408] = "Request Timeout";
+status_codes[409] = "Conflict";
+status_codes[410] = "Gone";
+status_codes[411] = "Length Required";
+status_codes[412] = "Precondition Failed";
+status_codes[413] = "Payload Too Large";
+status_codes[414] = "Request-URI Too Long";
+status_codes[415] = "Unsupported Media Type";
+status_codes[416] = "Requested Range Not Satisfiable";
+status_codes[417] = "Expectation Failed";
+status_codes[418] = "I'm a teapot";
+status_codes[421] = "Misdirected Request";
+status_codes[422] = "Unprocessable Entity";
+status_codes[423] = "Locked";
+status_codes[424] = "Failed Dependency";
+status_codes[426] = "Upgrade Required";
+status_codes[428] = "Precondition Required";
+status_codes[429] = "Too Many Requests";
+status_codes[431] = "Request Header Fields Too Large";
+status_codes[444] = "Connection Closed Without Response";
+status_codes[451] = "Unavailable For Legal Reasons";
+status_codes[499] = "Client Closed Request";
+
+status_codes[500] = "Internal Server Error";
+status_codes[501] = "Not Implemented";
+status_codes[502] = "Bad Gateway";
+status_codes[503] = "Service Unavailable";
+status_codes[504] = "Gateway Timeout";
+status_codes[505] = "HTTP Version Not Supported";
+status_codes[506] = "Variant Also Negotiates";
+status_codes[507] = "Insufficient Storage";
+status_codes[508] = "Loop Detected";
+status_codes[510] = "Not Extended";
+status_codes[511] = "Network Authentication Required";
+status_codes[599] = "Network Connect Timeout Error";
+
     return 0;
 }
 
@@ -152,6 +223,7 @@ int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struc
     return 0;
 }
 
+
 int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
@@ -167,11 +239,12 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
 //status line
     size_t status_code_size;
     const char* status_code = lua_tolstring(tlmodule->L, -3, &status_code_size);
+    int status_code_integer = lua_tointeger(tlmodule->L, -3);
     write(*(int*)cldata->pointer, "HTTP/1.1", sizeof("HTTP/1.1") - 1);
     write(*(int*)cldata->pointer, " ", sizeof(" ") - 1);
     write(*(int*)cldata->pointer, status_code, status_code_size);
     write(*(int*)cldata->pointer, " ", sizeof(" ") - 1);
-    write(*(int*)cldata->pointer, "OK", sizeof("OK") - 1);
+    write(*(int*)cldata->pointer, status_codes[status_code_integer], strlen(status_codes[status_code_integer]));
     write(*(int*)cldata->pointer, "\r\n", sizeof("\r\n") - 1);
 
 //response headers
