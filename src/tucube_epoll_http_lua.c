@@ -24,7 +24,6 @@ int tucube_epoll_http_module_init(struct tucube_module_args* module_args, struct
 
 int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_module_args* module_args)
 {
-
     char* lua_script_path = NULL;
     GONC_LIST_FOR_EACH(module_args, struct tucube_module_arg, module_arg)
     {
@@ -41,7 +40,7 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     luaL_openlibs(tlmodule->L);
 
     lua_newtable(tlmodule->L);
-    lua_setglobal(tlmodule->L, "client_table");
+    lua_setglobal(tlmodule->L, "clients");
 
     if(luaL_loadfile(tlmodule->L, lua_script_path) != LUA_OK)
         errx(EXIT_FAILURE, "%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
@@ -59,7 +58,7 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
     cldata->pointer = client_socket;
     GONC_LIST_APPEND(cldata_list, cldata);
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "client_table");
+    lua_getglobal(tlmodule->L, "clients");
     lua_pushinteger(tlmodule->L, *client_socket);
     lua_newtable(tlmodule->L);
     lua_settable(tlmodule->L, -3);
@@ -70,11 +69,11 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
 int tucube_epoll_http_module_on_method(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "client_table");
+    lua_getglobal(tlmodule->L, "clients");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_remove(tlmodule->L, -2);
-    lua_pushstring(tlmodule->L, "METHOD");
+    lua_pushstring(tlmodule->L, "REQUEST_METHOD");
     lua_pushlstring(tlmodule->L, token, token_size);
     lua_settable(tlmodule->L, -3);
     lua_pop(tlmodule->L, 1);
@@ -84,7 +83,7 @@ int tucube_epoll_http_module_on_method(struct tucube_module* module, struct tucu
 int tucube_epoll_http_module_on_uri(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "client_table");
+    lua_getglobal(tlmodule->L, "clients");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_remove(tlmodule->L, -2);
@@ -98,11 +97,11 @@ int tucube_epoll_http_module_on_uri(struct tucube_module* module, struct tucube_
 int tucube_epoll_http_module_on_version(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "client_table");
+    lua_getglobal(tlmodule->L, "clients");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_remove(tlmodule->L, -2);
-    lua_pushstring(tlmodule->L, "VERSION");
+    lua_pushstring(tlmodule->L, "SERVER_PROTOCOL");
     lua_pushlstring(tlmodule->L, token, token_size);
     lua_settable(tlmodule->L, -3);
     lua_pop(tlmodule->L, 1);
@@ -112,13 +111,13 @@ int tucube_epoll_http_module_on_version(struct tucube_module* module, struct tuc
 int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "client_table");
+    lua_getglobal(tlmodule->L, "clients");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_remove(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "recent_header_field");
 
-    char* header_field = malloc(sizeof("HEADER_") - 1 + token_size);
+    char* header_field = malloc(sizeof("HTTP_") - 1 + token_size);
     for(ssize_t index = 0; index < token_size; ++index)
     {
         if('a' <= token[index] && token[index] <= 'z')
@@ -126,9 +125,9 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
         else if(token[index] == '-')
             token[index] = '_';
     }
-    memcpy(header_field, "HEADER_", sizeof("HEADER_") - 1);
-    memcpy(header_field + sizeof("HEADER_") - 1, token, token_size);
-    lua_pushlstring(tlmodule->L, header_field, sizeof("HEADER_") - 1 + token_size);
+    memcpy(header_field, "HTTP_", sizeof("HTTP_") - 1);
+    memcpy(header_field + sizeof("HTTP_") - 1, token, token_size);
+    lua_pushlstring(tlmodule->L, header_field, sizeof("HTTP_") - 1 + token_size);
     free(header_field);
     lua_settable(tlmodule->L, -3);
     lua_pop(tlmodule->L, 1);
@@ -138,13 +137,16 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
 int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, char* token, ssize_t token_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "client_table");
+    lua_getglobal(tlmodule->L, "clients");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_remove(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "recent_header_field");
     lua_gettable(tlmodule->L, -2);
     lua_pushlstring(tlmodule->L, token, token_size);
+    lua_settable(tlmodule->L, -3);
+    lua_pushstring(tlmodule->L, "recent_header_field");
+    lua_pushnil(tlmodule->L);
     lua_settable(tlmodule->L, -3);
     lua_pop(tlmodule->L, 1);
     return 0;
@@ -155,12 +157,46 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "service");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
-    lua_pcall(tlmodule->L, 1, 1, 0);
-    const char* result;
-    size_t result_size;
-    result = lua_tolstring(tlmodule->L, -1, &result_size);
-    write(*(int*)cldata->pointer, result, result_size);    
-    lua_pop(tlmodule->L, 1);
+    lua_pcall(tlmodule->L, 1, 3, 0);
+
+//status line
+    size_t status_code_size;
+    const char* status_code = lua_tolstring(tlmodule->L, -3, &status_code_size);
+    write(*(int*)cldata->pointer, "HTTP/1.1", sizeof("HTTP/1.1") - 1);
+    write(*(int*)cldata->pointer, " ", sizeof(" ") - 1);
+    write(*(int*)cldata->pointer, status_code, status_code_size);
+    write(*(int*)cldata->pointer, " ", sizeof(" ") - 1);
+    write(*(int*)cldata->pointer, "OK", sizeof("OK") - 1);
+    write(*(int*)cldata->pointer, "\r\n", sizeof("\r\n") - 1);
+
+//response headers
+    lua_pushnil(tlmodule->L);
+    while(lua_next(tlmodule->L, -3) != 0)
+    {
+        size_t response_header_field_size;
+        const char* response_header_field = lua_tolstring(tlmodule->L, -2, &response_header_field_size);
+        size_t response_header_value_size;
+        const char* response_header_value = lua_tolstring(tlmodule->L, -1, &response_header_value_size);
+        write(*(int*)cldata->pointer, response_header_field, response_header_field_size);
+        write(*(int*)cldata->pointer, ": ", sizeof(": ") - 1);
+        write(*(int*)cldata->pointer, response_header_value, response_header_value_size);
+        write(*(int*)cldata->pointer, "\r\n", sizeof("\r\n") - 1);
+        lua_pop(tlmodule->L, 1);
+    }
+    write(*(int*)cldata->pointer, "\r\n", sizeof("\r\n") - 1);
+
+//response body
+    if(lua_isfunction(tlmodule->L, -1))
+    {
+        
+    }
+    else
+    {
+        size_t response_body_size;
+        const char* response_body = lua_tolstring(tlmodule->L, -1, &response_body_size);
+        write(*(int*)cldata->pointer, response_body, response_body_size);
+    }
+
     return 0;
 }
 
