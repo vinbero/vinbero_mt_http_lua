@@ -153,28 +153,22 @@ int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struc
 int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-/*
-    lua_getglobal(tlmodule->L, "print");
-    lua_getglobal(tlmodule->L, "client_table");
-    lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
-    lua_gettable(tlmodule->L, -2);
-    lua_remove(tlmodule->L, -2);
-    lua_pushstring(tlmodule->L, "METHOD");
-    lua_gettable(tlmodule->L, -2);
-    lua_remove(tlmodule->L, -2);
-    lua_pcall(tlmodule->L, 1, 0, 0);
-    lua_pop(tlmodule->L, 1);
-*/
     lua_getglobal(tlmodule->L, "service");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
-    lua_pcall(tlmodule->L, 1, 0, 0);
+    lua_pcall(tlmodule->L, 1, 1, 0);
+    const char* result;
+    size_t result_size;
+    result = lua_tolstring(tlmodule->L, -1, &result_size);
+    write(STDOUT_FILENO, result, result_size);
+    write(*(int*)cldata->pointer, result, result_size);    
     lua_pop(tlmodule->L, 1);
-
     return 0;
 }
 
 int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
+    close(*(int*)cldata->pointer);
+    *(int*)cldata->pointer = -1;
     free(cldata);
     return 0;
 }
