@@ -33,7 +33,7 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     }
 
     if(lua_script_path == NULL)    
-        errx(EXIT_FAILURE, "%s: %u: Argument lua-script-path is required");
+        errx(EXIT_FAILURE, "%s: %u: Argument lua-script-path is required", __FILE__, __LINE__);
 
     struct tucube_epoll_http_lua_tlmodule* tlmodule = malloc(sizeof(struct tucube_epoll_http_lua_tlmodule));
 
