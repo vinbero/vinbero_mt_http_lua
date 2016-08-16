@@ -87,7 +87,7 @@ int tucube_epoll_http_module_on_uri(struct tucube_module* module, struct tucube_
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
     lua_gettable(tlmodule->L, -2);
     lua_remove(tlmodule->L, -2);
-    lua_pushstring(tlmodule->L, "URI");
+    lua_pushstring(tlmodule->L, "REQUEST_URI");
     lua_pushlstring(tlmodule->L, token, token_size);
     lua_settable(tlmodule->L, -3);
     lua_pop(tlmodule->L, 1);
@@ -155,9 +155,14 @@ int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struc
 int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "service");
+    lua_getglobal(tlmodule->L, "clients");
     lua_pushinteger(tlmodule->L, *(int*)cldata->pointer);
+    lua_gettable(tlmodule->L, -2);
+    lua_remove(tlmodule->L, -2);
+    lua_getglobal(tlmodule->L, "service");
+    lua_pushvalue(tlmodule->L, -2);
     lua_pcall(tlmodule->L, 1, 3, 0);
+    lua_remove(tlmodule->L, -4);
 
 //status line
     size_t status_code_size;
@@ -188,7 +193,8 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
 //response body
     if(lua_isfunction(tlmodule->L, -1))
     {
-        
+        lua_State* L = lua_newthread(tlmodule->L);
+        lua_pop(tlmodule->L, 1);
     }
     else
     {
@@ -196,6 +202,8 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
         const char* response_body = lua_tolstring(tlmodule->L, -1, &response_body_size);
         write(*(int*)cldata->pointer, response_body, response_body_size);
     }
+
+    lua_pop(tlmodule->L, 3);
 
     return 0;
 }
