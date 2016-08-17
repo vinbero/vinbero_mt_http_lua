@@ -185,19 +185,18 @@ int tucube_epoll_http_module_get_status_code(struct tucube_module* module, struc
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     *status_code = lua_tointeger(tlmodule->L, -3);
     lua_pushnil(tlmodule->L); // for lua_next() in get_next_header()
+    lua_next(tlmodule->L, -3); // prepare for get_next_header()
     return 0;
 }
 
 int tucube_epoll_http_module_get_next_header(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, const char** header_field, size_t* header_field_size, const char** header_value, size_t* header_value_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    *header_field = lua_tolstring(tlmodule->L, -2, header_field_size);
+    *header_value = lua_tolstring(tlmodule->L, -1, header_value_size);
+    lua_pop(tlmodule->L, 1);
     if(lua_next(tlmodule->L, -3) != 0)
-    {
-        *header_field = lua_tolstring(tlmodule->L, -2, header_field_size);
-        *header_value = lua_tolstring(tlmodule->L, -1, header_value_size);
-        lua_pop(tlmodule->L, 1);
         return 1;
-    }
     return 0;
 }
 
