@@ -188,7 +188,6 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
     lua_remove(tlmodule->L, -2);
     lua_pushstring(tlmodule->L, "recent_header_field");
 
-    char* header_field = malloc(sizeof("HTTP_") - 1 + token_size);
     for(ssize_t index = 0; index < token_size; ++index)
     {
         if('a' <= token[index] && token[index] <= 'z')
@@ -196,10 +195,21 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
         else if(token[index] == '-')
             token[index] = '_';
     }
-    memcpy(header_field, "HTTP_", sizeof("HTTP_") - 1);
-    memcpy(header_field + sizeof("HTTP_") - 1, token, token_size);
-    lua_pushlstring(tlmodule->L, header_field, sizeof("HTTP_") - 1 + token_size);
-    free(header_field);
+
+    if(strncmp("CONTENT_TYPE", token, sizeof("CONTENT_TYPE") - 1) == 0 ||
+         strncmp("CONTENT_LENGTH", token, sizeof("CONTENT_LENGTH") - 1) == 0)
+    {
+        lua_pushlstring(tlmodule->L, token, token_size);
+    }
+    else
+    {
+        char* header_field;
+        header_field = malloc(sizeof("HTTP_") - 1 + token_size);
+        memcpy(header_field, "HTTP_", sizeof("HTTP_") - 1);
+        memcpy(header_field + sizeof("HTTP_") - 1, token, token_size);
+        lua_pushlstring(tlmodule->L, header_field, sizeof("HTTP_") - 1 + token_size);
+        free(header_field);
+    }
     lua_settable(tlmodule->L, -3);
     lua_pop(tlmodule->L, 1);
     return 0;
