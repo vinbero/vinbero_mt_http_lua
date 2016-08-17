@@ -24,7 +24,7 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
 
 int tucube_epoll_http_module_get_status_code(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, int* status_code);
 
-int tucube_epoll_http_module_get_next_header(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, const char** header_field, size_t* header_field_size, const char** header_value, size_t* header_value_size);
+int tucube_epoll_http_module_get_header(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, const char** header_field, size_t* header_field_size, const char** header_value, size_t* header_value_size);
 
 int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata, const char** body, size_t* body_size);
 
