@@ -49,7 +49,7 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
 
     if(luaL_loadfile(tlmodule->L, lua_script_path) != LUA_OK)
     {
-        warnx(EXIT_FAILURE, "%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
+        warnx("%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
         pthread_exit(NULL);
     }
     lua_pcall(tlmodule->L, 0, 0, 0);
