@@ -48,7 +48,10 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     lua_setglobal(tlmodule->L, "clients");
 
     if(luaL_loadfile(tlmodule->L, lua_script_path) != LUA_OK)
-        errx(EXIT_FAILURE, "%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
+    {
+        warnx(EXIT_FAILURE, "%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
+        pthread_exit(NULL);
+    }
     lua_pcall(tlmodule->L, 0, 0, 0);
     lua_pop(tlmodule->L, 1);
 
@@ -222,7 +225,7 @@ int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucub
 int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-//    lua_pop(tlmodule->L, 3); redundent
+    lua_pop(tlmodule->L, 3);
     close(*(int*)cldata->pointer);
     *(int*)cldata->pointer = -1;
     free(cldata);
