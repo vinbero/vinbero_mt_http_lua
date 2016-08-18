@@ -33,8 +33,11 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
 	     lua_script_path = module_arg->value;
     }
 
-    if(lua_script_path == NULL)    
-        errx(EXIT_FAILURE, "%s: %u: Argument lua-script-path is required", __FILE__, __LINE__);
+    if(lua_script_path == NULL)
+    {
+        warnx("%s: %u: Argument lua-script-path is required", __FILE__, __LINE__);
+        pthread_exit(NULL);
+    }
 
     struct tucube_epoll_http_lua_tlmodule* tlmodule = malloc(sizeof(struct tucube_epoll_http_lua_tlmodule));
 
@@ -49,7 +52,7 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     lua_pcall(tlmodule->L, 0, 0, 0);
     lua_pop(tlmodule->L, 1);
 
-    pthread_setspecific(*module->tlmodule_key, tlmodule);   
+    pthread_setspecific(*module->tlmodule_key, tlmodule);
     return 0;
 }
 
@@ -229,8 +232,11 @@ int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucu
 int tucube_epoll_http_module_tldestroy(struct tucube_module* module)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_close(tlmodule->L);
-    free(tlmodule);
+    if(tlmodule != NULL)
+    {
+        lua_close(tlmodule->L);
+        free(tlmodule);
+    }
     return 0;
 }
 
