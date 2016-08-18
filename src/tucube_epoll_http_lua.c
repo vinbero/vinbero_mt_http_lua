@@ -222,7 +222,7 @@ int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucub
 int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucube_tcp_epoll_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_pop(tlmodule->L, 3);
+//    lua_pop(tlmodule->L, 3); redundent
     close(*(int*)cldata->pointer);
     *(int*)cldata->pointer = -1;
     free(cldata);
