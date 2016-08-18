@@ -86,6 +86,7 @@ int tucube_epoll_http_module_on_method(struct tucube_module* module, struct tucu
     lua_pushlstring(tlmodule->L, token, token_size); // clients client REQUEST_METHOD token
     lua_settable(tlmodule->L, -3); // clients client 
     lua_pop(tlmodule->L, 2); 
+    
 
     return 0;
 }
@@ -226,7 +227,10 @@ int tucube_epoll_http_module_prepare_get_body(struct tucube_module* module, stru
         return 0;
     }
     else if(lua_isstring(tlmodule->L, -1))
+    {
+        GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L = NULL;
         return 0;
+    }
     return -1;
 }
 
@@ -234,11 +238,10 @@ int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucub
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
 
-    if(lua_gettop(GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L) > 1)
-        lua_pop(GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L, 1);
-
     if(lua_isfunction(tlmodule->L, -2)) // status_code headers body thread
     {
+        if(lua_gettop(GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L) > 1)
+            lua_pop(GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L, 1);
         int coroutine_result;
         lua_pushvalue(tlmodule->L, -2); // status_code headers body thread body
         lua_xmove(tlmodule->L, GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L, 1); // status_code headers body thread
@@ -251,9 +254,9 @@ int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucub
             return 0;
         return -1;
     }
-    else if(lua_isstring(tlmodule->L, -2)) // status_code headers body
+    else if(lua_isstring(tlmodule->L, -1)) // status_code headers body
     {
-        *body = lua_tolstring(tlmodule->L, -2, body_size);
+        *body = lua_tolstring(tlmodule->L, -1, body_size);
         return 0;
     }
 
