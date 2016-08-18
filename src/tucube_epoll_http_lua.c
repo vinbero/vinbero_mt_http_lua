@@ -29,7 +29,7 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     char* lua_script_path = NULL;
     GONC_LIST_FOR_EACH(module_args, struct tucube_module_arg, module_arg)
     {
-        if(strncmp("lua-script-path", module_arg->name, sizeof("lua-script-path") - 1) == 0)
+        if(strncmp("lua-script-path", module_arg->name, sizeof("lua-script-path")) == 0)
 	     lua_script_path = module_arg->value;
     }
 
@@ -135,8 +135,8 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
             token[index] = '_';
     }
 
-    if(strncmp("CONTENT_TYPE", token, sizeof("CONTENT_TYPE") - 1) == 0 ||
-         strncmp("CONTENT_LENGTH", token, sizeof("CONTENT_LENGTH") - 1) == 0)
+    if(strncmp("CONTENT_TYPE", token, sizeof("CONTENT_TYPE")) == 0 ||
+         strncmp("CONTENT_LENGTH", token, sizeof("CONTENT_LENGTH")) == 0)
     {
         lua_pushlstring(tlmodule->L, token, token_size); // clients client recent_header_field token
     }
