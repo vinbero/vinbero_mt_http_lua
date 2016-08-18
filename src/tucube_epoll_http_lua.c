@@ -220,8 +220,14 @@ int tucube_epoll_http_module_get_header(struct tucube_module* module, struct tuc
 int tucube_epoll_http_module_prepare_get_body(struct tucube_module* module, struct tucube_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L = lua_newthread(tlmodule->L); // status_code headers body thread
-    return 0;
+    if(lua_isfunction(tlmodule->L, -1))
+    {
+        GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L = lua_newthread(tlmodule->L); // status_code headers body thread
+        return 0;
+    }
+    else if(lua_isstring(tlmodule->L, -1))
+        return 0;
+    return -1;
 }
 
 int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucube_cldata* cldata, const char** body, size_t* body_size)
@@ -238,18 +244,14 @@ int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucub
         lua_xmove(tlmodule->L, GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L, 1); // status_code headers body thread
         coroutine_result = lua_resume(GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L, tlmodule->L, 0); // status_code headers body thread
         *body = lua_tolstring(GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L, -1, body_size); // status_code headers body thread
-        if(coroutine_result == 0)
-        {
-            lua_pop(tlmodule->L, 1); // status_code headers body
-            return 0;
-        }
         if(coroutine_result == LUA_YIELD)
-        {
             return 1; // status_code headers body thread
-        }
+        lua_pop(tlmodule->L, 1); // status_code headers body
+        if(coroutine_result == 0)
+            return 0;
         return -1;
     }
-    else if(lua_isstring(tlmodule->L, -2)) // status_code headers body thread
+    else if(lua_isstring(tlmodule->L, -2)) // status_code headers body
     {
         *body = lua_tolstring(tlmodule->L, -2, body_size);
         return 0;
