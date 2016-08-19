@@ -1,6 +1,7 @@
 #include <err.h>
 #include <libgonc/gonc_cast.h>
 #include <libgonc/gonc_list.h>
+#include <libgonc/gonc_nstrncmp.h>
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
@@ -135,10 +136,14 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
             token[index] = '_';
     }
 
-    if(strncmp("CONTENT_TYPE", token, sizeof("CONTENT_TYPE")) == 0 ||
-         strncmp("CONTENT_LENGTH", token, sizeof("CONTENT_LENGTH")) == 0)
+    if(gonc_nstrncmp("CONTENT_TYPE", sizeof("CONTENT_TYPE") - 1, token, token_size) == 0 ||
+         gonc_nstrncmp("CONTENT_LENGTH", sizeof("CONTENT_LENGTH") - 1, token, token_size) == 0)
     {
         lua_pushlstring(tlmodule->L, token, token_size); // clients client recent_header_field token
+    }
+    else if(gonc_nstrncmp("X_SCRIPT_NAME", sizeof("X_SCRIPT_NAME") - 1, token, token_size) == 0)
+    {
+        lua_pushstring(tlmodule->L, "SCRIPT_NAME"); // clients client recent_header_field token
     }
     else
     {
