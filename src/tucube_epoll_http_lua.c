@@ -205,6 +205,7 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
         lua_pop(tlmodule->L, 1); // clients client
 	lua_pushstring(tlmodule->L, "SCRIPT_NAME"); // clients client SCRIPT_NAME
         script_name = "";
+        script_name_size = sizeof("") - 1;
         lua_pushstring(tlmodule->L, ""); // clients client SCRIPT_NAME script_name
         lua_settable(tlmodule->L, -3); // cients client
     }
