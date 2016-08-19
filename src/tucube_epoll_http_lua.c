@@ -188,6 +188,7 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
 
     const char* request_uri;
     const char* script_name;
+    size_t script_name_size;
     const char* path_info;
     const char* query_string;
 
@@ -209,24 +210,29 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
     }
     else
     {
-        script_name = lua_tostring(tlmodule->L, -1); // clients client script_name
+        script_name = lua_tolstring(tlmodule->L, -1, &script_name_size); // clients client script_name
+        if(strncmp(script_name + script_name_size - 1, "/", sizeof("/") - 1) == 0)
+            return -1;
         lua_pop(tlmodule->L, 1); // clients client
     }
 
-
-    if((path_info = strstr(request_uri, script_name)) != request_uri)
+    if((path_info = strstr(request_uri, script_name)) != request_uri) // if request uri doesn't begin with script name
         return -1;
-    path_info += strlen(script_name);
-    if((query_string = strstr(path_info, "?")) != NULL)
+
+    path_info += script_name_size;
+
+    if((query_string = strstr(path_info, "?")) != NULL) // check if there is query string
     {
-        if(strstr(query_string + 1, "?") != NULL)
+        ++query_string; // query string begins after the question mark
+        if(strstr(query_string, "?") != NULL) // check if there is unnecessary question mark after query string
             return -1;
-        ++query_string;
+
         lua_pushstring(tlmodule->L, "PATH_INFO"); // clients client PATH_INFO
-        if(query_string - path_info - 1 != 0)
+
+        if(query_string - path_info - 1 != 0) // check if path info is not empty string
             lua_pushlstring(tlmodule->L, path_info, query_string - path_info - 1); // clients client PATH_INFO path_info
         else
-            lua_pushstring(tlmodule->L, "/");
+            lua_pushstring(tlmodule->L, "/"); // clients client PATH_INFO path_info
         lua_settable(tlmodule->L, -3); // clients client
         lua_pushstring(tlmodule->L, "QUERY_STRING"); // clients client QUERY_STRING
         lua_pushstring(tlmodule->L, query_string); // clients client QUERY_STRING query_string
@@ -235,10 +241,10 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
     else
     {
         lua_pushstring(tlmodule->L, "PATH_INFO"); // clients client PATH_INFO path_info
-        if(strlen(path_info) != 0)
+        if(strlen(path_info) != 0) // check if path info is not empty string
             lua_pushstring(tlmodule->L, path_info); // clients client PATH_INFO path_info
         else
-            lua_pushstring(tlmodule->L, "/");
+            lua_pushstring(tlmodule->L, "/"); // clients client PATH_INFO path_info
         lua_settable(tlmodule->L, -3); // clients client
     }
 
