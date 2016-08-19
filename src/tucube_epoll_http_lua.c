@@ -185,6 +185,63 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
     lua_getglobal(tlmodule->L, "clients"); // clients
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // clients client_socket
     lua_gettable(tlmodule->L, -2); // clients client
+
+    const char* request_uri;
+    const char* script_name;
+    const char* path_info;
+    const char* query_string;
+
+    lua_pushstring(tlmodule->L, "REQUEST_URI"); // clients client REQUEST_URI
+    lua_gettable(tlmodule->L, -2); //clients client request_uri
+    request_uri = lua_tostring(tlmodule->L, -1); // clients client request_uri
+    lua_pop(tlmodule->L, 1); // clients client
+
+    lua_pushstring(tlmodule->L, "SCRIPT_NAME"); // clients client SCRIPT_NAME
+    lua_gettable(tlmodule->L, -2); // clients client script_name
+
+    if(lua_isnil(tlmodule->L, -1)) // clients client script_name
+    {
+        lua_pop(tlmodule->L, 1); // clients client
+	lua_pushstring(tlmodule->L, "SCRIPT_NAME"); // clients client SCRIPT_NAME
+        script_name = "";
+        lua_pushstring(tlmodule->L, ""); // clients client SCRIPT_NAME script_name
+        lua_settable(tlmodule->L, -3); // cients client
+    }
+    else
+    {
+        script_name = lua_tostring(tlmodule->L, -1); // clients client script_name
+        lua_pop(tlmodule->L, 1); // clients client
+    }
+
+
+    if((path_info = strstr(request_uri, script_name)) != request_uri)
+        return -1;
+    path_info += strlen(script_name);
+    if((query_string = strstr(path_info, "?")) != NULL)
+    {
+        if(strstr(query_string + 1, "?") != NULL)
+            return -1;
+        ++query_string;
+        lua_pushstring(tlmodule->L, "PATH_INFO"); // clients client PATH_INFO
+        if(query_string - path_info - 1 != 0)
+            lua_pushlstring(tlmodule->L, path_info, query_string - path_info - 1); // clients client PATH_INFO path_info
+        else
+            lua_pushstring(tlmodule->L, "/");
+        lua_settable(tlmodule->L, -3); // clients client
+        lua_pushstring(tlmodule->L, "QUERY_STRING"); // clients client QUERY_STRING
+        lua_pushstring(tlmodule->L, query_string); // clients client QUERY_STRING query_string
+        lua_settable(tlmodule->L, -3); // clients client
+    }
+    else
+    {
+        lua_pushstring(tlmodule->L, "PATH_INFO"); // clients client PATH_INFO path_info
+        if(strlen(path_info) != 0)
+            lua_pushstring(tlmodule->L, path_info); // clients client PATH_INFO path_info
+        else
+            lua_pushstring(tlmodule->L, "/");
+        lua_settable(tlmodule->L, -3); // clients client
+    }
+
     lua_getglobal(tlmodule->L, "service"); // clients client service
     lua_pushvalue(tlmodule->L, -2); // clients client service client
     lua_pcall(tlmodule->L, 1, 3, 0); // clients client status_code headers body
@@ -271,8 +328,7 @@ int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucub
 int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucube_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    if(lua_gettop(tlmodule->L) == 3)
-        lua_pop(tlmodule->L, 3); //
+    lua_pop(tlmodule->L, lua_gettop(tlmodule->L)); //
     close(*GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket);
     *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket = -1;
     free(cldata->pointer);
