@@ -5,11 +5,6 @@
 #include <tucube/tucube_module.h>
 #include <tucube/tucube_cldata.h>
 
-struct tucube_epoll_http_lua_module
-{
-    char* script_name;
-};
-
 struct tucube_epoll_http_lua_tlmodule
 {
    lua_State* L;

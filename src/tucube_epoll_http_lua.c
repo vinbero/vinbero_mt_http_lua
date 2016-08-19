@@ -17,21 +17,8 @@ int tucube_epoll_http_module_init(struct tucube_module_args* module_args, struct
 {
     struct tucube_module* module = malloc(1 * sizeof(struct tucube_module));
     GONC_LIST_ELEMENT_INIT(module);
-    module->pointer = malloc(1 * sizeof(struct tucube_epoll_http_lua_module));
     module->tlmodule_key = malloc(1 * sizeof(pthread_key_t));
     pthread_key_create(module->tlmodule_key, NULL);
-
-    GONC_CAST(module->pointer, struct tucube_epoll_http_lua_module*)->script_name = NULL;
-
-    GONC_LIST_FOR_EACH(module_args, struct tucube_module_arg, module_arg)
-    {
-        if(strncmp("tucube-epoll-http-script-name", module_arg->name, sizeof("tucube-epoll-http-script-name")) == 0)
-        {
-            GONC_CAST(module->pointer, struct tucube_epoll_http_lua_module*)->script_name = module_arg->value;
-        }
-    }
-    if(GONC_CAST(module->pointer, struct tucube_epoll_http_lua_module*)->script_name == NULL)
-        errx(EXIT_FAILURE, "%s: %u: Argument tucube-epoll-http-script-name is required");
 
     GONC_LIST_APPEND(module_list, module);
 
@@ -84,9 +71,6 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
     lua_getglobal(tlmodule->L, "clients"); // clients
     lua_pushinteger(tlmodule->L, *client_socket); // clients client_socket
     lua_newtable(tlmodule->L); // clients client_socket newtable
-    lua_pushstring(tlmodule->L, "SCRIPT_NAME"); // clients client_socket newtable SCRIPT_NAME
-    lua_pushstring(tlmodule->L, GONC_CAST(module->pointer, struct tucube_epoll_http_lua_module*)->script_name); // clients client_socket newtable SCRIPT_NAME script_name
-    lua_settable(tlmodule->L, -3); // clients client_socket newtable
     lua_settable(tlmodule->L, -3); // clients
     lua_pop(tlmodule->L, 1); //
 
