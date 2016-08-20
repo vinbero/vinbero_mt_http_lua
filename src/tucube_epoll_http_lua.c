@@ -346,6 +346,7 @@ int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucu
 
 int tucube_epoll_http_module_tldestroy(struct tucube_module* module)
 {
+warnx("tldestroy");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     if(tlmodule != NULL)
     {
