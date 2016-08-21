@@ -14,6 +14,17 @@
 #include <tucube/tucube_cldata.h>
 #include "tucube_epoll_http_lua.h"
 
+int tucube_epoll_http_lua_closef(lua_State* L)
+{
+    luaL_Stream* stream = lua_touserdata(L, -1);
+    if(fclose(stream->f) == 0)
+        lua_pushboolean(L, 1);
+    else
+        lua_pushboolean(L, 0);
+    return 1;
+}
+
+
 int tucube_epoll_http_module_init(struct tucube_module_args* module_args, struct tucube_module_list* module_list)
 {
     struct tucube_module* module = malloc(1 * sizeof(struct tucube_module));
@@ -71,7 +82,16 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
     GONC_LIST_APPEND(cldata_list, cldata);
     lua_getglobal(tlmodule->L, "clients"); // clients
     lua_pushinteger(tlmodule->L, *client_socket); // clients client_socket
-    lua_newtable(tlmodule->L); // clients client_socket newtable
+    lua_newtable(tlmodule->L); // clients client_socket client
+
+    lua_pushstring(tlmodule->L, "INPUT"); //clients client_socket client INPUT
+
+    luaL_Stream* client_socket_stream = lua_newuserdata(tlmodule->L, sizeof(luaL_Stream)); // clients client_socket client INPUT client_socket_stream
+    luaL_getmetatable(tlmodule->L, LUA_FILEHANDLE); // clients client_socket client INPUT client_socket_stream metatable
+    lua_setmetatable(tlmodule->L, -2); // clients client_socket client INPUT client_socket_stream
+    client_socket_stream->f = fdopen(*GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket, "r");
+    client_socket_stream->closef = tucube_epoll_http_lua_closef;
+    lua_settable(tlmodule->L, -3); // clients client_socket client
     lua_settable(tlmodule->L, -3); // clients
     lua_pop(tlmodule->L, 1); //
 
@@ -186,6 +206,7 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // clients client_socket
     lua_gettable(tlmodule->L, -2); // clients client
 
+
     const char* request_uri;
     const char* script_name;
     size_t script_name_size;
@@ -254,7 +275,6 @@ int tucube_epoll_http_module_service(struct tucube_module* module, struct tucube
     lua_pcall(tlmodule->L, 1, 3, 0); // clients client status_code headers body
     lua_remove(tlmodule->L, -4); // client status_code headers body
     lua_remove(tlmodule->L, -4); // status_code headers body
-
     return 0;
 }
 
@@ -336,7 +356,17 @@ int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucu
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_pop(tlmodule->L, lua_gettop(tlmodule->L)); //
-    close(*GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket);
+
+    lua_getglobal(tlmodule->L, "clients"); // ... clients
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // ... clients client_socket
+    lua_gettable(tlmodule->L, -2); // ... clients client_socket client
+    lua_pushstring(tlmodule->L, "INPUT"); // ... clients client_socket client INPUT
+    lua_gettable(tlmodule->L, -2); // ... clients client_socket client client_socket_stream
+    lua_pushstring(tlmodule->L, "close"); // ... clients client_socket client client_socket_stream "close"
+    lua_gettable(tlmodule->L, -2); // ... clients client_socket client client_socket_stream close
+    lua_pushvalue(tlmodule->L, -2); // ... clients client_socket client client_socket_stream close client_socket_stream
+    lua_pcall(tlmodule->L, 1, 1, 0); // ... clients client_socket client client_socket_stream result
+    lua_pop(tlmodule->L, lua_gettop(tlmodule->L)); //
     *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket = -1;
     free(cldata->pointer);
     free(cldata);
