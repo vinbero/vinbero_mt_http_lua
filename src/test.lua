@@ -1,16 +1,18 @@
 function get_content_length(client)
+--    if tonumber(client["CONTENT_LENGTH"]) > 0 then
+        client["BODY"] = ""
+--    end
     return client["CONTENT_LENGTH"]
 end
 
-
-local body = ""
 function on_body_chunk(client, body_chunk)
-    print(body_chunk)
-    body = body .. body_chunk
+    print("on_body_chunk")
+    client["BODY"] = client["BODY"] .. body_chunk
 end
 
 function on_body_finish(client)
-    print(body)
+    print("on_body_finish")
+    print(client["BODY"])
 end
 
 
