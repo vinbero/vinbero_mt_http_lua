@@ -431,8 +431,10 @@ int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucub
 
 int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucube_cldata* cldata)
 {
+    GONC_DEBUG("cldestroy()");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_pop(tlmodule->L, lua_gettop(tlmodule->L)); //
+    close(*GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket);
     *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket = -1;
     free(cldata->pointer);
     free(cldata);
