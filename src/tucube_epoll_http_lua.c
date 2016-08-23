@@ -1,5 +1,6 @@
 #include <err.h>
 #include <libgonc/gonc_cast.h>
+#include <libgonc/gonc_debug.h>
 #include <libgonc/gonc_list.h>
 #include <libgonc/gonc_nstrncmp.h>
 #include <lua.h>
@@ -194,8 +195,7 @@ int tucube_epoll_http_module_on_headers_finish(struct tucube_module* module, str
 
 int tucube_epoll_http_module_get_content_length(struct tucube_module* module, struct tucube_cldata* cldata, ssize_t* content_length)
 {
-warnx("get_content_length");
-
+    GONC_DEBUG("get_content_length()");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
 
     lua_getglobal(tlmodule->L, "get_content_length"); // get_content_length
@@ -224,14 +224,13 @@ warnx("get_content_length");
 
 int tucube_epoll_http_module_on_body_chunk(struct tucube_module* module, struct tucube_cldata* cldata, char* body_chunk, ssize_t body_chunk_size)
 {
-warnx("on_body_chunk");
-
+    GONC_DEBUG("on_body_chunk()");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
 
     lua_getglobal(tlmodule->L, "on_body_chunk"); // on_body_chunk
     if(lua_isnil(tlmodule->L, -1))
     {
-        lua_pop(tlmodule->L, lua_gettop(tlmodule->L));
+        lua_pop(tlmodule->L, 1);
         return 0;
     }
 
@@ -241,18 +240,15 @@ warnx("on_body_chunk");
     lua_remove(tlmodule->L, -2); // on_body_chunk client
     lua_pushlstring(tlmodule->L, body_chunk, body_chunk_size); // on_body_chunk client body_chunk
     lua_pcall(tlmodule->L, 2, 0, 0); //
-        lua_pop(tlmodule->L, lua_gettop(tlmodule->L));
+        lua_pop(tlmodule->L, 1);
 
     return 0;
 }
 
 int tucube_epoll_http_module_on_body_finish(struct tucube_module* module, struct tucube_cldata* cldata)
 {
+    GONC_DEBUG("on_body_finish");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-
-warnx("on_body_finish %d", lua_gettop(tlmodule->L));
-for(int i = 1; i <= lua_gettop(tlmodule->L); i++)
-warnx("%s", lua_typename(tlmodule->L, lua_type(tlmodule->L, -i)));
 
     lua_getglobal(tlmodule->L, "on_body_finish"); // on_body_finish
     if(lua_isnil(tlmodule->L, -1))
@@ -265,20 +261,14 @@ warnx("%s", lua_typename(tlmodule->L, lua_type(tlmodule->L, -i)));
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // on_body_finish clients client_socket
     lua_gettable(tlmodule->L, -2); // on_body_finish clients client
     lua_remove(tlmodule->L, -2); // on_body_finish client
-warnx("before pcall %d", lua_gettop(tlmodule->L));
-for(int i = 1; i <= lua_gettop(tlmodule->L); i++)
-warnx("%s", lua_typename(tlmodule->L, lua_type(tlmodule->L, -i)));
-
     lua_pcall(tlmodule->L, 1, 0, 0); //
-warnx("after pcall %d", lua_gettop(tlmodule->L));
-for(int i = 1; i <= lua_gettop(tlmodule->L); i++)
-warnx("%s", lua_typename(tlmodule->L, lua_type(tlmodule->L, -i)));
+
     return 0;
 }
 
 int tucube_epoll_http_module_on_request_finish(struct tucube_module* module, struct tucube_cldata* cldata)
 {
-warnx("on_request_finish()");
+    GONC_DEBUG("on_request_finish()");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "clients"); // clients
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // clients client_socket
@@ -350,7 +340,10 @@ warnx("on_request_finish()");
 
     lua_getglobal(tlmodule->L, "on_request_finish"); // clients client on_request_finish
     if(lua_isnil(tlmodule->L, -1))
+    {
+        warnx("%s: %u: on_request_finish() is not found in the script", __FILE__, __LINE__);
         return -1;
+    }
     lua_pushvalue(tlmodule->L, -2); // clients client on_request_finish client
     lua_pcall(tlmodule->L, 1, 3, 0); // clients client status_code headers body
     lua_remove(tlmodule->L, -4); // client status_code headers body
@@ -360,6 +353,7 @@ warnx("on_request_finish()");
 
 int tucube_epoll_http_module_get_status_code(struct tucube_module* module, struct tucube_cldata* cldata, int* status_code)
 {
+    GONC_DEBUG("get_status_code()");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     *status_code = lua_tointeger(tlmodule->L, -3); // status_code headers body
 
@@ -368,6 +362,7 @@ int tucube_epoll_http_module_get_status_code(struct tucube_module* module, struc
 
 int tucube_epoll_http_module_prepare_get_header(struct tucube_module* module, struct tucube_cldata* cldata)
 {
+    GONC_DEBUG("prepare_get_header()");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_pushnil(tlmodule->L); // status_code headers body nil
     lua_next(tlmodule->L, -3); // status_code headers body new_header_field new_header_value
@@ -376,6 +371,7 @@ int tucube_epoll_http_module_prepare_get_header(struct tucube_module* module, st
 
 int tucube_epoll_http_module_get_header(struct tucube_module* module, struct tucube_cldata* cldata, const char** header_field, size_t* header_field_size, const char** header_value, size_t* header_value_size)
 {
+    GONC_DEBUG("get_header()");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     *header_field = lua_tolstring(tlmodule->L, -2, header_field_size); // status_code headers body header_field header_value
     *header_value = lua_tolstring(tlmodule->L, -1, header_value_size); // status_code headers body header_field header_value
@@ -388,6 +384,7 @@ int tucube_epoll_http_module_get_header(struct tucube_module* module, struct tuc
 
 int tucube_epoll_http_module_prepare_get_body(struct tucube_module* module, struct tucube_cldata* cldata)
 {
+    GONC_DEBUG("prepare_get_body()");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     if(lua_isfunction(tlmodule->L, -1))
     {
@@ -404,6 +401,7 @@ int tucube_epoll_http_module_prepare_get_body(struct tucube_module* module, stru
 
 int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucube_cldata* cldata, const char** body, size_t* body_size)
 {
+    GONC_DEBUG("get_body()");
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
 
     if(lua_isfunction(tlmodule->L, -2)) // status_code headers body thread
