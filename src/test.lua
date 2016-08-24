@@ -1,7 +1,7 @@
 function get_content_length(client)
---    if tonumber(client["CONTENT_LENGTH"]) > 0 then
+    if tonumber(client["CONTENT_LENGTH"]) > 0 then
         client["BODY"] = ""
---    end
+    end
     return client["CONTENT_LENGTH"]
 end
 
