@@ -219,7 +219,7 @@ int tucube_epoll_http_module_get_content_length(struct tucube_module* module, st
     }
     *content_length = lua_tointeger(tlmodule->L, -1); // content_length
     lua_pop(tlmodule->L, 1); //
-    return 1;
+    return 0;
 }
 
 int tucube_epoll_http_module_on_body_chunk(struct tucube_module* module, struct tucube_cldata* cldata, char* body_chunk, ssize_t body_chunk_size)
