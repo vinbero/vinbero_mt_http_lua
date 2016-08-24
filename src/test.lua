@@ -1,17 +1,22 @@
-function get_content_length(client)
+function on_request_start(client)
+    client["BODY"] = nil
+end
+
+function on_headers_finish(client)
     if tonumber(client["CONTENT_LENGTH"]) > 0 then
         client["BODY"] = ""
     end
+end
+
+function get_content_length(client)
     return client["CONTENT_LENGTH"]
 end
 
 function on_body_chunk(client, body_chunk)
-    print("on_body_chunk")
     client["BODY"] = client["BODY"] .. body_chunk
 end
 
 function on_body_finish(client)
-    print("on_body_finish")
     print(client["BODY"])
 end
 
