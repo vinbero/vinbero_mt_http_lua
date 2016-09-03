@@ -1,23 +1,22 @@
-function on_request_start(client)
+function onRequestStart(client)
 end
 
-function on_headers_finish(client)
+function onHeadersFinish(client)
 end
 
-function get_content_length(client)
+function getContentLength(client)
     return client["CONTENT_LENGTH"]
 end
 
-function on_body_chunk(client, body_chunk)
+function onBodyChunk(client, body_chunk)
     client["BODY"] = client["BODY"] .. body_chunk
 end
 
-function on_body_finish(client)
+function onBodyFinish(client)
     print(client["BODY"])
 end
 
-
-function on_request_finish(client)
+function onRequestFinish(client)
     body = function()
         coroutine.yield("<h1>Hello World!</h1>")
         for k, v in pairs(client) do

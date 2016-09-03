@@ -85,16 +85,16 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
 int tucube_epoll_http_module_on_request_start(struct tucube_module* module, struct tucube_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "on_request_start"); // on_request_start
+    lua_getglobal(tlmodule->L, "onRequestStart"); // onRequestStart
     if(lua_isnil(tlmodule->L, -1))
     {
         lua_pop(tlmodule->L, 1); //
         return 0;
     }
-    lua_getglobal(tlmodule->L, "clients"); // on_request_start clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // on_request_start clients client_socket
-    lua_gettable(tlmodule->L, -2); // on_request_start clients client
-    lua_remove(tlmodule->L, -2); // on_request_start client
+    lua_getglobal(tlmodule->L, "clients"); // onRequestStart clients
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onRequestStart clients client_socket
+    lua_gettable(tlmodule->L, -2); // onRequestStart clients client
+    lua_remove(tlmodule->L, -2); // onRequestStart client
     lua_pcall(tlmodule->L, 1, 0, 0); //
     
     return 0;
@@ -203,16 +203,16 @@ int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struc
 int tucube_epoll_http_module_on_headers_finish(struct tucube_module* module, struct tucube_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "on_headers_finish"); // on_headers_finish
+    lua_getglobal(tlmodule->L, "onHeadersFinish"); // onHeadersFinish
     if(lua_isnil(tlmodule->L, -1))
     {
         lua_pop(tlmodule->L, 1); //
         return 0;
     }
-    lua_getglobal(tlmodule->L, "clients"); // on_headers_finish clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // on_headers_finish clients client_socket
-    lua_gettable(tlmodule->L, -2); // on_headers_finish clients client
-    lua_remove(tlmodule->L, -2); // on_headers_finish client
+    lua_getglobal(tlmodule->L, "clients"); // onHeadersFinish clients
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onHeadersFinish clients client_socket
+    lua_gettable(tlmodule->L, -2); // onHeadersFinish clients client
+    lua_remove(tlmodule->L, -2); // onHeadersFinish client
     lua_pcall(tlmodule->L, 1, 0, 0); //
     return 0;
 }
@@ -249,18 +249,18 @@ int tucube_epoll_http_module_on_body_chunk(struct tucube_module* module, struct 
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
 
-    lua_getglobal(tlmodule->L, "on_body_chunk"); // on_body_chunk
+    lua_getglobal(tlmodule->L, "onBodyChunk"); // onBodyChunk
     if(lua_isnil(tlmodule->L, -1))
     {
         lua_pop(tlmodule->L, 1);
         return 0;
     }
 
-    lua_getglobal(tlmodule->L, "clients"); // on_body_chunk clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // on_body_chunk clients client_socket
-    lua_gettable(tlmodule->L, -2); // on_body_chunk clients client
-    lua_remove(tlmodule->L, -2); // on_body_chunk client
-    lua_pushlstring(tlmodule->L, body_chunk, body_chunk_size); // on_body_chunk client body_chunk
+    lua_getglobal(tlmodule->L, "clients"); // onBodyChunk clients
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onBodyChunk clients client_socket
+    lua_gettable(tlmodule->L, -2); // onBodyChunk clients client
+    lua_remove(tlmodule->L, -2); // onBodyChunk client
+    lua_pushlstring(tlmodule->L, body_chunk, body_chunk_size); // onBodyChunk client body_chunk
     lua_pcall(tlmodule->L, 2, 0, 0); //
         lua_pop(tlmodule->L, 1);
 
@@ -271,17 +271,17 @@ int tucube_epoll_http_module_on_body_finish(struct tucube_module* module, struct
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
 
-    lua_getglobal(tlmodule->L, "on_body_finish"); // on_body_finish
+    lua_getglobal(tlmodule->L, "onBodyFinish"); // onBodyFinish
     if(lua_isnil(tlmodule->L, -1))
     {
         lua_pop(tlmodule->L, 1);
         return 0;
     }
 
-    lua_getglobal(tlmodule->L, "clients"); // on_body_finish clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // on_body_finish clients client_socket
-    lua_gettable(tlmodule->L, -2); // on_body_finish clients client
-    lua_remove(tlmodule->L, -2); // on_body_finish client
+    lua_getglobal(tlmodule->L, "clients"); // onBodyFinish clients
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onBodyFinish clients client_socket
+    lua_gettable(tlmodule->L, -2); // onBodyFinish clients client
+    lua_remove(tlmodule->L, -2); // onBodyFinish client
     lua_pcall(tlmodule->L, 1, 0, 0); //
 
     return 0;
@@ -358,13 +358,13 @@ int tucube_epoll_http_module_on_request_finish(struct tucube_module* module, str
         lua_settable(tlmodule->L, -3); // clients client
     }
 
-    lua_getglobal(tlmodule->L, "on_request_finish"); // clients client on_request_finish
+    lua_getglobal(tlmodule->L, "onRequestFinish"); // clients client onRequestFinish
     if(lua_isnil(tlmodule->L, -1))
     {
-        warnx("%s: %u: on_request_finish() is not found in the script", __FILE__, __LINE__);
+        warnx("%s: %u: onRequestFinish() is not found in the script", __FILE__, __LINE__);
         return -1;
     }
-    lua_pushvalue(tlmodule->L, -2); // clients client on_request_finish client
+    lua_pushvalue(tlmodule->L, -2); // clients client onRequestFinish client
     lua_pcall(tlmodule->L, 1, 3, 0); // clients client status_code headers body
     lua_remove(tlmodule->L, -4); // client status_code headers body
     lua_remove(tlmodule->L, -4); // status_code headers body
