@@ -72,6 +72,9 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
     lua_getglobal(tlmodule->L, "clients"); // clients
     lua_pushinteger(tlmodule->L, *client_socket); // clients client_socket
     lua_newtable(tlmodule->L); // clients client_socket client
+    lua_pushstring(tlmodule->L, "BODY"); // clients client_socket client "BODY"
+    lua_pushstring(tlmodule->L, ""); // clients client_socket client "BODY" ""
+    lua_settable(tlmodule->L, -3); // clients client_socket client
     lua_settable(tlmodule->L, -3); // clients
     lua_pop(tlmodule->L, 1); //
 

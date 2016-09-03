@@ -1,11 +1,7 @@
 function on_request_start(client)
-    client["BODY"] = nil
 end
 
 function on_headers_finish(client)
-    if tonumber(client["CONTENT_LENGTH"]) > 0 then
-        client["BODY"] = ""
-    end
 end
 
 function get_content_length(client)
