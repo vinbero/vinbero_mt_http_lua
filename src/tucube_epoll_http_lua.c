@@ -54,7 +54,12 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
         warnx("%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
         pthread_exit(NULL);
     }
-    lua_pcall(tlmodule->L, 0, 0, 0); //
+    if(lua_pcall(tlmodule->L, 0, 0, 0) != 0) //
+    {
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
+        lua_pop(tlmodule->L, 1); //
+        pthread_exit(NULL);
+    }
 
     pthread_setspecific(*module->tlmodule_key, tlmodule);
 
@@ -95,8 +100,12 @@ int tucube_epoll_http_module_on_request_start(struct tucube_module* module, stru
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onRequestStart clients client_socket
     lua_gettable(tlmodule->L, -2); // onRequestStart clients client
     lua_remove(tlmodule->L, -2); // onRequestStart client
-    lua_pcall(tlmodule->L, 1, 0, 0); //
-    
+    if(lua_pcall(tlmodule->L, 1, 0, 0) != 0) //
+    {
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1));
+        lua_pop(tlmodule->L, 1);
+        return -1;
+    }
     return 0;
 }
 
@@ -213,7 +222,12 @@ int tucube_epoll_http_module_on_headers_finish(struct tucube_module* module, str
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onHeadersFinish clients client_socket
     lua_gettable(tlmodule->L, -2); // onHeadersFinish clients client
     lua_remove(tlmodule->L, -2); // onHeadersFinish client
-    lua_pcall(tlmodule->L, 1, 0, 0); //
+    if(lua_pcall(tlmodule->L, 1, 0, 0) != 0) //
+    {
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
+        lua_pop(tlmodule->L, 1); //
+        return -1;
+    }
     return 0;
 }
 
@@ -233,8 +247,13 @@ int tucube_epoll_http_module_get_content_length(struct tucube_module* module, st
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // getContentLength clients client_socket
     lua_gettable(tlmodule->L, -2); // getContentLength clients client
     lua_remove(tlmodule->L, -2); // getContentLength client
-    lua_pcall(tlmodule->L, 1, 1, 0); // content_length
-    if(lua_isnil(tlmodule->L, -1))
+    if(lua_pcall(tlmodule->L, 1, 1, 0) != 0) // content_length
+    {
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
+        lua_pop(tlmodule->L, 1); //
+        return -1;
+    }
+    else if(lua_isnil(tlmodule->L, -1))
     {
         *content_length = 0;
         lua_pop(tlmodule->L, 1); //
@@ -261,8 +280,12 @@ int tucube_epoll_http_module_on_body_chunk(struct tucube_module* module, struct 
     lua_gettable(tlmodule->L, -2); // onBodyChunk clients client
     lua_remove(tlmodule->L, -2); // onBodyChunk client
     lua_pushlstring(tlmodule->L, body_chunk, body_chunk_size); // onBodyChunk client body_chunk
-    lua_pcall(tlmodule->L, 2, 0, 0); //
-        lua_pop(tlmodule->L, 1);
+    if(lua_pcall(tlmodule->L, 2, 0, 0) != 0) //
+    {
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
+        lua_pop(tlmodule->L, 1); //
+        return -1;
+    }
 
     return 0;
 }
@@ -282,7 +305,12 @@ int tucube_epoll_http_module_on_body_finish(struct tucube_module* module, struct
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onBodyFinish clients client_socket
     lua_gettable(tlmodule->L, -2); // onBodyFinish clients client
     lua_remove(tlmodule->L, -2); // onBodyFinish client
-    lua_pcall(tlmodule->L, 1, 0, 0); //
+    if(lua_pcall(tlmodule->L, 1, 0, 0) != 0) //
+    {
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
+        lua_pop(tlmodule->L, 1); //
+        return -1;
+    }
 
     return 0;
 }
@@ -365,10 +393,17 @@ int tucube_epoll_http_module_on_request_finish(struct tucube_module* module, str
         return -1;
     }
     lua_pushvalue(tlmodule->L, -2); // clients client onRequestFinish client
-    lua_pcall(tlmodule->L, 1, 3, 0); // clients client status_code headers body
+    if(lua_pcall(tlmodule->L, 1, 3, 0) != 0) // clients client status_code headers body
+    {
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
+        lua_pop(tlmodule->L, 1); //
+        return -1;
+    }
     lua_remove(tlmodule->L, -4); // client status_code headers body
     lua_remove(tlmodule->L, -4); // status_code headers body
-    return 0;
+    if(lua_isnumber(tlmodule->L, -3) && lua_istable(tlmodule->L, -2) && (lua_isstring(tlmodule->L, -1) || lua_isfunction(tlmodule->L, -1)))
+        return 0;
+    return -1;
 }
 
 int tucube_epoll_http_module_get_status_code(struct tucube_module* module, struct tucube_cldata* cldata, int* status_code)
