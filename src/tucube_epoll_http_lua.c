@@ -221,7 +221,7 @@ int tucube_epoll_http_module_get_content_length(struct tucube_module* module, st
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
 
-    lua_getglobal(tlmodule->L, "get_content_length"); // get_content_length
+    lua_getglobal(tlmodule->L, "getContentLength"); // getContentLength
     if(lua_isnil(tlmodule->L, -1))
     {
         *content_length = 0;
@@ -229,10 +229,10 @@ int tucube_epoll_http_module_get_content_length(struct tucube_module* module, st
         return 0;
     }
 
-    lua_getglobal(tlmodule->L, "clients"); // get_content_length clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // get_content_length clients client_socket
-    lua_gettable(tlmodule->L, -2); // get_content_length clients client
-    lua_remove(tlmodule->L, -2); // get_content_length client
+    lua_getglobal(tlmodule->L, "clients"); // getContentLength clients
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // getContentLength clients client_socket
+    lua_gettable(tlmodule->L, -2); // getContentLength clients client
+    lua_remove(tlmodule->L, -2); // getContentLength client
     lua_pcall(tlmodule->L, 1, 1, 0); // content_length
     if(lua_isnil(tlmodule->L, -1))
     {
