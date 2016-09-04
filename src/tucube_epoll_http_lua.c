@@ -405,7 +405,9 @@ int tucube_epoll_http_module_on_request_finish(struct tucube_module* module, str
         lua_pop(tlmodule->L, lua_gettop(tlmodule->L)); //
         lua_pushinteger(tlmodule->L, 500); // 500
         lua_newtable(tlmodule->L); // 500 table
-        lua_pushstring(tlmodule->L, "Internal server error"); // 500 table "Internal swerver error"
+        lua_pushstring(tlmodule->L, "Content-Type");
+        lua_pushstring(tlmodule->L, "text/plain; charset=utf8");
+        lua_pushstring(tlmodule->L, "500 Internal Server Error"); // 500 table "Internal swerver error"
     }
     return 0;
 }
