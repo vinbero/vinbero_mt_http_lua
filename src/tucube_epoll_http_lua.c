@@ -322,7 +322,6 @@ int tucube_epoll_http_module_on_request_finish(struct tucube_module* module, str
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // clients client_socket
     lua_gettable(tlmodule->L, -2); // clients client
 
-
     const char* request_uri;
     const char* script_name;
     size_t script_name_size;
@@ -401,9 +400,14 @@ int tucube_epoll_http_module_on_request_finish(struct tucube_module* module, str
     }
     lua_remove(tlmodule->L, -4); // client status_code headers body
     lua_remove(tlmodule->L, -4); // status_code headers body
-    if(lua_isnumber(tlmodule->L, -3) && lua_istable(tlmodule->L, -2) && (lua_isstring(tlmodule->L, -1) || lua_isfunction(tlmodule->L, -1)))
-        return 0;
-    return -1;
+    if(!(lua_isnumber(tlmodule->L, -3) && lua_istable(tlmodule->L, -2) && (lua_isstring(tlmodule->L, -1) || lua_isfunction(tlmodule->L, -1) || lua_isnil(tlmodule->L, -1))))
+    {
+        lua_pop(tlmodule->L, lua_gettop(tlmodule->L)); //
+        lua_pushinteger(tlmodule->L, 500); // 500
+        lua_newtable(tlmodule->L); // 500 table
+        lua_pushstring(tlmodule->L, "Internal server error"); // 500 table "Internal swerver error"
+    }
+    return 0;
 }
 
 int tucube_epoll_http_module_get_status_code(struct tucube_module* module, struct tucube_cldata* cldata, int* status_code)
@@ -418,7 +422,8 @@ int tucube_epoll_http_module_prepare_get_header(struct tucube_module* module, st
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_pushnil(tlmodule->L); // status_code headers body nil
-    lua_next(tlmodule->L, -3); // status_code headers body new_header_field new_header_value
+    if(lua_next(tlmodule->L, -3) != 0) // status_code headers body new_header_field new_header_value
+        return 1;
     return 0;
 }
 
@@ -430,7 +435,6 @@ int tucube_epoll_http_module_get_header(struct tucube_module* module, struct tuc
     lua_pop(tlmodule->L, 1); // status_code headers body header_field
     if(lua_next(tlmodule->L, -3) != 0) // status_code headers body header_field ->  status_code headers body (new_header_field new_header_value || empty)
         return 1;
-
     return 0;
 }
 
@@ -440,13 +444,15 @@ int tucube_epoll_http_module_prepare_get_body(struct tucube_module* module, stru
     if(lua_isfunction(tlmodule->L, -1))
     {
         GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L = lua_newthread(tlmodule->L); // status_code headers body thread
-        return 0;
+        return 1;
     }
     else if(lua_isstring(tlmodule->L, -1))
     {
         GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->L = NULL;
-        return 0;
+        return 1;
     }
+    else if(lua_isnil(tlmodule->L, -1))
+        return 0;
     return -1;
 }
 
