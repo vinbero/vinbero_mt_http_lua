@@ -46,8 +46,8 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     tlmodule->L = luaL_newstate();
     luaL_openlibs(tlmodule->L);
 
-    lua_newtable(tlmodule->L); // newtable
-    lua_setglobal(tlmodule->L, "clients"); //
+    lua_newtable(tlmodule->L); // requests
+    lua_setglobal(tlmodule->L, "requests"); //
 
     if(luaL_loadfile(tlmodule->L, script_file) != LUA_OK) // file
     {
@@ -74,13 +74,16 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
     cldata->pointer = malloc(1 * sizeof(struct tucube_epoll_http_lua_cldata));
     GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket = client_socket;
     GONC_LIST_APPEND(cldata_list, cldata);
-    lua_getglobal(tlmodule->L, "clients"); // clients
-    lua_pushinteger(tlmodule->L, *client_socket); // clients client_socket
-    lua_newtable(tlmodule->L); // clients client_socket client
-    lua_pushstring(tlmodule->L, "BODY"); // clients client_socket client "BODY"
-    lua_pushstring(tlmodule->L, ""); // clients client_socket client "BODY" ""
-    lua_settable(tlmodule->L, -3); // clients client_socket client
-    lua_settable(tlmodule->L, -3); // clients
+    lua_getglobal(tlmodule->L, "requests"); // requests
+    lua_pushinteger(tlmodule->L, *client_socket); // requests client_socket
+    lua_newtable(tlmodule->L); // requests client_socket request
+    lua_pushstring(tlmodule->L, "headers"); // requests client_socket request "headers"
+    lua_newtable(tlmodule->L); // requests client_socket request "headers" headers
+    lua_pushstring(tlmodule->L, "body"); // requests client_socket request "headers" headers "body"
+    lua_pushstring(tlmodule->L, ""); // requests client_socket request "headers" headers "body" ""
+    lua_settable(tlmodule->L, -3); // requests client_socket request "headers" headers
+    lua_settable(tlmodule->L, -3); // requests client_socket request
+    lua_settable(tlmodule->L, -3); // requests
     lua_pop(tlmodule->L, 1); //
 
     return 0;
@@ -96,13 +99,13 @@ int tucube_epoll_http_module_on_request_start(struct tucube_module* module, stru
         lua_pop(tlmodule->L, 1); //
         return 0;
     }
-    lua_getglobal(tlmodule->L, "clients"); // onRequestStart clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onRequestStart clients client_socket
-    lua_gettable(tlmodule->L, -2); // onRequestStart clients client
-    lua_remove(tlmodule->L, -2); // onRequestStart client
+    lua_getglobal(tlmodule->L, "requests"); // onRequestStart requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onRequestStart requests client_socket
+    lua_gettable(tlmodule->L, -2); // onRequestStart requests request
+    lua_remove(tlmodule->L, -2); // onRequestStart request
     if(lua_pcall(tlmodule->L, 1, 0, 0) != 0) //
     {
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1));
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
         lua_pop(tlmodule->L, 1);
         return -1;
     }
@@ -112,52 +115,93 @@ int tucube_epoll_http_module_on_request_start(struct tucube_module* module, stru
 int tucube_epoll_http_module_on_method(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t token_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "clients"); // clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // clients client_socket
-    lua_gettable(tlmodule->L, -2); // clients client
-    lua_pushstring(tlmodule->L, "REQUEST_METHOD"); // clients client REQUEST_METHOD
-    lua_pushlstring(tlmodule->L, token, token_size); // clients client REQUEST_METHOD token
-    lua_settable(tlmodule->L, -3); // clients client 
-    lua_pop(tlmodule->L, 2); 
+    lua_getglobal(tlmodule->L, "requests"); // requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // requests client_socket
+    lua_gettable(tlmodule->L, -2); // requests request
+    lua_pushstring(tlmodule->L, "method"); // requests request "method"
+    lua_pushlstring(tlmodule->L, token, token_size); // requests request "method" method 
+    lua_settable(tlmodule->L, -3); // requests request
+    lua_pop(tlmodule->L, 2); // 
 
     return 0;
 }
 
-int tucube_epoll_http_module_on_uri(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_request_uri(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t token_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "clients");
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket);
-    lua_gettable(tlmodule->L, -2);
-    lua_pushstring(tlmodule->L, "REQUEST_URI");
-    lua_pushlstring(tlmodule->L, token, token_size);
-    lua_settable(tlmodule->L, -3);
-    lua_pop(tlmodule->L, 2);
+    lua_getglobal(tlmodule->L, "requests"); // requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // requests client_socket
+    lua_gettable(tlmodule->L, -2); // requests request
+    lua_pushstring(tlmodule->L, "requestURI"); // requests request "requestURI"
+    lua_pushlstring(tlmodule->L, token, token_size); // requests request "requestURI" requestURI 
+    lua_settable(tlmodule->L, -3); // requests request
+    lua_pop(tlmodule->L, 2); //
 
     return 0;
 }
 
-int tucube_epoll_http_module_on_version(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t token_size)
+int tucube_epoll_http_module_on_protocol(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t token_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "clients");
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket);
-    lua_gettable(tlmodule->L, -2);
-    lua_pushstring(tlmodule->L, "SERVER_PROTOCOL");
-    lua_pushlstring(tlmodule->L, token, token_size);
-    lua_settable(tlmodule->L, -3);
-    lua_pop(tlmodule->L, 2);
+    lua_getglobal(tlmodule->L, "requests"); // requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // requests client_socket
+    lua_gettable(tlmodule->L, -2); // requests request
+    lua_pushstring(tlmodule->L, "protocol"); // requests request "protocol"
+    lua_pushlstring(tlmodule->L, token, token_size); // requests request "protocol" protocol 
+    lua_settable(tlmodule->L, -3); // requests request
+    lua_pop(tlmodule->L, 2); //
 
+    return 0;
+}
+
+int tucube_epoll_http_module_on_content_length(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t token_size)
+{
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_getglobal(tlmodule->L, "requests"); // requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); //requests client_socket
+    lua_gettable(tlmodule->L, -2); // requests request
+    lua_pushstring(tlmodule->L, "contentLength"); // requests request "contentLength"
+    lua_pushlstring(tlmodule->L, token, token_size); // requests request "contentLength" contentLength
+    lua_settable(tlmodule->L, -3); // requests request
+    lua_pop(tlmodule->L, 2); // 
+    return 0;
+}
+
+int tucube_epoll_http_module_on_content_type(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t token_size)
+{
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_getglobal(tlmodule->L, "requests"); // requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); //requests client_socket
+    lua_gettable(tlmodule->L, -2); // requests request
+    lua_pushstring(tlmodule->L, "contentType"); // requests request "contentType"
+    lua_pushlstring(tlmodule->L, token, token_size); // requests request "contentType" contentType
+    lua_settable(tlmodule->L, -3); // requests request
+    lua_pop(tlmodule->L, 2); // 
+    return 0;
+}
+
+int tucube_epoll_http_module_on_script_path(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t token_size)
+{
+    struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
+    lua_getglobal(tlmodule->L, "requests"); // requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); //requests client_socket
+    lua_gettable(tlmodule->L, -2); // requests request
+    lua_pushstring(tlmodule->L, "scriptPath"); // requests request "scriptPath"
+    lua_pushlstring(tlmodule->L, token, token_size); // requests request "scriptPath" scriptPath
+    lua_settable(tlmodule->L, -3); // requests request
+    lua_pop(tlmodule->L, 2); // 
     return 0;
 }
 
 int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t token_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "clients"); // clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); //clients client_socket
-    lua_gettable(tlmodule->L, -2); // clients client
-    lua_pushstring(tlmodule->L, "recent_header_field"); // clients client recent_header_field
+    lua_getglobal(tlmodule->L, "requests"); // requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); //requests client_socket
+    lua_gettable(tlmodule->L, -2); // requests request
+    lua_pushstring(tlmodule->L, "headers"); // requests request "headers"
+    lua_gettable(tlmodule->L, -2); // requests request headers
+    lua_pushstring(tlmodule->L, "recentHeaderField"); // requests request headers "recentHeaderField"
 
     for(ssize_t index = 0; index < token_size; ++index)
     {
@@ -170,11 +214,11 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
     if(gonc_nstrncmp("CONTENT_TYPE", sizeof("CONTENT_TYPE") - 1, token, token_size) == 0 ||
          gonc_nstrncmp("CONTENT_LENGTH", sizeof("CONTENT_LENGTH") - 1, token, token_size) == 0)
     {
-        lua_pushlstring(tlmodule->L, token, token_size); // clients client recent_header_field token
+        lua_pushlstring(tlmodule->L, token, token_size); // requests request headers "recentHeaderField" recentHeaderField
     }
     else if(gonc_nstrncmp("X_SCRIPT_NAME", sizeof("X_SCRIPT_NAME") - 1, token, token_size) == 0)
     {
-        lua_pushstring(tlmodule->L, "SCRIPT_NAME"); // clients client recent_header_field token
+        lua_pushstring(tlmodule->L, "SCRIPT_NAME"); // requests request headers "recentHeaderField" recentHeaderField
     }
     else
     {
@@ -182,11 +226,11 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
         header_field = malloc(sizeof("HTTP_") - 1 + token_size);
         memcpy(header_field, "HTTP_", sizeof("HTTP_") - 1);
         memcpy(header_field + sizeof("HTTP_") - 1, token, token_size);
-        lua_pushlstring(tlmodule->L, header_field, sizeof("HTTP_") - 1 + token_size); // clients client recent_header_field token
+        lua_pushlstring(tlmodule->L, header_field, sizeof("HTTP_") - 1 + token_size); // requests request headers "recentHeaderField" recentHeaderField
         free(header_field);
     }
-    lua_settable(tlmodule->L, -3); //clients client
-    lua_pop(tlmodule->L, 2); //
+    lua_settable(tlmodule->L, -3); //requests request headers
+    lua_pop(tlmodule->L, 3); //
 
     return 0;
 }
@@ -194,17 +238,19 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
 int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t token_size)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "clients"); // clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // clients client_socket
-    lua_gettable(tlmodule->L, -2); // clients client
-    lua_pushstring(tlmodule->L, "recent_header_field"); // clients client recent_header_field
-    lua_gettable(tlmodule->L, -2); // clients client header_field
-    lua_pushlstring(tlmodule->L, token, token_size); // clients client header_field token
-    lua_settable(tlmodule->L, -3); // clients client
-    lua_pushstring(tlmodule->L, "recent_header_field"); // clients client recent_header_field
-    lua_pushnil(tlmodule->L); // clients client recent_header_field nil
-    lua_settable(tlmodule->L, -3); // clients client
-    lua_pop(tlmodule->L, 2); //
+    lua_getglobal(tlmodule->L, "requests"); // requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // requests client_socket
+    lua_gettable(tlmodule->L, -2); // requests request
+    lua_pushstring(tlmodule->L, "headers"); // requests request "headers"
+    lua_gettable(tlmodule->L, -2); // requests request headers
+    lua_pushstring(tlmodule->L, "recentHeaderField"); // requests request headers "recentHeaderField"
+    lua_gettable(tlmodule->L, -2); // requests request headers recentHeaderField
+    lua_pushlstring(tlmodule->L, token, token_size); // requests request headers recentHeaderField token
+    lua_settable(tlmodule->L, -3); // requests request headers
+    lua_pushstring(tlmodule->L, "recentHeaderField"); // requests request headers "recentHeaderField"
+    lua_pushnil(tlmodule->L); // requests request headers "recentHeaderField" nil
+    lua_settable(tlmodule->L, -3); // requests request headers
+    lua_pop(tlmodule->L, 3); //
 
     return 0;
 }
@@ -218,16 +264,17 @@ int tucube_epoll_http_module_on_headers_finish(struct tucube_module* module, str
         lua_pop(tlmodule->L, 1); //
         return 0;
     }
-    lua_getglobal(tlmodule->L, "clients"); // onHeadersFinish clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onHeadersFinish clients client_socket
-    lua_gettable(tlmodule->L, -2); // onHeadersFinish clients client
-    lua_remove(tlmodule->L, -2); // onHeadersFinish client
+    lua_getglobal(tlmodule->L, "requests"); // onHeadersFinish requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onHeadersFinish requests client_socket
+    lua_gettable(tlmodule->L, -2); // onHeadersFinish requests request
+    lua_remove(tlmodule->L, -2); // onHeadersFinish request
     if(lua_pcall(tlmodule->L, 1, 0, 0) != 0) //
     {
         warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
         lua_pop(tlmodule->L, 1); //
         return -1;
     }
+
     return 0;
 }
 
@@ -243,10 +290,10 @@ int tucube_epoll_http_module_get_content_length(struct tucube_module* module, st
         return 0;
     }
 
-    lua_getglobal(tlmodule->L, "clients"); // getContentLength clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // getContentLength clients client_socket
-    lua_gettable(tlmodule->L, -2); // getContentLength clients client
-    lua_remove(tlmodule->L, -2); // getContentLength client
+    lua_getglobal(tlmodule->L, "requests"); // getContentLength requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // getContentLength requests client_socket
+    lua_gettable(tlmodule->L, -2); // getContentLength requests request
+    lua_remove(tlmodule->L, -2); // getContentLength request
     if(lua_pcall(tlmodule->L, 1, 1, 0) != 0) // content_length
     {
         warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
@@ -275,11 +322,11 @@ int tucube_epoll_http_module_on_body_chunk(struct tucube_module* module, struct 
         return 0;
     }
 
-    lua_getglobal(tlmodule->L, "clients"); // onBodyChunk clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onBodyChunk clients client_socket
-    lua_gettable(tlmodule->L, -2); // onBodyChunk clients client
-    lua_remove(tlmodule->L, -2); // onBodyChunk client
-    lua_pushlstring(tlmodule->L, body_chunk, body_chunk_size); // onBodyChunk client body_chunk
+    lua_getglobal(tlmodule->L, "requests"); // onBodyChunk requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onBodyChunk requests client_socket
+    lua_gettable(tlmodule->L, -2); // onBodyChunk requests request
+    lua_remove(tlmodule->L, -2); // onBodyChunk request
+    lua_pushlstring(tlmodule->L, body_chunk, body_chunk_size); // onBodyChunk request body_chunk
     if(lua_pcall(tlmodule->L, 2, 0, 0) != 0) //
     {
         warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
@@ -301,10 +348,10 @@ int tucube_epoll_http_module_on_body_finish(struct tucube_module* module, struct
         return 0;
     }
 
-    lua_getglobal(tlmodule->L, "clients"); // onBodyFinish clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onBodyFinish clients client_socket
-    lua_gettable(tlmodule->L, -2); // onBodyFinish clients client
-    lua_remove(tlmodule->L, -2); // onBodyFinish client
+    lua_getglobal(tlmodule->L, "requests"); // onBodyFinish requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // onBodyFinish requests client_socket
+    lua_gettable(tlmodule->L, -2); // onBodyFinish requests request
+    lua_remove(tlmodule->L, -2); // onBodyFinish request
     if(lua_pcall(tlmodule->L, 1, 0, 0) != 0) //
     {
         warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
@@ -318,45 +365,45 @@ int tucube_epoll_http_module_on_body_finish(struct tucube_module* module, struct
 int tucube_epoll_http_module_on_request_finish(struct tucube_module* module, struct tucube_cldata* cldata)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
-    lua_getglobal(tlmodule->L, "clients"); // clients
-    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // clients client_socket
-    lua_gettable(tlmodule->L, -2); // clients client
+    lua_getglobal(tlmodule->L, "requests"); // requests
+    lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // requests client_socket
+    lua_gettable(tlmodule->L, -2); // requests request
 
     const char* request_uri;
-    const char* script_name;
-    size_t script_name_size;
+    const char* script_path;
+    size_t script_path_size;
     const char* path_info;
     const char* query_string;
 
-    lua_pushstring(tlmodule->L, "REQUEST_URI"); // clients client REQUEST_URI
-    lua_gettable(tlmodule->L, -2); //clients client request_uri
-    request_uri = lua_tostring(tlmodule->L, -1); // clients client request_uri
-    lua_pop(tlmodule->L, 1); // clients client
+    lua_pushstring(tlmodule->L, "requestURI"); // requests request "requestURI"
+    lua_gettable(tlmodule->L, -2); //requests request requestURI
+    request_uri = lua_tostring(tlmodule->L, -1); // requests request requestURI
+    lua_pop(tlmodule->L, 1); // requests request
 
-    lua_pushstring(tlmodule->L, "SCRIPT_NAME"); // clients client SCRIPT_NAME
-    lua_gettable(tlmodule->L, -2); // clients client script_name
+    lua_pushstring(tlmodule->L, "scriptPath"); // requests request "scriptPath"
+    lua_gettable(tlmodule->L, -2); // requests request scriptPath
 
-    if(lua_isnil(tlmodule->L, -1)) // clients client script_name
+    if(lua_isnil(tlmodule->L, -1)) // requests request scriptPath 
     {
-        lua_pop(tlmodule->L, 1); // clients client
-	lua_pushstring(tlmodule->L, "SCRIPT_NAME"); // clients client SCRIPT_NAME
-        script_name = "";
-        script_name_size = sizeof("") - 1;
-        lua_pushstring(tlmodule->L, ""); // clients client SCRIPT_NAME script_name
-        lua_settable(tlmodule->L, -3); // cients client
+        lua_pop(tlmodule->L, 1); // requests request
+	    lua_pushstring(tlmodule->L, "scriptPath"); // requests request "scriptPath"
+        script_path = "";
+        script_path_size = sizeof("") - 1;
+        lua_pushstring(tlmodule->L, ""); // requests request "scriptPath" "" 
+        lua_settable(tlmodule->L, -3); // requests request
     }
     else
     {
-        script_name = lua_tolstring(tlmodule->L, -1, &script_name_size); // clients client script_name
-        if(strncmp(script_name + script_name_size - 1, "/", sizeof("/") - 1) == 0)
+        script_path = lua_tolstring(tlmodule->L, -1, &script_path_size); // requests request scriptPath 
+        if(strncmp(script_path + script_path_size - 1, "/", sizeof("/") - 1) == 0)
             return -1;
-        lua_pop(tlmodule->L, 1); // clients client
+        lua_pop(tlmodule->L, 1); // requests request
     }
 
-    if((path_info = strstr(request_uri, script_name)) != request_uri) // if request uri doesn't begin with script name
+    if((path_info = strstr(request_uri, script_path)) != request_uri) // if request uri doesn't begin with script name
         return -1;
 
-    path_info += script_name_size;
+    path_info += script_path_size;
 
     if((query_string = strstr(path_info, "?")) != NULL) // check if there is query string
     {
@@ -364,50 +411,52 @@ int tucube_epoll_http_module_on_request_finish(struct tucube_module* module, str
         if(strstr(query_string, "?") != NULL) // check if there is unnecessary question mark after query string
             return -1;
 
-        lua_pushstring(tlmodule->L, "PATH_INFO"); // clients client PATH_INFO
+        lua_pushstring(tlmodule->L, "pathInfo"); // requests request "pathInfo"
 
         if(query_string - path_info - 1 != 0) // check if path info is not empty string
-            lua_pushlstring(tlmodule->L, path_info, query_string - path_info - 1); // clients client PATH_INFO path_info
+            lua_pushlstring(tlmodule->L, path_info, query_string - path_info - 1); // requests request headers "pathInfo" pathInfo 
         else
-            lua_pushstring(tlmodule->L, "/"); // clients client PATH_INFO path_info
-        lua_settable(tlmodule->L, -3); // clients client
-        lua_pushstring(tlmodule->L, "QUERY_STRING"); // clients client QUERY_STRING
-        lua_pushstring(tlmodule->L, query_string); // clients client QUERY_STRING query_string
-        lua_settable(tlmodule->L, -3); // clients client
+            lua_pushstring(tlmodule->L, "/"); // requests request "pathInfo" pathInfo 
+        lua_settable(tlmodule->L, -3); // requests request
+        lua_pushstring(tlmodule->L, "queryString"); // requests request "queryString"
+        lua_pushstring(tlmodule->L, query_string); // requests request "queryString" queryString 
+        lua_settable(tlmodule->L, -3); // requests request 
     }
     else
     {
-        lua_pushstring(tlmodule->L, "PATH_INFO"); // clients client PATH_INFO path_info
+        lua_pushstring(tlmodule->L, "pathInfo"); // requests request "pathInfo"
         if(strlen(path_info) != 0) // check if path info is not empty string
-            lua_pushstring(tlmodule->L, path_info); // clients client PATH_INFO path_info
+            lua_pushstring(tlmodule->L, path_info); // requests request "pathInfo" pathInfo 
         else
-            lua_pushstring(tlmodule->L, "/"); // clients client PATH_INFO path_info
-        lua_settable(tlmodule->L, -3); // clients client
+            lua_pushstring(tlmodule->L, "/"); // requests request "pathInfo" pathInfo 
+        lua_settable(tlmodule->L, -3); // requests request
     }
 
-    lua_getglobal(tlmodule->L, "onRequestFinish"); // clients client onRequestFinish
+    lua_getglobal(tlmodule->L, "onRequestFinish"); // requests request onRequestFinish
     if(lua_isnil(tlmodule->L, -1))
     {
         warnx("%s: %u: onRequestFinish() is not found in the script", __FILE__, __LINE__);
         return -1;
     }
-    lua_pushvalue(tlmodule->L, -2); // clients client onRequestFinish client
-    if(lua_pcall(tlmodule->L, 1, 3, 0) != 0) // clients client status_code headers body
+    lua_pushvalue(tlmodule->L, -2); // requests request onRequestFinish request
+    if(lua_pcall(tlmodule->L, 1, 3, 0) != 0) // requests request status_code headers body
     {
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // error_string
-        lua_pop(tlmodule->L, 1); //
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // requests request error_string
+        lua_pop(tlmodule->L, 4); //
         return -1;
     }
-    lua_remove(tlmodule->L, -4); // client status_code headers body
-    lua_remove(tlmodule->L, -4); // status_code headers body
+    
+    lua_remove(tlmodule->L, 1); // request status_code headers body
+    lua_remove(tlmodule->L, 1); // status_code headers body
     if(!(lua_isnumber(tlmodule->L, -3) && lua_istable(tlmodule->L, -2) && (lua_isstring(tlmodule->L, -1) || lua_isfunction(tlmodule->L, -1) || lua_isnil(tlmodule->L, -1))))
     {
         lua_pop(tlmodule->L, lua_gettop(tlmodule->L)); //
         lua_pushinteger(tlmodule->L, 500); // 500
-        lua_newtable(tlmodule->L); // 500 table
-        lua_pushstring(tlmodule->L, "Content-Type");
-        lua_pushstring(tlmodule->L, "text/plain; charset=utf8");
-        lua_pushstring(tlmodule->L, "500 Internal Server Error"); // 500 table "Internal swerver error"
+        lua_newtable(tlmodule->L); // 500 headers
+        lua_pushstring(tlmodule->L, "Content-Type"); // 500 headers "Content-Type"
+        lua_pushstring(tlmodule->L, "text/plain; charset=utf8"); // 500 headers "Content-Type" "text/plain; charset=utf8"
+        lua_settable(tlmodule->L, -3); // 500 headers 
+        lua_pushstring(tlmodule->L, "500 Internal Server Error"); // 500 headers "Internal swerver error"
     }
     return 0;
 }
