@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <err.h>
 #include <libgonc/gonc_cast.h>
 #include <libgonc/gonc_list.h>
@@ -77,11 +78,11 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *client_socket); // requests client_socket
     lua_newtable(tlmodule->L); // requests client_socket request
+    lua_pushstring(tlmodule->L, "body"); // requests client_socket request "body"
+    lua_pushstring(tlmodule->L, ""); // requests client_socket request "body" ""
+    lua_settable(tlmodule->L, -3); // requests client_socket request
     lua_pushstring(tlmodule->L, "headers"); // requests client_socket request "headers"
     lua_newtable(tlmodule->L); // requests client_socket request "headers" headers
-    lua_pushstring(tlmodule->L, "body"); // requests client_socket request "headers" headers "body"
-    lua_pushstring(tlmodule->L, ""); // requests client_socket request "headers" headers "body" ""
-    lua_settable(tlmodule->L, -3); // requests client_socket request "headers" headers
     lua_settable(tlmodule->L, -3); // requests client_socket request
     lua_settable(tlmodule->L, -3); // requests
     lua_pop(tlmodule->L, 1); //
@@ -199,38 +200,13 @@ int tucube_epoll_http_module_on_header_field(struct tucube_module* module, struc
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); //requests client_socket
     lua_gettable(tlmodule->L, -2); // requests request
-    lua_pushstring(tlmodule->L, "headers"); // requests request "headers"
-    lua_gettable(tlmodule->L, -2); // requests request headers
-    lua_pushstring(tlmodule->L, "recentHeaderField"); // requests request headers "recentHeaderField"
+    lua_pushstring(tlmodule->L, "recentHeaderField"); // requests request "recentHeaderField"
 
     for(ssize_t index = 0; index < token_size; ++index)
-    {
-        if('a' <= token[index] && token[index] <= 'z')
-            token[index] -= ('a' - 'A');
-        else if(token[index] == '-')
-            token[index] = '_';
-    }
-
-    if(gonc_nstrncmp("CONTENT_TYPE", sizeof("CONTENT_TYPE") - 1, token, token_size) == 0 ||
-         gonc_nstrncmp("CONTENT_LENGTH", sizeof("CONTENT_LENGTH") - 1, token, token_size) == 0)
-    {
-        lua_pushlstring(tlmodule->L, token, token_size); // requests request headers "recentHeaderField" recentHeaderField
-    }
-    else if(gonc_nstrncmp("X_SCRIPT_NAME", sizeof("X_SCRIPT_NAME") - 1, token, token_size) == 0)
-    {
-        lua_pushstring(tlmodule->L, "SCRIPT_NAME"); // requests request headers "recentHeaderField" recentHeaderField
-    }
-    else
-    {
-        char* header_field;
-        header_field = malloc(sizeof("HTTP_") - 1 + token_size);
-        memcpy(header_field, "HTTP_", sizeof("HTTP_") - 1);
-        memcpy(header_field + sizeof("HTTP_") - 1, token, token_size);
-        lua_pushlstring(tlmodule->L, header_field, sizeof("HTTP_") - 1 + token_size); // requests request headers "recentHeaderField" recentHeaderField
-        free(header_field);
-    }
-    lua_settable(tlmodule->L, -3); //requests request headers
-    lua_pop(tlmodule->L, 3); //
+        token[index] = toupper(token[index]);
+    lua_pushlstring(tlmodule->L, token, token_size); // requests request "recentHeaderField" recentHeaderField
+    lua_settable(tlmodule->L, -3); //requests request
+    lua_pop(tlmodule->L, 2); //
 
     return 0;
 }
@@ -241,16 +217,19 @@ int tucube_epoll_http_module_on_header_value(struct tucube_module* module, struc
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_epoll_http_lua_cldata*)->client_socket); // requests client_socket
     lua_gettable(tlmodule->L, -2); // requests request
-    lua_pushstring(tlmodule->L, "headers"); // requests request "headers"
-    lua_gettable(tlmodule->L, -2); // requests request headers
-    lua_pushstring(tlmodule->L, "recentHeaderField"); // requests request headers "recentHeaderField"
-    lua_gettable(tlmodule->L, -2); // requests request headers recentHeaderField
-    lua_pushlstring(tlmodule->L, token, token_size); // requests request headers recentHeaderField token
-    lua_settable(tlmodule->L, -3); // requests request headers
-    lua_pushstring(tlmodule->L, "recentHeaderField"); // requests request headers "recentHeaderField"
-    lua_pushnil(tlmodule->L); // requests request headers "recentHeaderField" nil
-    lua_settable(tlmodule->L, -3); // requests request headers
-    lua_pop(tlmodule->L, 3); //
+    lua_pushstring(tlmodule->L, "recentHeaderField"); // requests request "recentHeaderField"
+    lua_gettable(tlmodule->L, -2); // requests request recentHeaderField
+    lua_pushvalue(tlmodule->L, -2); // requests request recentHeaderField request
+    lua_pushstring(tlmodule->L, "headers"); // requests request recentHeaderField request "headers"
+    lua_gettable(tlmodule->L, -2); // requests request recentHeaderField request headers
+    lua_pushvalue(tlmodule->L, -3); // requests request recentHeaderField request headers requestHeaderField
+    lua_pushlstring(tlmodule->L, token, token_size); // requests request recentHeaderField request headers recentHeaderField token
+    lua_settable(tlmodule->L, -3); // requests request recentHeaderField request headers
+    lua_pop(tlmodule->L, 3); // requests request
+    lua_pushstring(tlmodule->L, "recentHeaderField"); // requests request "recentHeaderField"
+    lua_pushnil(tlmodule->L); // requests request "recentHeaderField" nil
+    lua_settable(tlmodule->L, -3); // requests request
+    lua_pop(tlmodule->L, 2); //
 
     return 0;
 }
