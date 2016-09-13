@@ -1,5 +1,3 @@
-rex_pcre를 사용하려면 c 바이너리에도 rex_pcre를 링크하여야 한다
-다음과 같이 컴파일하고
-gcc *.c -o tucube_epoll_http_lua.so -fPIC -shared -l lua -L /usr/lib/lua/5.3/ -l:rex_pcre.so
-다음과 같이 실행한다
-LD_LIBRARY_PATH=/usr/lib/lua/5.3 tucube -w 1 -m tucube_tcp_epoll/src/*.so -m tucube_epoll_http/src/*.so -m tucube_epoll_http_lua/src/tucube_epoll_http_lua.so,script-file:cublog/src/cublog.lua
+http://stackoverflow.com/questions/882110/gurus-say-that-ld-library-path-is-bad-whats-the-alternative
+다음과 같이 컴파일한다
+gcc *.c -o tucube_epoll_http_lua.so -fPIC -shared -l lua -L /usr/lib/lua/5.3 -l:rex_pcre.so -Wl,-rpath /usr/lib/lua/5.3
