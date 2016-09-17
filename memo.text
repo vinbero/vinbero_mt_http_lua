@@ -1,3 +1,4 @@
 http://stackoverflow.com/questions/882110/gurus-say-that-ld-library-path-is-bad-whats-the-alternative
 다음과 같이 컴파일한다
-gcc *.c -o tucube_epoll_http_lua.so -fPIC -shared -l lua -L /usr/lib/lua/5.3 -l:rex_pcre.so -Wl,-rpath /usr/lib/lua/5.3
+gcc *.c -o tucube_epoll_http_lua.so -fPIC -shared -l lua -L /usr/lib/lua/5.3 -l:rex_pcre.so -Wl,-rpath /usr/lib/lua/5.3 -L /usr/lib/lua/5.3/luasql -l:mysql.so -Wl,-rpath /usr/lib/lua/5.3/luasql
+
