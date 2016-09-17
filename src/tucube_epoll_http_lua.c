@@ -84,6 +84,9 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
     lua_pushstring(tlmodule->L, "headers"); // requests client_socket request "headers"
     lua_newtable(tlmodule->L); // requests client_socket request "headers" headers
     lua_settable(tlmodule->L, -3); // requests client_socket request
+    lua_pushstring(tlmodule->L, "parameters"); // requests client_socket request "parameters"
+    lua_newtable(tlmodule->L); // requests client_socket request "parameters" parameters
+    lua_settable(tlmodule->L, -3); // requests client_socket request
     lua_settable(tlmodule->L, -3); // requests
     lua_pop(tlmodule->L, 1); //
 
