@@ -68,8 +68,10 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     else
     {
         if(lua_pcall(tlmodule->L, 0, 0, 0) != 0)
+        {
             warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); //error_string
-        lua_pop(tlmodule->L, 1); //
+            lua_pop(tlmodule->L, 1); //
+        }
     }
 
     pthread_setspecific(*module->tlmodule_key, tlmodule);
@@ -544,18 +546,23 @@ int tucube_epoll_http_module_tldestroy(struct tucube_module* module)
 {
     struct tucube_epoll_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
 
-    lua_getglobal(tlmodule->L, "onDestroy"); // onDestroy
-    if(lua_isnil(tlmodule->L, -1))
-        lua_pop(tlmodule->L, 1); //
-    else
+    if(tlmodule != NULL)
     {
-        if(lua_pcall(tlmodule->L, 0, 0, 0) != 0)
-            warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); //error_string
-        lua_pop(tlmodule->L, 1); //
-    }
+        lua_getglobal(tlmodule->L, "onDestroy"); // onDestroy
+        if(lua_isnil(tlmodule->L, -1))
+            lua_pop(tlmodule->L, 1); //
+        else
+        {
+            if(lua_pcall(tlmodule->L, 0, 0, 0) != 0)
+            {
+                warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); //error_string
+                lua_pop(tlmodule->L, 1); //
+            }
+        }
 
-    lua_close(tlmodule->L);
-    free(tlmodule);
+        lua_close(tlmodule->L);
+        free(tlmodule);
+    }
 
     return 0;
 }
