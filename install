@@ -1,2 +1,2 @@
 sudo mkdir -p /usr/local/lib/tucube
-sudo gcc src/tucube_epoll_http_lua.c -o /usr/local/lib/tucube/tucube_epoll_http_lua.so -fPIC -shared -l lua -L /usr/lib/lua/5.3 -l:rex_pcre.so -Wl,-rpath /usr/lib/lua/5.3 -L /usr/lib/lua/5.3/luasql -l:mysql.so -Wl,-rpath /usr/lib/lua/5.3/luasql -l:cjson.so -Wl,-rpath /usr/lib/lua/5.3 -l:base64.so -Wl,-rpath /usr/lib/lua/5.3 -l:_openssl.so -Wl,-rpath /usr/lib/lua/5.3
+sudo gcc src/tucube_epoll_http_lua.c -o /usr/local/lib/tucube/tucube_epoll_http_lua.so -fPIC -shared -l lua 
