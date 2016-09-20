@@ -1,16 +1,16 @@
-#ifndef _TUCUBE_EPOLL_HTTP_LUA_H
-#define _TUCUBE_EPOLL_HTTP_LUA_H
+#ifndef _TUCUBE_HTTP_LUA_H
+#define _TUCUBE_HTTP_LUA_H
 
 #include <lua.h>
 #include <tucube/tucube_module.h>
 #include <tucube/tucube_cldata.h>
 
-struct tucube_epoll_http_lua_tlmodule
+struct tucube_http_lua_tlmodule
 {
    lua_State* L;
 };
 
-struct tucube_epoll_http_lua_cldata
+struct tucube_http_lua_cldata
 {
     int* client_socket;
     lua_State* L;
@@ -38,13 +38,9 @@ int tucube_epoll_http_module_on_body_finish(struct tucube_module* module, struct
 int tucube_epoll_http_module_on_request_finish(struct tucube_module* module, struct tucube_cldata* cldata);
 
 int tucube_epoll_http_module_get_status_code(struct tucube_module* module, struct tucube_cldata* cldata, int* status_code);
-
 int tucube_epoll_http_module_prepare_get_header(struct tucube_module* module, struct tucube_cldata* cldata);
-
 int tucube_epoll_http_module_get_header(struct tucube_module* module, struct tucube_cldata* cldata, const char** header_field, size_t* header_field_size, const char** header_value, size_t* header_value_size);
-
 int tucube_epoll_http_module_prepare_get_body(struct tucube_module* module, struct tucube_cldata* cldata);
-
 int tucube_epoll_http_module_get_body(struct tucube_module* module, struct tucube_cldata* cldata, const char** body, size_t* body_size);
 
 int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucube_cldata* cldata);
