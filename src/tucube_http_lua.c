@@ -272,16 +272,24 @@ int tucube_epoll_http_module_on_headers_finish(struct tucube_module* module, str
     return 0;
 }
 
+static int tucube_http_lua_get_content_length(lua_State* L)
+{
+    // request
+    lua_pushstring(L, "contentLength"); // request "contentLength"
+    lua_gettable(L, -2); // request contentLength
+
+    return 1;
+}
+
 int tucube_epoll_http_module_get_content_length(struct tucube_module* module, struct tucube_cldata* cldata, ssize_t* content_length)
 {
     struct tucube_http_lua_tlmodule* tlmodule = pthread_getspecific(*module->tlmodule_key);
 
     lua_getglobal(tlmodule->L, "getContentLength"); // getContentLength
-    if(lua_isnil(tlmodule->L, -1))
+    if(lua_isnil(tlmodule->L, -1)) // nil
     {
-        *content_length = 0;
         lua_pop(tlmodule->L, 1); //
-        return 0;
+        lua_pushcfunction(tlmodule->L, tucube_http_lua_get_content_length); // getContentLength
     }
 
     lua_getglobal(tlmodule->L, "requests"); // getContentLength requests
@@ -304,6 +312,13 @@ int tucube_epoll_http_module_get_content_length(struct tucube_module* module, st
     lua_pop(tlmodule->L, 1); //
     return 0;
 }
+
+/*
+static int tucube_http_lua_on_body_chunk(lua_State* L)
+{
+    return 0;
+}
+*/
 
 int tucube_epoll_http_module_on_body_chunk(struct tucube_module* module, struct tucube_cldata* cldata, char* body_chunk, ssize_t body_chunk_size)
 {
