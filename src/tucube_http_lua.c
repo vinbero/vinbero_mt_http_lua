@@ -77,6 +77,12 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
     lua_pushstring(tlmodule->L, "parameters"); // requests clientSocket request "parameters"
     lua_newtable(tlmodule->L); // requests clientSocket request "parameters" parameters
     lua_settable(tlmodule->L, -3); // requests clientSocket request
+    lua_pushstring(tlmodule->L, "body"); // requests clientSocket request "body"
+    lua_pushstring(tlmodule->L, ""); // requests clientSocket request "body" ""
+    lua_settable(tlmodule->L, -3); // requests clientSocket request
+    lua_pushstring(tlmodule->L, "contentLength"); // requests clientSocket request "contentLength"
+    lua_pushinteger(tlmodule->L, 0); // requests clientSocket request "contentLength" 0
+    lua_settable(tlmodule->L, -3); // requests clientSocket request
     lua_settable(tlmodule->L, -3); // requests
     lua_pop(tlmodule->L, 1); //
     return 0;
@@ -175,11 +181,6 @@ int tucube_epoll_http_module_onGetRequestContentLength(struct tucube_module* mod
         warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlmodule->L, -1)); // errorString
         lua_pop(tlmodule->L, 1); //
         return -1;
-    }
-    else if(lua_isnil(tlmodule->L, -1)) {
-        *contentLength = 0;
-        lua_pop(tlmodule->L, 1); //
-        return 0;
     }
     *contentLength = lua_tointeger(tlmodule->L, -1); // requestContentLength
     lua_pop(tlmodule->L, 1); //
