@@ -5,12 +5,12 @@
 #include <tucube/tucube_module.h>
 #include <tucube/tucube_cldata.h>
 
-struct tucube_http_lua_tlmodule {
+struct tucube_http_lua_ThreadLocalModule {
    lua_State* L;
 };
 
-struct tucube_http_lua_cldata {
-    int* client_socket;
+struct tucube_http_lua_ClientLocalData {
+    int* clientSocket;
     lua_State* L;
 };
 
@@ -37,9 +37,9 @@ int tucube_epoll_http_module_onRequestFinish(struct tucube_module* module, struc
 
 int tucube_epoll_http_module_onResponseStatusCode(struct tucube_module* module, struct tucube_cldata* cldata, int* status_code);
 int tucube_epoll_http_module_onResponseHeaderStart(struct tucube_module* module, struct tucube_cldata* cldata);
-int tucube_epoll_http_module_onResponseHeader(struct tucube_module* module, struct tucube_cldata* cldata, const char** header_field, size_t* header_field_size, const char** header_value, size_t* header_value_size);
+int tucube_epoll_http_module_onResponseHeader(struct tucube_module* module, struct tucube_cldata* cldata, const char** headerField, size_t* headerFieldSize, const char** headerValue, size_t* headerValueSize);
 int tucube_epoll_http_module_onResponseBodyStart(struct tucube_module* module, struct tucube_cldata* cldata);
-int tucube_epoll_http_module_onResponseBody(struct tucube_module* module, struct tucube_cldata* cldata, const char** body, size_t* body_size);
+int tucube_epoll_http_module_onResponseBody(struct tucube_module* module, struct tucube_cldata* cldata, const char** body, size_t* bodySize);
 
 int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucube_cldata* cldata);
 int tucube_epoll_http_module_tldestroy(struct tucube_module* module);
