@@ -15,7 +15,7 @@
 #include <tucube/tucube_cldata.h>
 #include "tucube_http_lua.h"
 
-int tucube_epoll_http_module_init(struct tucube_module_args* moduleArgs, struct tucube_module_list* moduleList) {
+int tucube_epoll_http_Module_init(struct tucube_module_args* moduleArgs, struct tucube_module_list* moduleList) {
     struct tucube_module* module = malloc(1 * sizeof(struct tucube_module));
     GONC_LIST_ELEMENT_INIT(module);
     module->tlmodule_key = malloc(1 * sizeof(pthread_key_t));
@@ -24,7 +24,7 @@ int tucube_epoll_http_module_init(struct tucube_module_args* moduleArgs, struct 
     return 0;
 }
 
-int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_module_args* moduleArgs) {
+int tucube_epoll_http_Module_tlinit(struct tucube_module* module, struct tucube_module_args* moduleArgs) {
     char* scriptFile = NULL;
     GONC_LIST_FOR_EACH(moduleArgs, struct tucube_module_arg, module_arg) {
         if(strncmp("script-file", module_arg->name, sizeof("script-file")) == 0)
@@ -61,7 +61,7 @@ int tucube_epoll_http_module_tlinit(struct tucube_module* module, struct tucube_
     return 0;
 }
 
-int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_cldata_list* cldata_list, int* clientSocket) {
+int tucube_epoll_http_Module_clinit(struct tucube_module* module, struct tucube_cldata_list* cldata_list, int* clientSocket) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     struct tucube_cldata* cldata = malloc(sizeof(struct tucube_cldata));
     GONC_LIST_ELEMENT_INIT(cldata);
@@ -89,7 +89,7 @@ int tucube_epoll_http_module_clinit(struct tucube_module* module, struct tucube_
 }
 
 
-int tucube_epoll_http_module_onRequestStart(struct tucube_module* module, struct tucube_cldata* cldata) {
+int tucube_epoll_http_Module_onRequestStart(struct tucube_module* module, struct tucube_cldata* cldata) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "onRequestStart"); // onRequestStart
     if(lua_isnil(tlmodule->L, -1)) {
@@ -108,7 +108,7 @@ int tucube_epoll_http_module_onRequestStart(struct tucube_module* module, struct
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestMethod(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize ) {
+int tucube_epoll_http_Module_onRequestMethod(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize ) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->clientSocket); // requests clientSocket
@@ -121,7 +121,7 @@ int tucube_epoll_http_module_onRequestMethod(struct tucube_module* module, struc
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestUri(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
+int tucube_epoll_http_Module_onRequestUri(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->clientSocket); // requests clientSocket
@@ -134,7 +134,7 @@ int tucube_epoll_http_module_onRequestUri(struct tucube_module* module, struct t
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestProtocol(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
+int tucube_epoll_http_Module_onRequestProtocol(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->clientSocket); // requests clientSocket
@@ -147,7 +147,7 @@ int tucube_epoll_http_module_onRequestProtocol(struct tucube_module* module, str
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestContentLength(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
+int tucube_epoll_http_Module_onRequestContentLength(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->clientSocket); //requests clientSocket
@@ -166,7 +166,7 @@ static int tucube_http_lua_onGetRequestContentLength(lua_State* L) {
     return 1;
 }
 
-int tucube_epoll_http_module_onGetRequestContentLength(struct tucube_module* module, struct tucube_cldata* cldata, ssize_t* contentLength) {
+int tucube_epoll_http_Module_onGetRequestContentLength(struct tucube_module* module, struct tucube_cldata* cldata, ssize_t* contentLength) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "onGetRequestContentLength"); // onGetRequestContentLength
     if(lua_isnil(tlmodule->L, -1)) { // nil 
@@ -187,7 +187,7 @@ int tucube_epoll_http_module_onGetRequestContentLength(struct tucube_module* mod
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestContentType(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
+int tucube_epoll_http_Module_onRequestContentType(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->clientSocket); //requests clientSocket
@@ -199,7 +199,7 @@ int tucube_epoll_http_module_onRequestContentType(struct tucube_module* module, 
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestScriptPath(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
+int tucube_epoll_http_Module_onRequestScriptPath(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->clientSocket); //requests clientSocket
@@ -211,7 +211,7 @@ int tucube_epoll_http_module_onRequestScriptPath(struct tucube_module* module, s
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestHeaderField(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
+int tucube_epoll_http_Module_onRequestHeaderField(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->clientSocket); //requests clientSocket
@@ -226,7 +226,7 @@ int tucube_epoll_http_module_onRequestHeaderField(struct tucube_module* module, 
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestHeaderValue(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
+int tucube_epoll_http_Module_onRequestHeaderValue(struct tucube_module* module, struct tucube_cldata* cldata, char* token, ssize_t tokenSize) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->clientSocket); // requests clientSocket
@@ -247,7 +247,7 @@ int tucube_epoll_http_module_onRequestHeaderValue(struct tucube_module* module, 
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestHeadersFinish(struct tucube_module* module, struct tucube_cldata* cldata) {
+int tucube_epoll_http_Module_onRequestHeadersFinish(struct tucube_module* module, struct tucube_cldata* cldata) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "onRequestHeadersFinish"); // onRequestHeadersFinish
     if(lua_isnil(tlmodule->L, -1)) {
@@ -274,7 +274,7 @@ int tucube_http_lua_onRequestBodyStart(lua_State* L) {
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestBodyStart(struct tucube_module* module, struct tucube_cldata* cldata) {
+int tucube_epoll_http_Module_onRequestBodyStart(struct tucube_module* module, struct tucube_cldata* cldata) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "onRequestBodyStart"); // onRequestBodyStart
     if(lua_isnil(tlmodule->L, -1)) { // nil
@@ -306,7 +306,7 @@ int tucube_http_lua_onRequestBody(lua_State* L) {
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestBody(struct tucube_module* module, struct tucube_cldata* cldata, char* bodyChunk, ssize_t bodyChunkSize) {
+int tucube_epoll_http_Module_onRequestBody(struct tucube_module* module, struct tucube_cldata* cldata, char* bodyChunk, ssize_t bodyChunkSize) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "onRequestBody"); // onRequestBody
     if(lua_isnil(tlmodule->L, -1)) { // nil
@@ -346,7 +346,7 @@ int tucube_http_lua_onRequestBodyFinish(lua_State* L) {
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestBodyFinish(struct tucube_module* module, struct tucube_cldata* cldata) {
+int tucube_epoll_http_Module_onRequestBodyFinish(struct tucube_module* module, struct tucube_cldata* cldata) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "onRequestBodyFinish"); // onRequestBodyFinish
     if(lua_isnil(tlmodule->L, -1)) { // nil
@@ -365,7 +365,7 @@ int tucube_epoll_http_module_onRequestBodyFinish(struct tucube_module* module, s
     return 0;
 }
 
-int tucube_epoll_http_module_onRequestFinish(struct tucube_module* module, struct tucube_cldata* cldata) {
+int tucube_epoll_http_Module_onRequestFinish(struct tucube_module* module, struct tucube_cldata* cldata) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_getglobal(tlmodule->L, "requests"); // requests
     lua_pushinteger(tlmodule->L, *GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->clientSocket); // requests clientSocket
@@ -447,13 +447,13 @@ int tucube_epoll_http_module_onRequestFinish(struct tucube_module* module, struc
     return 0;
 }
 
-int tucube_epoll_http_module_onResponseStatusCode(struct tucube_module* module, struct tucube_cldata* cldata, int* statusCode) {
+int tucube_epoll_http_Module_onResponseStatusCode(struct tucube_module* module, struct tucube_cldata* cldata, int* statusCode) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     *statusCode = lua_tointeger(tlmodule->L, -3); // statusCode headers body
     return 0;
 }
 
-int tucube_epoll_http_module_onResponseHeaderStart(struct tucube_module* module, struct tucube_cldata* cldata) {
+int tucube_epoll_http_Module_onResponseHeaderStart(struct tucube_module* module, struct tucube_cldata* cldata) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_pushnil(tlmodule->L); // statusCode headers body nil
     if(lua_next(tlmodule->L, -3) != 0) // statusCode headers body new_headerField new_headerValue
@@ -461,7 +461,7 @@ int tucube_epoll_http_module_onResponseHeaderStart(struct tucube_module* module,
     return 0;
 }
 
-int tucube_epoll_http_module_onResponseHeader(struct tucube_module* module, struct tucube_cldata* cldata, const char** headerField, size_t* headerField_size, const char** headerValue, size_t* headerValueSize) {
+int tucube_epoll_http_Module_onResponseHeader(struct tucube_module* module, struct tucube_cldata* cldata, const char** headerField, size_t* headerField_size, const char** headerValue, size_t* headerValueSize) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     *headerField = lua_tolstring(tlmodule->L, -2, headerField_size); // statusCode headers body headerField headerValue
     *headerValue = lua_tolstring(tlmodule->L, -1, headerValueSize); // statusCode headers body headerField headerValue
@@ -471,7 +471,7 @@ int tucube_epoll_http_module_onResponseHeader(struct tucube_module* module, stru
     return 0;
 }
 
-int tucube_epoll_http_module_onResponseBodyStart(struct tucube_module* module, struct tucube_cldata* cldata) {
+int tucube_epoll_http_Module_onResponseBodyStart(struct tucube_module* module, struct tucube_cldata* cldata) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     if(lua_isfunction(tlmodule->L, -1)) {
         GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->L = lua_newthread(tlmodule->L); // statusCode headers body thread
@@ -486,7 +486,7 @@ int tucube_epoll_http_module_onResponseBodyStart(struct tucube_module* module, s
     return -1;
 }
 
-int tucube_epoll_http_module_onResponseBody(struct tucube_module* module, struct tucube_cldata* cldata, const char** body, size_t* body_size) {
+int tucube_epoll_http_Module_onResponseBody(struct tucube_module* module, struct tucube_cldata* cldata, const char** body, size_t* body_size) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     if(lua_isfunction(tlmodule->L, -2)) { // statusCode headers body thread
         if(lua_gettop(GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->L) > 1)
@@ -510,7 +510,7 @@ int tucube_epoll_http_module_onResponseBody(struct tucube_module* module, struct
     return -1;
 }
 
-int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucube_cldata* cldata) {
+int tucube_epoll_http_Module_cldestroy(struct tucube_module* module, struct tucube_cldata* cldata) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     lua_pop(tlmodule->L, lua_gettop(tlmodule->L)); //
     close(*GONC_CAST(cldata->pointer, struct tucube_http_lua_ClientLocalData*)->clientSocket);
@@ -520,7 +520,7 @@ int tucube_epoll_http_module_cldestroy(struct tucube_module* module, struct tucu
     return 0;
 }
 
-int tucube_epoll_http_module_tldestroy(struct tucube_module* module) {
+int tucube_epoll_http_Module_tldestroy(struct tucube_module* module) {
     struct tucube_http_lua_ThreadLocalModule* tlmodule = pthread_getspecific(*module->tlmodule_key);
     if(tlmodule != NULL) {
         lua_getglobal(tlmodule->L, "onDestroy"); // onDestroy
@@ -538,7 +538,7 @@ int tucube_epoll_http_module_tldestroy(struct tucube_module* module) {
     return 0;
 }
 
-int tucube_epoll_http_module_destroy(struct tucube_module* module) {
+int tucube_epoll_http_Module_destroy(struct tucube_module* module) {
     pthread_key_delete(*module->tlmodule_key);
     free(module->tlmodule_key);
     free(module);
