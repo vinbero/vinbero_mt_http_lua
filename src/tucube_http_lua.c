@@ -126,8 +126,8 @@ int tucube_epoll_http_Module_onRequestUri(struct tucube_Module* module, struct t
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
     lua_gettable(tlModule->L, -2); // requests request
-    lua_pushstring(tlModule->L, "requestURI"); // requests request "requestURI"
-    lua_pushlstring(tlModule->L, token, tokenSize); // requests request "requestURI" requestURI 
+    lua_pushstring(tlModule->L, "requestUri"); // requests request "requestUri"
+    lua_pushlstring(tlModule->L, token, tokenSize); // requests request "requestUri" requestUri 
     lua_settable(tlModule->L, -3); // requests request
     lua_pop(tlModule->L, 2); //
 
@@ -375,9 +375,9 @@ int tucube_epoll_http_Module_onRequestFinish(struct tucube_Module* module, struc
     size_t scriptPathSize;
     const char* pathInfo;
     const char* queryString;
-    lua_pushstring(tlModule->L, "requestURI"); // requests request "requestURI"
-    lua_gettable(tlModule->L, -2); //requests request requestURI
-    requestUri = lua_tostring(tlModule->L, -1); // requests request requestURI
+    lua_pushstring(tlModule->L, "requestUri"); // requests request "requestUri"
+    lua_gettable(tlModule->L, -2); //requests request requestUri
+    requestUri = lua_tostring(tlModule->L, -1); // requests request requestUri
     lua_pop(tlModule->L, 1); // requests request
     lua_pushstring(tlModule->L, "scriptPath"); // requests request "scriptPath"
     lua_gettable(tlModule->L, -2); // requests request scriptPath
