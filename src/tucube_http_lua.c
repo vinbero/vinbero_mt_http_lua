@@ -25,9 +25,9 @@ int tucube_epoll_http_Module_init(struct tucube_Module_Config* moduleConfig, str
 }
 
 int tucube_epoll_http_Module_tlInit(struct tucube_Module* module, struct tucube_Module_Config* moduleConfig) {
-    char* scriptFile = NULL;
+    const char* scriptFile = NULL;
     if(json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptFile") != NULL) {
-        const char* scriptFile = json_string_value(
+        scriptFile = json_string_value(
             json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptFile")
         );
     }
