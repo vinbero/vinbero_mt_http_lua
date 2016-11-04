@@ -15,7 +15,7 @@
 #include <tucube/tucube_ClData.h>
 #include "tucube_http_lua.h"
 
-int tucube_epoll_http_Module_init(struct tucube_Module_Args* moduleArgs, struct tucube_Module_List* moduleList) {
+int tucube_epoll_http_Module_init(struct tucube_Module_Config* moduleConfig, struct tucube_Module_List* moduleList) {
     struct tucube_Module* module = malloc(1 * sizeof(struct tucube_Module));
     GONC_LIST_ELEMENT_INIT(module);
     module->tlModuleKey = malloc(1 * sizeof(pthread_key_t));
@@ -24,14 +24,16 @@ int tucube_epoll_http_Module_init(struct tucube_Module_Args* moduleArgs, struct 
     return 0;
 }
 
-int tucube_epoll_http_Module_tlInit(struct tucube_Module* module, struct tucube_Module_Args* moduleArgs) {
+int tucube_epoll_http_Module_tlInit(struct tucube_Module* module, struct tucube_Module_Config* moduleConfig) {
     char* scriptFile = NULL;
-    GONC_LIST_FOR_EACH(moduleArgs, struct tucube_Module_Arg, module_arg) {
-        if(strncmp("script-file", module_arg->name, sizeof("script-file")) == 0)
-	     scriptFile = module_arg->value;
+    if(json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptFile") != NULL) {
+        const char* scriptFile = json_string_value(
+            json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptFile")
+        );
     }
+
     if(scriptFile == NULL) {
-        warnx("%s: %u: Argument script-file is required", __FILE__, __LINE__);
+        warnx("%s: %u: Argument tucube_http_lua.scriptFile is required", __FILE__, __LINE__);
         pthread_exit(NULL);
     }
     struct tucube_http_lua_TlModule* tlModule = malloc(sizeof(struct tucube_http_lua_TlModule));

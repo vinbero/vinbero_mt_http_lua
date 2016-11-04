@@ -14,8 +14,8 @@ struct tucube_http_lua_ClData {
     lua_State* L;
 };
 
-int tucube_epoll_http_Module_init(struct tucube_Module_Args* moduleArgs, struct tucube_Module_List* moduleList);
-int tucube_epoll_http_Module_tlInit(struct tucube_Module* module, struct tucube_Module_Args* moduleArgs);
+int tucube_epoll_http_Module_init(struct tucube_Module_Config* moduleConfig, struct tucube_Module_List* moduleList);
+int tucube_epoll_http_Module_tlInit(struct tucube_Module* module, struct tucube_Module_Config* moduleConfig);
 int tucube_epoll_http_Module_clInit(struct tucube_Module* module, struct tucube_ClData_List* clDataList, int* clientSocket);
 
 int tucube_epoll_http_Module_onRequestStart(struct tucube_Module* module, struct tucube_ClData* clData);
