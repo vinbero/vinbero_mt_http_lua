@@ -417,6 +417,9 @@ int tucube_epoll_http_Module_onRequestFinish(struct tucube_Module* module, struc
         lua_settable(tlModule->L, -3); // requests request 
     }
     else {
+        lua_pushstring(tlModule->L, "queryString"); // requests request "queryString"
+        lua_pushstring(tlModule->L, ""); // requests request "queryString" ""
+        lua_settable(tlModule->L, -3); // requests request
         lua_pushstring(tlModule->L, "pathInfo"); // requests request "pathInfo"
         if(strlen(pathInfo) != 0) // check if path info is not empty string
             lua_pushstring(tlModule->L, pathInfo); // requests request "pathInfo" pathInfo 
