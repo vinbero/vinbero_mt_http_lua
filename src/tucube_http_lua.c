@@ -268,7 +268,7 @@ int tucube_epoll_http_Module_onRequestHeadersFinish(struct tucube_Module* module
     return 0;
 }
 
-int tucube_http_lua_onRequestBodyStart(lua_State* L) {
+static int tucube_http_lua_onRequestBodyStart(lua_State* L) {
     // request
     lua_pushstring(L, "body"); // request "body"
     lua_newtable(L); // request "body" body
@@ -293,7 +293,7 @@ int tucube_epoll_http_Module_onRequestBodyStart(struct tucube_Module* module, st
     }
 }
 
-int tucube_http_lua_onRequestBody(lua_State* L) {
+static int tucube_http_lua_onRequestBody(lua_State* L) {
     // request bodyChunk
     lua_getglobal(L, "table"); //  request bodyChunk table
     lua_pushstring(L, "insert"); // request bodyChunk table "insert"
@@ -328,7 +328,7 @@ int tucube_epoll_http_Module_onRequestBody(struct tucube_Module* module, struct 
     return 0;
 }
 
-int tucube_http_lua_onRequestBodyFinish(lua_State* L) {
+static int tucube_http_lua_onRequestBodyFinish(lua_State* L) {
     // request
     lua_pushstring(L, "body"); // request "body"
     lua_gettable(L, -2); // request body
@@ -344,7 +344,7 @@ int tucube_http_lua_onRequestBodyFinish(lua_State* L) {
     lua_pushstring(L, "body"); // request body table result request "body"
     lua_pushvalue(L, -3); // request body table result request "body" result
     lua_settable(L, -3); // request body table result request
-    lua_pop(L, 4); // request body
+    lua_pop(L, 4); // request
     return 0;
 }
 
