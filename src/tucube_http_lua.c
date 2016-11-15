@@ -39,6 +39,8 @@ int tucube_epoll_http_Module_tlInit(struct tucube_Module* module, struct tucube_
     struct tucube_http_lua_TlModule* tlModule = malloc(sizeof(struct tucube_http_lua_TlModule));
     tlModule->L = luaL_newstate();
     luaL_openlibs(tlModule->L);
+    lua_pushnil(tlModule->L); // nil
+    lua_setglobal(tlModule->L, "arg"); //
     lua_newtable(tlModule->L); // requests
     lua_setglobal(tlModule->L, "requests"); //
     if(luaL_loadfile(tlModule->L, scriptFile) != LUA_OK) { // file
