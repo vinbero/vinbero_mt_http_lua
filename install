@@ -1,2 +1,2 @@
 sudo mkdir -p /usr/local/lib/tucube
-sudo gcc src/tucube_http_lua.c -o /usr/local/lib/tucube/tucube_http_lua.so -fPIC -shared -l lua 
+sudo gcc src/tucube_http_lua.c -o /usr/local/lib/tucube/tucube_http_lua.so -fPIC -shared -l lua -g
