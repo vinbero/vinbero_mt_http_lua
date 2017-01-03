@@ -21,6 +21,14 @@ int tucube_epoll_http_Module_init(struct tucube_Module_Config* moduleConfig, str
     module->tlModuleKey = malloc(1 * sizeof(pthread_key_t));
     pthread_key_create(module->tlModuleKey, NULL);
     GONC_LIST_APPEND(moduleList, module);
+    json_t* scriptArg = json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptArg");
+    if(scriptArg != NULL && json_is_object(scriptArg)) {
+        json_object_set_new(
+            json_array_get(moduleConfig->json, 1),
+            "tucube_http_lua.scriptArg",
+            json_string(json_dumps(scriptArg, 0))
+        );
+    }
     return 0;
 }
 
@@ -39,7 +47,15 @@ int tucube_epoll_http_Module_tlInit(struct tucube_Module* module, struct tucube_
     struct tucube_http_lua_TlModule* tlModule = malloc(sizeof(struct tucube_http_lua_TlModule));
     tlModule->L = luaL_newstate();
     luaL_openlibs(tlModule->L);
-    lua_pushnil(tlModule->L); // nil
+    if(json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptArg") != NULL) {
+        lua_pushstring(
+            tlModule->L,
+            json_string_value(
+                json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptArg")
+            )
+        ); // arg
+    } else
+        lua_pushnil(tlModule->L); // nil
     lua_setglobal(tlModule->L, "arg"); //
     lua_newtable(tlModule->L); // requests
     lua_setglobal(tlModule->L, "requests"); //
