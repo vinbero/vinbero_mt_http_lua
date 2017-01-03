@@ -72,7 +72,7 @@ int tucube_epoll_http_Module_tlInit(struct tucube_Module* module, struct tucube_
     if(lua_isnil(tlModule->L, -1))
         lua_pop(tlModule->L, 1); //
     else {
-        if(lua_pcall(tlModule->L, 0, 0, 0) != 0) {
+        if(lua_pcall(tlModule->L, 0, 0, 0) != 0) { //
             warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); //errorString
             lua_pop(tlModule->L, 1); //
         }
