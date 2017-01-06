@@ -4,6 +4,7 @@
 #include <lua.h>
 #include <tucube/tucube_Module.h>
 #include <tucube/tucube_ClData.h>
+#include <tucube/tucube_epoll_http_ResponseBody.h>
 
 struct tucube_http_lua_TlModule {
    lua_State* L;
@@ -12,6 +13,7 @@ struct tucube_http_lua_TlModule {
 struct tucube_http_lua_ClData {
     int* clientSocket;
     lua_State* L;
+    luaL_Stream* responseBodyStream;
 };
 
 int tucube_epoll_http_Module_init(struct tucube_Module_Config* moduleConfig, struct tucube_Module_List* moduleList);
@@ -23,7 +25,7 @@ int tucube_epoll_http_Module_onRequestMethod(struct tucube_Module* module, struc
 int tucube_epoll_http_Module_onRequestUri(struct tucube_Module* module, struct tucube_ClData* clData, char* token, ssize_t tokenSize);
 int tucube_epoll_http_Module_onRequestProtocol(struct tucube_Module* module, struct tucube_ClData* clData, char* token, ssize_t tokenSize);
 int tucube_epoll_http_Module_onRequestContentLength(struct tucube_Module* module, struct tucube_ClData* clData, char* token, ssize_t tokenSize);
-int tucube_epoll_http_Module_onGetRequestContentLength(struct tucube_Module* module, struct tucube_ClData* clData, ssize_t* content_length);
+int tucube_epoll_http_Module_onGetRequestContentLength(struct tucube_Module* module, struct tucube_ClData* clData, ssize_t* contentLength);
 
 int tucube_epoll_http_Module_onRequestContentType(struct tucube_Module* module, struct tucube_ClData* clData, char* token, ssize_t tokenSize);
 int tucube_epoll_http_Module_onRequestScriptPath(struct tucube_Module* module, struct tucube_ClData* clData, char* token, ssize_t tokenSize);
@@ -39,7 +41,7 @@ int tucube_epoll_http_Module_onResponseStatusCode(struct tucube_Module* module, 
 int tucube_epoll_http_Module_onResponseHeaderStart(struct tucube_Module* module, struct tucube_ClData* clData);
 int tucube_epoll_http_Module_onResponseHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char** headerField, size_t* headerFieldSize, const char** headerValue, size_t* headerValueSize);
 int tucube_epoll_http_Module_onResponseBodyStart(struct tucube_Module* module, struct tucube_ClData* clData);
-int tucube_epoll_http_Module_onResponseBody(struct tucube_Module* module, struct tucube_ClData* clData, const char** body, size_t* bodySize);
+int tucube_epoll_http_Module_onResponseBody(struct tucube_Module* module, struct tucube_ClData* clData, struct tucube_epoll_http_ResponseBody* responseBody);
 
 int tucube_epoll_http_Module_clDestroy(struct tucube_Module* module, struct tucube_ClData* clData);
 int tucube_epoll_http_Module_tlDestroy(struct tucube_Module* module);
