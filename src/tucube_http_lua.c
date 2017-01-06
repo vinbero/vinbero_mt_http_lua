@@ -505,9 +505,9 @@ int tucube_epoll_http_Module_onResponseBodyStart(struct tucube_Module* module, s
     } else if(lua_isstring(tlModule->L, -1)) { // statusCode headers bodyString
         GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->L = NULL;
         return 1;
-    } else if(lua_isuserdata(tlModule->L, -1)) { // statusCode headers bodyFile
+    } else if(lua_isuserdata(tlModule->L, -1)) // statusCode headers bodyFile
         return 1;
-    } else if(lua_isnil(tlModule->L, -1)) // statusCode headers
+    else if(lua_isnil(tlModule->L, -1)) // statusCode headers
         return 0;
     return -1;
 }
