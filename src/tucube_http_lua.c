@@ -41,7 +41,6 @@ int tucube_epoll_http_Module_tlInit(struct tucube_Module* module, struct tucube_
             json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptFile")
         );
     }
-
     if(scriptFile == NULL) {
         warnx("%s: %u: Argument tucube_http_lua.scriptFile is required", __FILE__, __LINE__);
         pthread_exit(NULL);
@@ -75,7 +74,7 @@ int tucube_epoll_http_Module_tlInit(struct tucube_Module* module, struct tucube_
         lua_pop(tlModule->L, 1); //
     else {
         if(lua_pcall(tlModule->L, 0, 0, 0) != 0) { //
-            warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); //errorString
+            warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // errorString
             lua_pop(tlModule->L, 1); //
         }
     }
@@ -140,7 +139,6 @@ int tucube_epoll_http_Module_onRequestMethod(struct tucube_Module* module, struc
     lua_pushlstring(tlModule->L, token, tokenSize); // requests request "method" method 
     lua_settable(tlModule->L, -3); // requests request
     lua_pop(tlModule->L, 2); // 
-
     return 0;
 }
 
@@ -153,7 +151,6 @@ int tucube_epoll_http_Module_onRequestUri(struct tucube_Module* module, struct t
     lua_pushlstring(tlModule->L, token, tokenSize); // requests request "requestUri" requestUri 
     lua_settable(tlModule->L, -3); // requests request
     lua_pop(tlModule->L, 2); //
-
     return 0;
 }
 
@@ -166,7 +163,6 @@ int tucube_epoll_http_Module_onRequestProtocol(struct tucube_Module* module, str
     lua_pushlstring(tlModule->L, token, tokenSize); // requests request "protocol" protocol 
     lua_settable(tlModule->L, -3); // requests request
     lua_pop(tlModule->L, 2); //
-
     return 0;
 }
 
@@ -245,7 +241,6 @@ int tucube_epoll_http_Module_onRequestHeaderField(struct tucube_Module* module, 
     lua_pushlstring(tlModule->L, token, tokenSize); // requests request "recentHeaderField" recentHeaderField
     lua_settable(tlModule->L, -3); //requests request
     lua_pop(tlModule->L, 2); //
-
     return 0;
 }
 
@@ -316,7 +311,7 @@ int tucube_epoll_http_Module_onRequestBodyStart(struct tucube_Module* module, st
 
 static int tucube_http_lua_onRequestBody(lua_State* L) {
     // request bodyChunk
-    lua_getglobal(L, "table"); //  request bodyChunk table
+    lua_getglobal(L, "table"); // request bodyChunk table
     lua_pushstring(L, "insert"); // request bodyChunk table "insert"
     lua_gettable(L, -2); // request bodyChunk table insert
     lua_pushvalue(L, 1); // request bodyChunk table insert request
@@ -406,7 +401,7 @@ int tucube_epoll_http_Module_onRequestFinish(struct tucube_Module* module, struc
     lua_gettable(tlModule->L, -2); // requests request scriptPath
     if(lua_isnil(tlModule->L, -1)) { // requests request scriptPath 
         lua_pop(tlModule->L, 1); // requests request
-	    lua_pushstring(tlModule->L, "scriptPath"); // requests request "scriptPath"
+        lua_pushstring(tlModule->L, "scriptPath"); // requests request "scriptPath"
         scriptPath = "";
         scriptPathSize = sizeof("") - 1;
         lua_pushstring(tlModule->L, ""); // requests request "scriptPath" "" 
@@ -425,9 +420,7 @@ int tucube_epoll_http_Module_onRequestFinish(struct tucube_Module* module, struc
         ++queryString; // query string begins after the question mark
         if(strstr(queryString, "?") != NULL) // check if there is unnecessary question mark after query string
             return -1;
-
         lua_pushstring(tlModule->L, "pathInfo"); // requests request "pathInfo"
-
         if(queryString - pathInfo - 1 != 0) // check if path info is not empty string
             lua_pushlstring(tlModule->L, pathInfo, queryString - pathInfo - 1); // requests request headers "pathInfo" pathInfo 
         else
@@ -449,7 +442,7 @@ int tucube_epoll_http_Module_onRequestFinish(struct tucube_Module* module, struc
         lua_settable(tlModule->L, -3); // requests request
     }
     lua_getglobal(tlModule->L, "onRequestFinish"); // requests request onRequestFinish
-    if(lua_isnil(tlModule->L, -1)) {
+    if(lua_isnil(tlModule->L, -1)) { // requests request nil
         warnx("%s: %u: onRequestFinish() is not found in the script", __FILE__, __LINE__);
         return -1;
     }
@@ -492,7 +485,7 @@ int tucube_epoll_http_Module_onResponseHeader(struct tucube_Module* module, stru
     *headerField = lua_tolstring(tlModule->L, -2, headerFieldSize); // statusCode headers body headerField headerValue
     *headerValue = lua_tolstring(tlModule->L, -1, headerValueSize); // statusCode headers body headerField headerValue
     lua_pop(tlModule->L, 1); // statusCode headers body headerField
-    if(lua_next(tlModule->L, -3) != 0) // statusCode headers body headerField ->  statusCode headers body (newHeaderField newHeaderValue || empty)
+    if(lua_next(tlModule->L, -3) != 0) // statusCode headers body headerField -> statusCode headers body (newHeaderField newHeaderValue || empty)
         return 1;
     return 0;
 }
@@ -545,7 +538,6 @@ int tucube_epoll_http_Module_onResponseBody(struct tucube_Module* module, struct
             return -1;
         }
         responseBody->size = statBuffer.st_size;
- 
         return 0;
     }
     return -1;
