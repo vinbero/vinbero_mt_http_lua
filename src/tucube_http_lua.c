@@ -178,6 +178,15 @@ int tucube_epoll_http_Module_onRequestContentLength(struct tucube_Module* module
     return 0;
 }
 
+int tucube_epoll_Module_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, int* headerValue) {
+}
+
+int tucube_epoll_Module_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, double* headerValue) {
+}
+
+int tucube_epoll_Module_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, char** headerValue) {
+}
+
 static int tucube_http_lua_onGetRequestContentLength(lua_State* L) {
     // request
     lua_pushstring(L, "contentLength"); // request "contentLength"
