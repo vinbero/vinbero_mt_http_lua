@@ -2,7 +2,6 @@
 #include <err.h>
 #include <libgonc/gonc_cast.h>
 #include <libgonc/gonc_list.h>
-#include <libgonc/gonc_nstrncmp.h>
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
@@ -179,12 +178,49 @@ int tucube_epoll_http_Module_onRequestContentLength(struct tucube_Module* module
 }
 
 int tucube_epoll_Module_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, int* headerValue) {
+    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    lua_getglobal(tlModule->L, "requests"); // requests
+    lua_pushinteger(tlModule->L, *GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_gettable(tlModule->L, -2); // requests request
+    lua_getglobal(tlModule->L, "string"); // requests request string
+    lua_pushstring(tlModule->L, "upper"); // requests request string "upper"
+    lua_gettable(tlModule->L, -2); // requests request string upper
+    lua_pushstring(tlModule->L, headerField); // requests request string upper headerField
+    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // requests request string upperedHeaderField
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // requests request string errorString
+        lua_pop(tlModule->L, 4); //
+        return -1;
+    }
+    lua_remove(tlModule->L, -2); // requests request upperedHeaderField
+    lua_gettable(tlModule->L, -2); // requests request headerValue
+    *headerValue = lua_tointeger(tlModule->L, -1); // requests request headerValue;
+    lua_pop(tlModule->L, -3); //
+    return 0;
 }
 
 int tucube_epoll_Module_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, double* headerValue) {
+    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    lua_getglobal(tlModule->L, "requests"); // requests
+    lua_pushinteger(tlModule->L, *GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_gettable(tlModule->L, -2); // requests request
+    lua_getglobal(tlModule->L, "string"); // requests request string
+    lua_pushstring(tlModule->L, "upper"); // requests request string "upper"
+    lua_gettable(tlModule->L, -2); // requests request string upper
+    lua_pushstring(tlModule->L, headerField); // requests request string upper headerField
+    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // requests request string upperedHeaderField
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // requests request string errorString
+        lua_pop(tlModule->L, 4); //
+        return -1;
+    }
+    lua_remove(tlModule->L, -2); // requests request upperedHeaderField
+    lua_gettable(tlModule->L, -2); // requests request headerValue
+    *headerValue = lua_tonumber(tlModule->L, -1); // requests request headerValue;
+    lua_pop(tlModule->L, -3); //
+    return 0;
 }
 
 int tucube_epoll_Module_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, char** headerValue) {
+    // You need to allocate new memory to use lua_tostring() because of the garbage collection
 }
 
 static int tucube_http_lua_onGetRequestContentLength(lua_State* L) {
@@ -458,7 +494,7 @@ int tucube_epoll_http_Module_onRequestFinish(struct tucube_Module* module, struc
     lua_pushvalue(tlModule->L, -2); // requests request onRequestFinish request
     if(lua_pcall(tlModule->L, 1, 3, 0) != 0) { // requests request statusCode headers body
         warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // requests request errorString
-        lua_pop(tlModule->L, 4); //
+        lua_pop(tlModule->L, 3); //
         return -1;
     }
     lua_remove(tlModule->L, 1); // request statusCode headers body
