@@ -177,7 +177,7 @@ int tucube_epoll_http_Module_onRequestContentLength(struct tucube_Module* module
     return 0;
 }
 
-int tucube_epoll_Module_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, int* headerValue) {
+int tucube_epoll_http_Module_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, int* headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
@@ -198,7 +198,7 @@ int tucube_epoll_Module_onGetRequestIntHeader(struct tucube_Module* module, stru
     return 0;
 }
 
-int tucube_epoll_Module_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, double* headerValue) {
+int tucube_epoll_http_Module_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, double* headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
@@ -219,7 +219,7 @@ int tucube_epoll_Module_onGetRequestDoubleHeader(struct tucube_Module* module, s
     return 0;
 }
 
-int tucube_epoll_Module_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, char** headerValue) {
+int tucube_epoll_http_Module_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, char** headerValue) {
     // You need to allocate new memory to use lua_tostring() because of the garbage collection
 }
 
