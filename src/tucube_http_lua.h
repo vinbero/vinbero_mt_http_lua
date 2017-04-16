@@ -26,6 +26,9 @@ int tucube_epoll_http_Module_onRequestUri(struct tucube_Module* module, struct t
 int tucube_epoll_http_Module_onRequestProtocol(struct tucube_Module* module, struct tucube_ClData* clData, char* token, ssize_t tokenSize);
 int tucube_epoll_http_Module_onRequestContentLength(struct tucube_Module* module, struct tucube_ClData* clData, char* token, ssize_t tokenSize);
 int tucube_epoll_http_Module_onGetRequestContentLength(struct tucube_Module* module, struct tucube_ClData* clData, ssize_t* contentLength);
+int tucube_epoll_http_Module_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, int* headerValue);
+int tucube_epoll_http_Module_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, double* headerValue);
+int tucube_epoll_http_Module_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, char** headerValue);
 
 int tucube_epoll_http_Module_onRequestContentType(struct tucube_Module* module, struct tucube_ClData* clData, char* token, ssize_t tokenSize);
 int tucube_epoll_http_Module_onRequestScriptPath(struct tucube_Module* module, struct tucube_ClData* clData, char* token, ssize_t tokenSize);
