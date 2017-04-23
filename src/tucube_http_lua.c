@@ -236,12 +236,8 @@ int tucube_epoll_http_Module_onGetRequestStringHeader(struct tucube_Module* modu
     }
     lua_remove(tlModule->L, -2); // requests request upperedHeaderField
     lua_gettable(tlModule->L, -2); // requests request headerValue
-    // You need to allocate new memory to use lua_tostring() because of the garbage collection
-    char* headerValueString;
-    register size_t headerValueStringSize;
-    register headerValueString = lua_tolstring(tlModule->L, -1, &headerValueStringSize);
-    *headerValue = malloc((headerValueStringSize + 1) * sizeof(char)); // requests request headerValue;
-    memcpy(*headerValue, headerValueString, (headerValueStringSize + 1));
+    // You need to allocate a new memory to use lua_tostring() because of the garbage collection
+    *headerValue = strdup(lua_tostring(tlModule->L, -1)); // requests request headerValue
     lua_pop(tlModule->L, -3); //
     return 0;
 
