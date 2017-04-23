@@ -220,7 +220,31 @@ int tucube_epoll_http_Module_onGetRequestDoubleHeader(struct tucube_Module* modu
 }
 
 int tucube_epoll_http_Module_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, char** headerValue) {
+
+    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    lua_getglobal(tlModule->L, "requests"); // requests
+    lua_pushinteger(tlModule->L, *GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_gettable(tlModule->L, -2); // requests request
+    lua_getglobal(tlModule->L, "string"); // requests request string
+    lua_pushstring(tlModule->L, "upper"); // requests request string "upper"
+    lua_gettable(tlModule->L, -2); // requests request string upper
+    lua_pushstring(tlModule->L, headerField); // requests request string upper headerField
+    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // requests request string upperedHeaderField
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // requests request string errorString
+        lua_pop(tlModule->L, 4); //
+        return -1;
+    }
+    lua_remove(tlModule->L, -2); // requests request upperedHeaderField
+    lua_gettable(tlModule->L, -2); // requests request headerValue
     // You need to allocate new memory to use lua_tostring() because of the garbage collection
+    char* headerValueString;
+    register size_t headerValueStringSize;
+    register headerValueString = lua_tolstring(tlModule->L, -1, &headerValueStringSize);
+    *headerValue = malloc((headerValueStringSize + 1) * sizeof(char)); // requests request headerValue;
+    memcpy(*headerValue, headerValueString, (headerValueStringSize + 1));
+    lua_pop(tlModule->L, -3); //
+    return 0;
+
 }
 
 static int tucube_http_lua_onGetRequestContentLength(lua_State* L) {
