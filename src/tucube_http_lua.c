@@ -193,8 +193,12 @@ int tucube_epoll_http_Module_onGetRequestIntHeader(struct tucube_Module* module,
     }
     lua_remove(tlModule->L, -2); // requests request upperedHeaderField
     lua_gettable(tlModule->L, -2); // requests request headerValue
+    if(lua_isnil(tlModule->L, -1)) { // requests request headerValue
+        lua_pop(tlModule->L, 3);
+        return -1;
+    }
     *headerValue = lua_tointeger(tlModule->L, -1); // requests request headerValue;
-    lua_pop(tlModule->L, -3); //
+    lua_pop(tlModule->L, 3); //
     return 0;
 }
 
@@ -214,13 +218,16 @@ int tucube_epoll_http_Module_onGetRequestDoubleHeader(struct tucube_Module* modu
     }
     lua_remove(tlModule->L, -2); // requests request upperedHeaderField
     lua_gettable(tlModule->L, -2); // requests request headerValue
+    if(lua_isnil(tlModule->L, -1)) { // requests request headerValue
+        lua_pop(tlModule->L, 3);
+        return -1;
+    }
     *headerValue = lua_tonumber(tlModule->L, -1); // requests request headerValue;
-    lua_pop(tlModule->L, -3); //
+    lua_pop(tlModule->L, 3); //
     return 0;
 }
 
 int tucube_epoll_http_Module_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, char** headerValue) {
-
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
@@ -236,9 +243,13 @@ int tucube_epoll_http_Module_onGetRequestStringHeader(struct tucube_Module* modu
     }
     lua_remove(tlModule->L, -2); // requests request upperedHeaderField
     lua_gettable(tlModule->L, -2); // requests request headerValue
+    if(lua_isnil(tlModule->L, -1)) { // requests request headerValue
+        lua_pop(tlModule->L, 3);
+        return -1;
+    }
     // You need to allocate a new memory to use lua_tostring() because of the garbage collection
     *headerValue = strdup(lua_tostring(tlModule->L, -1)); // requests request headerValue
-    lua_pop(tlModule->L, -3); //
+    lua_pop(tlModule->L, 3); //
     return 0;
 
 }
@@ -263,6 +274,10 @@ int tucube_epoll_http_Module_onGetRequestContentLength(struct tucube_Module* mod
     lua_remove(tlModule->L, -2); // onGetRequestContentLength request
     if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // requestContentLength
         warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // errorString
+        lua_pop(tlModule->L, 1); //
+        return -1;
+    }
+    if(lua_isnil(tlModule->L, -1)) { // nil 
         lua_pop(tlModule->L, 1); //
         return -1;
     }
