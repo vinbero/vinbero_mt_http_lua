@@ -607,18 +607,18 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 
 int tucube_epoll_http_Module_onResponseHeaderStart(struct tucube_Module* module, struct tucube_ClData* clData) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    // statusCode headers body
 warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
- 
     lua_pushnil(tlModule->L); // statusCode headers body nil
     if(lua_next(tlModule->L, -3) != 0) // statusCode headers body newHeaderField newHeaderValue
-        return 1;
-    return 0;
+        return 1; // statusCode headers body newHeaderField newHeaderValue
+    return 0; // statusCode headers body
 }
 
 int tucube_epoll_http_Module_onResponseHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char** headerField, size_t* headerFieldSize, const char** headerValue, size_t* headerValueSize) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    // statusCode headers body newHeaderField newHeaderValue
 warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
- 
     *headerField = lua_tolstring(tlModule->L, -2, headerFieldSize); // statusCode headers body headerField headerValue
     *headerValue = lua_tolstring(tlModule->L, -1, headerValueSize); // statusCode headers body headerField headerValue
     lua_pop(tlModule->L, 1); // statusCode headers body headerField
@@ -629,8 +629,8 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 
 int tucube_epoll_http_Module_onResponseBodyStart(struct tucube_Module* module, struct tucube_ClData* clData) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
- 
+    // statusCode headers body
+warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L)); 
     if(lua_isfunction(tlModule->L, -1)) { // statusCode headers bodyFunction
         GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->L = lua_newthread(tlModule->L); // statusCode headers bodyFunction thread
         return 1;
@@ -646,8 +646,8 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 
 int tucube_epoll_http_Module_onResponseBody(struct tucube_Module* module, struct tucube_ClData* clData, struct tucube_epoll_http_ResponseBody* responseBody) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    // statusCode headers body
 warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
- 
     if(lua_isfunction(tlModule->L, -2)) { // statusCode headers bodyFunction thread
         responseBody->type = TUCUBE_EPOLL_HTTP_RESPONSE_BODY_STRING;
         if(lua_gettop(GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->L) > 1)
@@ -687,7 +687,6 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 int tucube_epoll_http_Module_clDestroy(struct tucube_Module* module, struct tucube_ClData* clData) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
- 
     lua_pop(tlModule->L, lua_gettop(tlModule->L)); //
     close(*GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket);
     *GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket = -1;
