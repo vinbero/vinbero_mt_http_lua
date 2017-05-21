@@ -114,8 +114,8 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 
 int tucube_epoll_http_Module_onRequestStart(struct tucube_Module* module, struct tucube_ClData* clData) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-
 warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+    lua_pop(tlModule->L, lua_gettop(tlModule->L)); //
     lua_getglobal(tlModule->L, "onRequestStart"); // onRequestStart
     if(lua_isnil(tlModule->L, -1)) {
         lua_pop(tlModule->L, 1); //
