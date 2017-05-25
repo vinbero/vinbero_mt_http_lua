@@ -188,7 +188,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
     return 0;
 }
 
-int tucube_epoll_http_Module_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, int* headerValue) {
+int tucube_epoll_http_Module_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, int* headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "requests"); // * requests
     lua_pushinteger(tlModule->L, *GONC_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
@@ -216,7 +216,7 @@ int tucube_epoll_http_Module_onGetRequestIntHeader(struct tucube_Module* module,
     return 0;
 }
 
-int tucube_epoll_http_Module_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, double* headerValue) {
+int tucube_epoll_http_Module_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, double* headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
     lua_getglobal(tlModule->L, "requests"); // * requests
@@ -245,7 +245,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
     return 0;
 }
 
-int tucube_epoll_http_Module_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, char* headerField, char** headerValue) {
+int tucube_epoll_http_Module_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, const char** headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
     lua_getglobal(tlModule->L, "requests"); // * requests
@@ -270,7 +270,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
         return -1;
     }
     // You need to allocate a new memory to use lua_tostring() because of the garbage collection?? <- but headerValue may not be garbage collected because it is inside headers ?!?!
-    *headerValue = strdup(lua_tostring(tlModule->L, -1)); // requests request headers headerValue
+    *headerValue = lua_tostring(tlModule->L, -1); // requests request headers headerValue
     lua_pop(tlModule->L, 4); // *
     return 0;
 
