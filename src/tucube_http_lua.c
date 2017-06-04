@@ -90,7 +90,7 @@ int tucube_epoll_http_Module_clInit(struct tucube_Module* module, struct tucube_
     GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->responseBodyStream = NULL;
     GON_C_LIST_APPEND(clDataList, clData);
 
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *clientSocket); // requests clientSocket
     lua_newtable(tlModule->L); // requests clientSocket request
@@ -116,7 +116,7 @@ int tucube_epoll_http_Module_onRequestStart(void* args[]) {
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_pop(tlModule->L, lua_gettop(tlModule->L)); //
     lua_getglobal(tlModule->L, "onRequestStart"); // onRequestStart
     if(lua_isnil(tlModule->L, -1)) {
@@ -140,7 +140,7 @@ int tucube_epoll_http_Module_onRequestMethod(char* token, ssize_t tokenSize, voi
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
     lua_gettable(tlModule->L, -2); // requests request
@@ -155,7 +155,7 @@ int tucube_epoll_http_Module_onRequestUri(char* token, ssize_t tokenSize, void* 
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
     lua_gettable(tlModule->L, -2); // requests request
@@ -170,7 +170,7 @@ int tucube_epoll_http_Module_onRequestProtocol(char* token, ssize_t tokenSize, v
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
     lua_gettable(tlModule->L, -2); // requests request
@@ -185,7 +185,7 @@ int tucube_epoll_http_Module_onRequestContentLength(char* token, ssize_t tokenSi
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); //requests clientSocket
     lua_gettable(tlModule->L, -2); // requests request
@@ -200,7 +200,7 @@ int tucube_epoll_http_Module_onRequestContentType(char* token, ssize_t tokenSize
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); //requests clientSocket
     lua_gettable(tlModule->L, -2); // requests request
@@ -215,7 +215,7 @@ int tucube_epoll_http_Module_onRequestScriptPath(char* token, ssize_t tokenSize,
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); //requests clientSocket
     lua_gettable(tlModule->L, -2); // requests request
@@ -230,7 +230,7 @@ int tucube_epoll_http_Module_onRequestHeaderField(char* token, ssize_t tokenSize
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); //requests clientSocket
     lua_gettable(tlModule->L, -2); // requests request
@@ -247,7 +247,7 @@ int tucube_epoll_http_Module_onRequestHeaderValue(char* token, ssize_t tokenSize
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
  
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
@@ -272,7 +272,7 @@ int tucube_epoll_http_Module_onRequestHeadersFinish(void* args[]) {
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "onRequestHeadersFinish"); // onRequestHeadersFinish
     if(lua_isnil(tlModule->L, -1)) {
         lua_pop(tlModule->L, 1); //
@@ -302,7 +302,7 @@ int tucube_epoll_http_Module_onRequestBodyStart(void* args[]) {
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
  
     lua_getglobal(tlModule->L, "onRequestBodyStart"); // onRequestBodyStart
     if(lua_isnil(tlModule->L, -1)) { // nil
@@ -338,7 +338,7 @@ int tucube_epoll_http_Module_onRequestBody(char* bodyChunk, ssize_t bodyChunkSiz
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
  
     lua_getglobal(tlModule->L, "onRequestBody"); // onRequestBody
     if(lua_isnil(tlModule->L, -1)) { // nil
@@ -382,7 +382,7 @@ int tucube_epoll_http_Module_onRequestBodyFinish(void* args[]) {
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
  
     lua_getglobal(tlModule->L, "onRequestBodyFinish"); // onRequestBodyFinish
     if(lua_isnil(tlModule->L, -1)) { // nil
@@ -405,7 +405,7 @@ int tucube_epoll_http_Module_onRequestFinish(void* args[]) {
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
  
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
@@ -529,7 +529,7 @@ int tucube_epoll_http_Module_onGetRequestIntHeader(struct tucube_Module* module,
 
 int tucube_epoll_http_Module_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, double* headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // * requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
     lua_gettable(tlModule->L, -2); // * requests request
@@ -558,7 +558,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 
 int tucube_epoll_http_Module_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, const char** headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // * requests
     lua_pushinteger(tlModule->L, *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
     lua_gettable(tlModule->L, -2); // * requests request
@@ -595,7 +595,7 @@ static int tucube_http_lua_onGetRequestContentLength(lua_State* L) {
 
 int tucube_epoll_http_Module_onGetRequestContentLength(struct tucube_Module* module, struct tucube_ClData* clData, ssize_t* contentLength) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "onGetRequestContentLength"); // onGetRequestContentLength
     if(lua_isnil(tlModule->L, -1)) { // nil 
         lua_pop(tlModule->L, 1); //
@@ -623,7 +623,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 
 int tucube_epoll_http_Module_onResponseStatusCode(struct tucube_Module* module, struct tucube_ClData* clData, int* statusCode) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
  
     *statusCode = lua_tointeger(tlModule->L, -3); // statusCode headers bodyString
     return 0;
@@ -632,7 +632,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 int tucube_epoll_http_Module_onResponseHeaderStart(struct tucube_Module* module, struct tucube_ClData* clData) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     // statusCode headers body
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_pushnil(tlModule->L); // statusCode headers body nil
     if(lua_next(tlModule->L, -3) != 0) // statusCode headers body newHeaderField newHeaderValue
         return 1; // statusCode headers body newHeaderField newHeaderValue
@@ -642,7 +642,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 int tucube_epoll_http_Module_onResponseHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char** headerField, size_t* headerFieldSize, const char** headerValue, size_t* headerValueSize) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     // statusCode headers body newHeaderField newHeaderValue
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     *headerField = lua_tolstring(tlModule->L, -2, headerFieldSize); // statusCode headers body headerField headerValue
     *headerValue = lua_tolstring(tlModule->L, -1, headerValueSize); // statusCode headers body headerField headerValue
     lua_pop(tlModule->L, 1); // statusCode headers body headerField
@@ -654,7 +654,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 int tucube_epoll_http_Module_onResponseBodyStart(struct tucube_Module* module, struct tucube_ClData* clData) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     // statusCode headers body
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L)); 
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__); 
     if(lua_isfunction(tlModule->L, -1)) { // statusCode headers bodyFunction
         GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->L = lua_newthread(tlModule->L); // statusCode headers bodyFunction thread
         return 1;
@@ -671,7 +671,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 int tucube_epoll_http_Module_onResponseBody(struct tucube_Module* module, struct tucube_ClData* clData, struct tucube_epoll_http_ResponseBody* responseBody) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     // statusCode headers body
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     if(lua_isfunction(tlModule->L, -2)) { // statusCode headers bodyFunction thread
         responseBody->type = TUCUBE_EPOLL_HTTP_RESPONSE_BODY_STRING;
         if(lua_gettop(GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->L) > 1)
@@ -710,7 +710,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 
 int tucube_epoll_http_Module_clDestroy(struct tucube_Module* module, struct tucube_ClData* clData) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_pop(tlModule->L, lua_gettop(tlModule->L)); //
     close(*GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket);
     *GON_C_CAST(clData->pointer, struct tucube_http_lua_ClData*)->clientSocket = -1;
@@ -725,7 +725,7 @@ warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
 
 int tucube_epoll_http_Module_tlDestroy(struct tucube_Module* module) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %d", __FILE__, __LINE__, lua_gettop(tlModule->L));
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
  
     if(tlModule != NULL) {
         lua_getglobal(tlModule->L, "onDestroy"); // onDestroy
