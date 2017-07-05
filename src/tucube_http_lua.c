@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <err.h>
+#include <gaio.h>
 #include <libgenc/genc_cast.h>
 #include <libgenc/genc_list.h>
 #include <lua.h>
@@ -23,7 +24,7 @@ struct tucube_http_lua_TlModule {
 };
 
 struct tucube_http_lua_ClData {
-    int* clientSocket;
+    struct gaio_Io* clientIo;
     lua_State* L;
     luaL_Stream* responseBodyStream;
 };
@@ -98,16 +99,16 @@ int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Confi
 }
 
 int tucube_ICLocal_init(struct tucube_Module* module, struct tucube_ClData_List* clDataList, void* args[]) {
-#define TUCUBE_LOCAL_CLIENT_SOCKET ((int*)args[0])
+#define TUCUBE_LOCAL_CLIENT_IO ((struct gaio_Io*)args[0])
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     struct tucube_ClData* clData = malloc(sizeof(struct tucube_ClData));
     GENC_LIST_ELEMENT_INIT(clData);
     clData->generic.pointer = malloc(1 * sizeof(struct tucube_http_lua_ClData));
-    GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket = TUCUBE_LOCAL_CLIENT_SOCKET;
+    GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo = TUCUBE_LOCAL_CLIENT_IO;
     GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->responseBodyStream = NULL;
     GENC_LIST_APPEND(clDataList, clData);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
-#undef TUCUBE_LOCAL_CLIENT_SOCKET
+#undef TUCUBE_LOCAL_CLIENT_IO
     return 0;
 }
 
@@ -117,20 +118,20 @@ int tucube_IHttp_onRequestStart(void* args[]) {
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
-    lua_newtable(tlModule->L); // requests clientSocket request
-    lua_pushstring(tlModule->L, "headers"); // requests clientSocket request "headers"
-    lua_newtable(tlModule->L); // requests clientSocket request "headers" headers
-    lua_settable(tlModule->L, -3); // requests clientSocket request
-    lua_pushstring(tlModule->L, "parameters"); // requests clientSocket request "parameters"
-    lua_newtable(tlModule->L); // requests clientSocket request "parameters" parameters
-    lua_settable(tlModule->L, -3); // requests clientSocket request
-    lua_pushstring(tlModule->L, "body"); // requests clientSocket request "body"
-    lua_pushstring(tlModule->L, ""); // requests clientSocket request "body" ""
-    lua_settable(tlModule->L, -3); // requests clientSocket request
-    lua_pushstring(tlModule->L, "contentLength"); // requests clientSocket request "contentLength"
-    lua_pushinteger(tlModule->L, 0); // requests clientSocket request "contentLength" 0
-    lua_settable(tlModule->L, -3); // requests clientSocket request
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
+    lua_newtable(tlModule->L); // requests clientIo request
+    lua_pushstring(tlModule->L, "headers"); // requests clientIo request "headers"
+    lua_newtable(tlModule->L); // requests clientIo request "headers" headers
+    lua_settable(tlModule->L, -3); // requests clientIo request
+    lua_pushstring(tlModule->L, "parameters"); // requests clientIo request "parameters"
+    lua_newtable(tlModule->L); // requests clientIo request "parameters" parameters
+    lua_settable(tlModule->L, -3); // requests clientIo request
+    lua_pushstring(tlModule->L, "body"); // requests clientIo request "body"
+    lua_pushstring(tlModule->L, ""); // requests clientIo request "body" ""
+    lua_settable(tlModule->L, -3); // requests clientIo request
+    lua_pushstring(tlModule->L, "contentLength"); // requests clientIo request "contentLength"
+    lua_pushinteger(tlModule->L, 0); // requests clientIo request "contentLength" 0
+    lua_settable(tlModule->L, -3); // requests clientIo request
     lua_settable(tlModule->L, -3); // requests
     lua_pop(tlModule->L, 1); //
     warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
@@ -141,7 +142,7 @@ int tucube_IHttp_onRequestStart(void* args[]) {
         return 0;
     }
     lua_getglobal(tlModule->L, "requests"); // onRequestStart requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // onRequestStart requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // onRequestStart requests clientIo
     lua_gettable(tlModule->L, -2); // onRequestStart requests request
     lua_remove(tlModule->L, -2); // onRequestStart request
     if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { //
@@ -159,7 +160,7 @@ int tucube_IHttp_onRequestMethod(char* token, ssize_t tokenSize, void* args[]) {
 
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
     lua_pushstring(tlModule->L, "method"); // requests request "method"
     lua_pushlstring(tlModule->L, token, tokenSize); // requests request "method" method 
@@ -174,7 +175,7 @@ int tucube_IHttp_onRequestUri(char* token, ssize_t tokenSize, void* args[]) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
     lua_pushstring(tlModule->L, "requestUri"); // requests request "requestUri"
     lua_pushlstring(tlModule->L, token, tokenSize); // requests request "requestUri" requestUri 
@@ -189,7 +190,7 @@ int tucube_IHttp_onRequestProtocol(char* token, ssize_t tokenSize, void* args[])
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
     lua_pushstring(tlModule->L, "protocol"); // requests request "protocol"
     lua_pushlstring(tlModule->L, token, tokenSize); // requests request "protocol" protocol 
@@ -204,7 +205,7 @@ int tucube_IHttp_onRequestContentLength(char* token, ssize_t tokenSize, void* ar
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); //requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); //requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
     lua_pushstring(tlModule->L, "contentLength"); // requests request "contentLength"
     lua_pushlstring(tlModule->L, token, tokenSize); // requests request "contentLength" contentLength
@@ -219,7 +220,7 @@ int tucube_IHttp_onRequestContentType(char* token, ssize_t tokenSize, void* args
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); //requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); //requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
     lua_pushstring(tlModule->L, "contentType"); // requests request "contentType"
     lua_pushlstring(tlModule->L, token, tokenSize); // requests request "contentType" contentType
@@ -234,7 +235,7 @@ int tucube_IHttp_onRequestScriptPath(char* token, ssize_t tokenSize, void* args[
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); //requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); //requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
     lua_pushstring(tlModule->L, "scriptPath"); // requests request "scriptPath"
     lua_pushlstring(tlModule->L, token, tokenSize); // requests request "scriptPath" scriptPath
@@ -249,7 +250,7 @@ int tucube_IHttp_onRequestHeaderField(char* token, ssize_t tokenSize, void* args
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); //requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); //requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
     lua_pushstring(tlModule->L, "recentHeaderField"); // requests request "recentHeaderField"
     for(ssize_t index = 0; index < tokenSize; ++index)
@@ -267,7 +268,7 @@ int tucube_IHttp_onRequestHeaderValue(char* token, ssize_t tokenSize, void* args
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
  
     lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
     lua_pushstring(tlModule->L, "recentHeaderField"); // requests request "recentHeaderField"
     lua_gettable(tlModule->L, -2); // requests request recentHeaderField
@@ -296,7 +297,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
         return 0;
     }
     lua_getglobal(tlModule->L, "requests"); // onRequestHeadersFinish requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // onRequestHeadersFinish requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // onRequestHeadersFinish requests clientIo
     lua_gettable(tlModule->L, -2); // onRequestHeadersFinish requests request
     lua_remove(tlModule->L, -2); // onRequestHeadersFinish request
     if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { //
@@ -327,7 +328,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
         lua_pushcfunction(tlModule->L, tucube_http_lua_onRequestBodyStart); // onRequestBodyStart
     }
     lua_getglobal(tlModule->L, "requests"); // onRequestBodyStart requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // onRequestBodyStart requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // onRequestBodyStart requests clientIo
     lua_gettable(tlModule->L, -2); // onRequestBodyStart requests request
     lua_remove(tlModule->L, -2); // onRequestBodyStart request
     if(lua_pcall(tlModule->L, 1, 0, 0) != 0) {
@@ -363,7 +364,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
         lua_pushcfunction(tlModule->L, tucube_http_lua_onRequestBody); // onRequestBody
     }
     lua_getglobal(tlModule->L, "requests"); // onRequestBody requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // onRequestBody requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // onRequestBody requests clientIo
     lua_gettable(tlModule->L, -2); // onRequestBody requests request
     lua_remove(tlModule->L, -2); // onRequestBody request
     lua_pushlstring(tlModule->L, bodyChunk, bodyChunkSize); // onRequestBody request bodyChunk
@@ -407,7 +408,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
         lua_pushcfunction(tlModule->L, tucube_http_lua_onRequestBodyFinish); // onRequestBodyFinish
     } 
     lua_getglobal(tlModule->L, "requests"); // onRequestBodyFinish requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // onRequestBodyFinish requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // onRequestBodyFinish requests clientIo
     lua_gettable(tlModule->L, -2); // onRequestBodyFinish requests request
     lua_remove(tlModule->L, -2); // onRequestBodyFinish request
     if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { //
@@ -425,7 +426,7 @@ int tucube_IHttp_onRequestFinish(void* args[]) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
  
     lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
     const char* requestUri;
     const char* scriptPath;
@@ -519,7 +520,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
 int tucube_IHttp_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, int* headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "requests"); // * requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // * requests request
     lua_pushstring(tlModule->L, "headers"); // * requests request "headers"
     lua_gettable(tlModule->L, -2); // * requests request headers
@@ -548,7 +549,7 @@ int tucube_IHttp_onGetRequestDoubleHeader(struct tucube_Module* module, struct t
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // * requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // * requests request
     lua_pushstring(tlModule->L, "headers"); // * requests request "headers"
     lua_gettable(tlModule->L, -2); // * requests request headers
@@ -577,7 +578,7 @@ int tucube_IHttp_onGetRequestStringHeader(struct tucube_Module* module, struct t
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // * requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // * requests request
     lua_pushstring(tlModule->L, "headers"); // * requests request "headers"
     lua_gettable(tlModule->L, -2); // * requests request headers
@@ -619,7 +620,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
         lua_pushcfunction(tlModule->L, tucube_http_lua_onGetRequestContentLength); // onGetRequestContentLength
     }
     lua_getglobal(tlModule->L, "requests"); // onGetRequestContentLength requests
-    lua_pushinteger(tlModule->L, *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket); // onGetRequestContentLength requests clientSocket
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // onGetRequestContentLength requests clientIo
     lua_gettable(tlModule->L, -2); // onGetRequestContentLength requests request
     lua_remove(tlModule->L, -2); // onGetRequestContentLength request
     if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // requestContentLength
@@ -729,8 +730,8 @@ int tucube_ICLocal_destroy(struct tucube_Module* module, struct tucube_ClData* c
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_pop(tlModule->L, lua_gettop(tlModule->L)); //
-    close(*GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket);
-    *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientSocket = -1;
+//    close(*GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo);
+//    *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo = -1;
     if(GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->responseBodyStream != NULL) {
         fclose(GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->responseBodyStream->f);
         GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->responseBodyStream->closef = NULL;
