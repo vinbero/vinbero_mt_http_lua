@@ -744,7 +744,6 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
 int tucube_IBase_tlDestroy(struct tucube_Module* module) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
- 
     if(tlModule != NULL) {
         lua_getglobal(tlModule->L, "onDestroy"); // onDestroy
         if(lua_isnil(tlModule->L, -1))
