@@ -99,17 +99,15 @@ int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Confi
 }
 
 int tucube_ICLocal_init(struct tucube_Module* module, struct tucube_ClData_List* clDataList, void* args[]) {
-#define TUCUBE_LOCAL_CLIENT_IO ((struct gaio_Io*)args[0])
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     struct tucube_ClData* clData = malloc(sizeof(struct tucube_ClData));
     GENC_LIST_ELEMENT_INIT(clData);
     clData->generic.pointer = malloc(1 * sizeof(struct tucube_http_lua_ClData));
-    GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo = TUCUBE_LOCAL_CLIENT_IO;
+    GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo = args[0];
     GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->responseBodyStream = NULL;
     GENC_LIST_APPEND(clDataList, clData);
     return 0;
-#undef TUCUBE_LOCAL_CLIENT_IO
 }
 
 
@@ -421,7 +419,7 @@ int tucube_IHttp_onRequestFinish(void* args[]) {
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
  
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
@@ -544,7 +542,7 @@ int tucube_IHttp_onGetRequestIntHeader(struct tucube_Module* module, struct tucu
 }
 int tucube_IHttp_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, double* headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // * requests
     lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // * requests request
@@ -573,7 +571,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
 
 int tucube_IHttp_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, const char** headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // * requests
     lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // * requests request
@@ -723,8 +721,6 @@ int tucube_ICLocal_destroy(struct tucube_Module* module, struct tucube_ClData* c
     warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_pop(tlModule->L, lua_gettop(tlModule->L)); //
-//    close(*GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo);
-//    *GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo = -1;
     if(GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->responseBodyStream != NULL) {
         fclose(GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->responseBodyStream->f);
         GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->responseBodyStream->closef = NULL;
