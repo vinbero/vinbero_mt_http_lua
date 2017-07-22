@@ -110,7 +110,6 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-
 int tucube_IHttp_onRequestStart(void* args[]) {
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
@@ -120,9 +119,6 @@ int tucube_IHttp_onRequestStart(void* args[]) {
     lua_newtable(tlModule->L); // requests clientIo request
     lua_pushstring(tlModule->L, "headers"); // requests clientIo request "headers"
     lua_newtable(tlModule->L); // requests clientIo request "headers" headers
-    lua_settable(tlModule->L, -3); // requests clientIo request
-    lua_pushstring(tlModule->L, "parameters"); // requests clientIo request "parameters"
-    lua_newtable(tlModule->L); // requests clientIo request "parameters" parameters
     lua_settable(tlModule->L, -3); // requests clientIo request
     lua_pushstring(tlModule->L, "body"); // requests clientIo request "body"
     lua_pushstring(tlModule->L, ""); // requests clientIo request "body" ""
@@ -152,11 +148,10 @@ int tucube_IHttp_onRequestStart(void* args[]) {
 }
 
 int tucube_IHttp_onRequestMethod(char* token, ssize_t tokenSize, void* args[]) {
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
@@ -168,10 +163,10 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
 }
 
 int tucube_IHttp_onRequestUri(char* token, ssize_t tokenSize, void* args[]) {
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
@@ -183,10 +178,10 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
 }
 
 int tucube_IHttp_onRequestProtocol(char* token, ssize_t tokenSize, void* args[]) {
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
@@ -198,10 +193,10 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
 }
 
 int tucube_IHttp_onRequestContentLength(char* token, ssize_t tokenSize, void* args[]) {
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_getglobal(tlModule->L, "requests"); // requests
     lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); //requests clientIo
     lua_gettable(tlModule->L, -2); // requests request
@@ -415,103 +410,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int tucube_IHttp_onRequestFinish(void* args[]) {
-    struct tucube_Module* module = args[0];
-    struct tucube_ClData* clData = args[1];
-    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
- 
-    lua_getglobal(tlModule->L, "requests"); // requests
-    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
-    lua_gettable(tlModule->L, -2); // requests request
-    const char* requestUri;
-    const char* scriptPath;
-    size_t scriptPathSize;
-    const char* pathInfo;
-    const char* queryString;
-    lua_pushstring(tlModule->L, "requestUri"); // requests request "requestUri"
-    lua_gettable(tlModule->L, -2); //requests request requestUri
-    requestUri = lua_tostring(tlModule->L, -1); // requests request requestUri
-    lua_pop(tlModule->L, 1); // requests request
-    lua_pushstring(tlModule->L, "scriptPath"); // requests request "scriptPath"
-    lua_gettable(tlModule->L, -2); // requests request scriptPath
-    if(lua_isnil(tlModule->L, -1)) { // requests request scriptPath 
-        lua_pop(tlModule->L, 1); // requests request
-        lua_pushstring(tlModule->L, "scriptPath"); // requests request "scriptPath"
-        scriptPath = "";
-        scriptPathSize = sizeof("") - 1;
-        lua_pushstring(tlModule->L, ""); // requests request "scriptPath" "" 
-        lua_settable(tlModule->L, -3); // requests request
-    }
-    else {
-        scriptPath = lua_tolstring(tlModule->L, -1, &scriptPathSize); // requests request scriptPath 
-        if(strncmp(scriptPath + scriptPathSize - 1, "/", sizeof("/") - 1) == 0) { // requests request scriptPath
-            warnx("%s: %u: scriptPath should not  end with /", __FILE__, __LINE__);
-            lua_pop(tlModule->L, 3); //
-            return -1;
-        }
-        lua_pop(tlModule->L, 1); // requests request
-    }
-    if((pathInfo = strstr(requestUri, scriptPath)) != requestUri) { // requests request scriptPath // if request uri doesn't begin with script name
-        warnx("%s: %u: request uri doesn't begin with script name", __FILE__, __LINE__);
-        lua_pop(tlModule->L, 3); //
-        return -1;
-    }
-    pathInfo += scriptPathSize;
-    if((queryString = strstr(pathInfo, "?")) != NULL) { // check if there is query string
-        ++queryString; // query string begins after the question mark
-        if(strstr(queryString, "?") != NULL) { // check if there is unnecessary question mark after query string
-            warnx("%s: %u: Unnecessary question mark after query string", __FILE__, __LINE__);
-            lua_pop(tlModule->L, 2); //
-            return -1;
-        }
- 
-        lua_pushstring(tlModule->L, "pathInfo"); // requests request "pathInfo"
-        if(queryString - pathInfo - 1 != 0) // check if path info is not empty string
-            lua_pushlstring(tlModule->L, pathInfo, queryString - pathInfo - 1); // requests request "pathInfo" pathInfo 
-        else
-            lua_pushstring(tlModule->L, "/"); // requests request "pathInfo" pathInfo 
-        lua_settable(tlModule->L, -3); // requests request
-        lua_pushstring(tlModule->L, "queryString"); // requests request "queryString"
-        lua_pushstring(tlModule->L, queryString); // requests request "queryString" queryString 
-        lua_settable(tlModule->L, -3); // requests request 
-    }
-    else {
-        lua_pushstring(tlModule->L, "queryString"); // requests request "queryString"
-        lua_pushstring(tlModule->L, ""); // requests request "queryString" ""
-        lua_settable(tlModule->L, -3); // requests request
-        lua_pushstring(tlModule->L, "pathInfo"); // requests request "pathInfo"
-        if(strlen(pathInfo) != 0) // check if path info is not empty string
-            lua_pushstring(tlModule->L, pathInfo); // requests request "pathInfo" pathInfo 
-        else
-            lua_pushstring(tlModule->L, "/"); // requests request "pathInfo" pathInfo 
-        lua_settable(tlModule->L, -3); // requests request
-    }
-    lua_getglobal(tlModule->L, "onRequestFinish"); // requests request onRequestFinish
-    if(lua_isnil(tlModule->L, -1)) { // requests request nil
-        warnx("%s: %u: onRequestFinish() is not found in the script", __FILE__, __LINE__);
-        lua_pop(tlModule->L, 3); //
-        return -1;
-    }
-    lua_pushvalue(tlModule->L, -2); // requests request onRequestFinish request
-    if(lua_pcall(tlModule->L, 1, 3, 0) != 0) { // requests request statusCode headers body
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // requests request errorString
-        lua_pop(tlModule->L, 3); //
-        return -1;
-    }
-    lua_remove(tlModule->L, 1); // request statusCode headers body
-    lua_remove(tlModule->L, 1); // statusCode headers body
-    if(!(lua_isnumber(tlModule->L, -3) && lua_istable(tlModule->L, -2) && (lua_isstring(tlModule->L, -1) || lua_isfunction(tlModule->L, -1) || lua_isnil(tlModule->L, -1) || lua_isuserdata(tlModule->L, -1)))) {
-        lua_pop(tlModule->L, lua_gettop(tlModule->L)); //
-        lua_pushinteger(tlModule->L, 500); // 500
-        lua_newtable(tlModule->L); // 500 headers
-        lua_pushstring(tlModule->L, "Content-Type"); // 500 headers "Content-Type"
-        lua_pushstring(tlModule->L, "text/plain; charset=utf8"); // 500 headers "Content-Type" "text/plain; charset=utf8"
-        lua_settable(tlModule->L, -3); // 500 headers 
-        lua_pushstring(tlModule->L, "500 Internal Server Error"); // 500 headers "Internal swerver error"
-    }
-    return 0;
-}
+
 
 int tucube_IHttp_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, int* headerValue) {
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
@@ -631,6 +530,105 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_pop(tlModule->L, 1); //
     return 0;
 }
+
+int tucube_IHttp_onRequestFinish(void* args[]) {
+    struct tucube_Module* module = args[0];
+    struct tucube_ClData* clData = args[1];
+    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+ 
+    lua_getglobal(tlModule->L, "requests"); // requests
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientIo); // requests clientIo
+    lua_gettable(tlModule->L, -2); // requests request
+    const char* requestUri;
+    const char* scriptPath;
+    size_t scriptPathSize;
+    const char* pathInfo;
+    const char* queryString;
+    lua_pushstring(tlModule->L, "requestUri"); // requests request "requestUri"
+    lua_gettable(tlModule->L, -2); //requests request requestUri
+    requestUri = lua_tostring(tlModule->L, -1); // requests request requestUri
+    lua_pop(tlModule->L, 1); // requests request
+    lua_pushstring(tlModule->L, "scriptPath"); // requests request "scriptPath"
+    lua_gettable(tlModule->L, -2); // requests request scriptPath
+    if(lua_isnil(tlModule->L, -1)) { // requests request scriptPath 
+        lua_pop(tlModule->L, 1); // requests request
+        lua_pushstring(tlModule->L, "scriptPath"); // requests request "scriptPath"
+        scriptPath = "";
+        scriptPathSize = sizeof("") - 1;
+        lua_pushstring(tlModule->L, ""); // requests request "scriptPath" "" 
+        lua_settable(tlModule->L, -3); // requests request
+    }
+    else {
+        scriptPath = lua_tolstring(tlModule->L, -1, &scriptPathSize); // requests request scriptPath 
+        if(strncmp(scriptPath + scriptPathSize - 1, "/", sizeof("/") - 1) == 0) { // requests request scriptPath
+            warnx("%s: %u: scriptPath should not  end with /", __FILE__, __LINE__);
+            lua_pop(tlModule->L, 3); //
+            return -1;
+        }
+        lua_pop(tlModule->L, 1); // requests request
+    }
+    if((pathInfo = strstr(requestUri, scriptPath)) != requestUri) { // requests request scriptPath // if request uri doesn't begin with script name
+        warnx("%s: %u: request uri doesn't begin with script name", __FILE__, __LINE__);
+        lua_pop(tlModule->L, 3); //
+        return -1;
+    }
+    pathInfo += scriptPathSize;
+    if((queryString = strstr(pathInfo, "?")) != NULL) { // check if there is query string
+        ++queryString; // query string begins after the question mark
+        if(strstr(queryString, "?") != NULL) { // check if there is unnecessary question mark after query string
+            warnx("%s: %u: Unnecessary question mark after query string", __FILE__, __LINE__);
+            lua_pop(tlModule->L, 2); //
+            return -1;
+        }
+ 
+        lua_pushstring(tlModule->L, "pathInfo"); // requests request "pathInfo"
+        if(queryString - pathInfo - 1 != 0) // check if path info is not empty string
+            lua_pushlstring(tlModule->L, pathInfo, queryString - pathInfo - 1); // requests request "pathInfo" pathInfo 
+        else
+            lua_pushstring(tlModule->L, "/"); // requests request "pathInfo" pathInfo 
+        lua_settable(tlModule->L, -3); // requests request
+        lua_pushstring(tlModule->L, "queryString"); // requests request "queryString"
+        lua_pushstring(tlModule->L, queryString); // requests request "queryString" queryString 
+        lua_settable(tlModule->L, -3); // requests request 
+    }
+    else {
+        lua_pushstring(tlModule->L, "queryString"); // requests request "queryString"
+        lua_pushstring(tlModule->L, ""); // requests request "queryString" ""
+        lua_settable(tlModule->L, -3); // requests request
+        lua_pushstring(tlModule->L, "pathInfo"); // requests request "pathInfo"
+        if(strlen(pathInfo) != 0) // check if path info is not empty string
+            lua_pushstring(tlModule->L, pathInfo); // requests request "pathInfo" pathInfo 
+        else
+            lua_pushstring(tlModule->L, "/"); // requests request "pathInfo" pathInfo 
+        lua_settable(tlModule->L, -3); // requests request
+    }
+    lua_getglobal(tlModule->L, "onRequestFinish"); // requests request onRequestFinish
+    if(lua_isnil(tlModule->L, -1)) { // requests request nil
+        warnx("%s: %u: onRequestFinish() is not found in the script", __FILE__, __LINE__);
+        lua_pop(tlModule->L, 3); //
+        return -1;
+    }
+    lua_pushvalue(tlModule->L, -2); // requests request onRequestFinish request
+    if(lua_pcall(tlModule->L, 1, 3, 0) != 0) { // requests request statusCode headers body
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // requests request errorString
+        lua_pop(tlModule->L, 3); //
+        return -1;
+    }
+    lua_remove(tlModule->L, 1); // request statusCode headers body
+    lua_remove(tlModule->L, 1); // statusCode headers body
+    if(!(lua_isnumber(tlModule->L, -3) && lua_istable(tlModule->L, -2) && (lua_isstring(tlModule->L, -1) || lua_isfunction(tlModule->L, -1) || lua_isnil(tlModule->L, -1) || lua_isuserdata(tlModule->L, -1)))) {
+        lua_pop(tlModule->L, lua_gettop(tlModule->L)); //
+        lua_pushinteger(tlModule->L, 500); // 500
+        lua_newtable(tlModule->L); // 500 headers
+        lua_pushstring(tlModule->L, "Content-Type"); // 500 headers "Content-Type"
+        lua_pushstring(tlModule->L, "text/plain; charset=utf8"); // 500 headers "Content-Type" "text/plain; charset=utf8"
+        lua_settable(tlModule->L, -3); // 500 headers 
+        lua_pushstring(tlModule->L, "500 Internal Server Error"); // 500 headers "Internal swerver error"
+    }
+    return 0;
+}
+/*
 int tucube_IHttp_onResponseStatusCode(struct tucube_Module* module, struct tucube_ClData* clData, int* statusCode) {
     warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
@@ -676,7 +674,6 @@ int tucube_IHttp_onResponseBodyStart(struct tucube_Module* module, struct tucube
         return 0;
     return -1;
 }
-
 int tucube_IHttp_onResponseBody(struct tucube_Module* module, struct tucube_ClData* clData, struct tucube_epoll_http_ResponseBody* responseBody) {
     warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
@@ -716,6 +713,7 @@ int tucube_IHttp_onResponseBody(struct tucube_Module* module, struct tucube_ClDa
     }
     return -1;
 }
+*/
 
 int tucube_ICLocal_destroy(struct tucube_Module* module, struct tucube_ClData* clData) {
     warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
