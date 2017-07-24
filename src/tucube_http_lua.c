@@ -40,12 +40,12 @@ int tucube_IBase_init(struct tucube_Module_Config* moduleConfig, struct tucube_M
     module->tlModuleKey = malloc(1 * sizeof(pthread_key_t));
     pthread_key_create(module->tlModuleKey, NULL);
     GENC_LIST_APPEND(moduleList, module);
-    json_t* scriptArg = json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptArg");
-    if(scriptArg != NULL && json_is_object(scriptArg)) {
+    json_t* scriptArgs = json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptArgs");
+    if(scriptArgs != NULL && json_is_object(scriptArgs)) {
         json_object_set_new(
             json_array_get(moduleConfig->json, 1),
-            "tucube_http_lua.scriptArg",
-            json_string(json_dumps(scriptArg, 0))
+            "tucube_http_lua.scriptArgs",
+            json_string(json_dumps(scriptArgs, 0))
         );
     }
     return 0;
@@ -177,7 +177,7 @@ int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Confi
     luaL_openlibs(tlModule->L);
     lua_newtable(tlModule->L); // tucube
     lua_pushstring(tlModule->L, "args"); // tucube "args"
-    if(json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptArg") != NULL) {
+    if(json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptArgs") != NULL) {
         lua_pushstring(
             tlModule->L,
             json_string_value(
