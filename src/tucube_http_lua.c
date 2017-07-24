@@ -217,26 +217,26 @@ int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Confi
     lua_pushcfunction(tlModule->L, tucube_http_lua_writeStringHeader); // tucube "responseCallbacks" responseCallbacks "writeStringHeader" writeStringHeader
     lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks
     lua_settable(tlModule->L, -3); // tucube
-    if(luaL_loadfile(tlModule->L, scriptFile) != LUA_OK) { // tucube chunk
+    lua_setglobal(tlModule->L, "tucube"); //
+    if(luaL_loadfile(tlModule->L, scriptFile) != LUA_OK) { // chunk
         warnx("%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
         pthread_exit(NULL);
     }
-    if(lua_pcall(tlModule->L, 0, 0, 0) != 0) { // tucube errorString 
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube errorString
-        lua_pop(tlModule->L, 2); //
+    if(lua_pcall(tlModule->L, 0, 0, 0) != 0) { // errorString 
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // errorString
+        lua_pop(tlModule->L, 1); //
         pthread_exit(NULL);
     }
-    lua_getglobal(tlModule->L, "onInit"); // tucube onInit
-    if(lua_isnil(tlModule->L, -1)) // tucube nil
-        lua_pop(tlModule->L, 1); // tucube
-    else { // tucube onInit
-        if(lua_pcall(tlModule->L, 0, 0, 0) != 0) { // tucube
-            warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube errorString
-            lua_pop(tlModule->L, 2); //
+    lua_getglobal(tlModule->L, "onInit"); // onInit
+    if(lua_isnil(tlModule->L, -1)) // nil
+        lua_pop(tlModule->L, 1); //
+    else { // onInit
+        if(lua_pcall(tlModule->L, 0, 0, 0) != 0) { //
+            warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // errorString
+            lua_pop(tlModule->L, 1); //
 	    pthread_exit(NULL);
         }
     }
-    lua_setglobal(tlModule->L, "tucube"); //
     assert(lua_gettop(tlModule->L) == 0);
     pthread_setspecific(*module->tlModuleKey, tlModule);
     return 0;
