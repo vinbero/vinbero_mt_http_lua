@@ -158,8 +158,6 @@ static int tucube_http_lua_writeStringHeader(lua_State* L) {
     return 0;
 }
 
-
-
 int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Config* moduleConfig, void* args[]) {
     const char* scriptFile = NULL;
     if(json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptFile") != NULL) {
@@ -186,11 +184,8 @@ int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Confi
     } else
         lua_pushnil(tlModule->L); // tucube "args" nil
     lua_settable(tlModule->L, -3); // tucube 
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_newtable(tlModule->L); // tucube "requests" requests
-    lua_settable(tlModule->L, -3); // tucube
-    lua_pushstring(tlModule->L, "responses"); // tucube "responses"
-    lua_newtable(tlModule->L); // tucube "responses" responses
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_newtable(tlModule->L); // tucube "clients" clients
     lua_settable(tlModule->L, -3); // tucube
     lua_pushstring(tlModule->L, "responseCallbacks"); // tucube "responseCallbacks"
     lua_newtable(tlModule->L); // tucube "responseCallbacks" reponseCallbacks
@@ -222,7 +217,7 @@ int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Confi
     lua_pushcfunction(tlModule->L, tucube_http_lua_writeStringHeader); // tucube "responseCallbacks" responseCallbacks "writeStringHeader" writeStringHeader
     lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks
     lua_settable(tlModule->L, -3); // tucube
-    if(luaL_loadfile(tlModule->L, scriptFile) != LUA_OK) { // tucube file
+    if(luaL_loadfile(tlModule->L, scriptFile) != LUA_OK) { // tucube chunk
         warnx("%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
         pthread_exit(NULL);
     }
@@ -265,56 +260,49 @@ int tucube_IHttp_onRequestStart(void* args[]) {
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
-    lua_newtable(tlModule->L); // tucube requests clientId request
-    lua_pushstring(tlModule->L, "headers"); // tucube requests clientId request "headers"
-    lua_newtable(tlModule->L); // tucube requests clientId request "headers" headers
-    lua_settable(tlModule->L, -3); // tucube requests clientId request
-    lua_pushstring(tlModule->L, "body"); // tucube requests clientId request "body"
-    lua_pushstring(tlModule->L, ""); // tucube requests clientId request "body" ""
-    lua_settable(tlModule->L, -3); // tucube requests clientId request
-    lua_pushstring(tlModule->L, "contentLength"); // tucube requests clientId request "contentLength"
-    lua_pushinteger(tlModule->L, 0); // tucube requests clientId request "contentLength" 0
-    lua_settable(tlModule->L, -3); // tucube requests clientId request
-    lua_settable(tlModule->L, -3); // tucube requests
-    lua_pop(tlModule->L, 1); // tucube
-    lua_pushstring(tlModule->L, "responses"); // tucube "responses"
-    lua_gettable(tlModule->L, -2); // tucube responses
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube responses clientId
-    lua_newtable(tlModule->L); // tucube responses clientId response
-    lua_pushstring(tlModule->L, "cObject"); // tucube responses clientId response "cObject"
-    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->response); // tucube responses clientId response "cObject" cObject
-    lua_settable(tlModule->L, -3); // tucube responses clientId response
-    lua_pushstring(tlModule->L, "responseCallbacks"); // tucube responses clientId response "responseCallbacks"
-    lua_gettable(tlModule->L, -5); // tucube responses clientId response responseCallbacks
-    lua_setmetatable(tlModule->L, -2); // tucube responses clientId response
-    lua_settable(tlModule->L, -3); // tucube responses
-    lua_pop(tlModule->L, 1); // tucube
-    lua_getglobal(tlModule->L, "onRequestStart"); // tucube onRequestStart
-    if(lua_isnil(tlModule->L, -1)) { // tucube nil
-        lua_pop(tlModule->L, 2); //
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_newtable(tlModule->L); // tucube clients clientId client
+    lua_pushstring(tlModule->L, "request"); // tucube clients clientId client "request"
+    lua_newtable(tlModule->L); // tucube clients clientId client "request" request
+    lua_pushstring(tlModule->L, "headers"); // tucube clients clientId client "request" request "headers"
+    lua_newtable(tlModule->L); // tucube clients clientId client "request" request "headers" headers
+    lua_settable(tlModule->L, -3); // tucube clients clientId client "request" request
+    lua_pushstring(tlModule->L, "body"); // tucube clients clientId client "request" request "body"
+    lua_pushstring(tlModule->L, ""); // tucube clients clientId client "request" request "body" ""
+    lua_settable(tlModule->L, -3); // tucube clients clientId client "request" request
+    lua_pushstring(tlModule->L, "contentLength"); // tucube clients clientId client "request" request "contentLength"
+    lua_pushinteger(tlModule->L, 0); // tucube clients clientId client "request" request "contentLength" 0
+    lua_settable(tlModule->L, -3); // tucube clients clientId client "request" request
+    lua_settable(tlModule->L, -3); // tucube clients clientId client
+    lua_pushstring(tlModule->L, "response"); // tucube clients clientId client "response"
+    lua_newtable(tlModule->L); // tucube clients clientId client "response" response
+    lua_pushstring(tlModule->L, "cObject"); // tucube clients clientId client "response" response "cObject"
+    lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->response); // tucube clients clientId client "response" response "cObject" cObject
+    lua_settable(tlModule->L, -3); // tucube clients clientId client "response" response
+    lua_pushstring(tlModule->L, "responseCallbacks"); // tucube clients clientId client "response" response "responseCallbacks"
+    lua_gettable(tlModule->L, -7); // tucube clients clientId client "response" response responseCallbacks
+    lua_setmetatable(tlModule->L, -2); // tucube clients clientId client "response" response
+    lua_settable(tlModule->L, -3); // tucube clients clientId client
+    lua_settable(tlModule->L, -3); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_remove(tlModule->L, -2); // tucube client
+    lua_getglobal(tlModule->L, "onRequestStart"); // tucube client onRequestStart
+    if(lua_isnil(tlModule->L, -1)) { // tucube client nil
+        lua_pop(tlModule->L, 3); //
         assert(lua_gettop(tlModule->L) == 0);
         return 0;
     }
-    lua_pushstring(tlModule->L, "requests"); // tucube onRequestStart "requests"
-    lua_gettable(tlModule->L, -3); // tucube onRequestStart requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube onRequestStart requests clientId
-    lua_gettable(tlModule->L, -2); // tucube onRequestStart requests request
-    lua_remove(tlModule->L, -2); // tucube onRequestStart request
-    lua_pushstring(tlModule->L, "responses"); // tucube onRequestStart request "responses"
-    lua_gettable(tlModule->L, -4); // tucube onRequestStart request responses
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube onRequestStart request responses clientId
-    lua_gettable(tlModule->L, -2); // tucube onRequestStart request responses response
-    lua_remove(tlModule->L, -2); // tucube onRequestStart request response
-    if(lua_pcall(tlModule->L, 2, 0, 0) != 0) { // tucube errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube errorString
-        lua_pop(tlModule->L, 2); //
+    lua_pushvalue(tlModule->L, -2); // tucube client onRequestStart client
+    if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // tucube client errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube client errorString
+        lua_pop(tlModule->L, 3); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
     }
-    lua_pop(tlModule->L, 1); //
+    lua_pop(tlModule->L, 2); //
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
@@ -325,14 +313,16 @@ int tucube_IHttp_onRequestMethod(char* token, ssize_t tokenSize, void* args[]) {
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
-    lua_gettable(tlModule->L, -2); // tucube requests request
-    lua_pushstring(tlModule->L, "method"); // tucube requests request "method"
-    lua_pushlstring(tlModule->L, token, tokenSize); // tucube requests request "method" method 
-    lua_settable(tlModule->L, -3); // tucube requests request
-    lua_pop(tlModule->L, 3); // 
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_pushstring(tlModule->L, "request"); // tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // tucube clients client request
+    lua_pushstring(tlModule->L, "method"); // tucube clients client request "method"
+    lua_pushlstring(tlModule->L, token, tokenSize); // tucube clients client request "method" method 
+    lua_settable(tlModule->L, -3); // tucube clients client request
+    lua_pop(tlModule->L, 4); // 
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
@@ -343,14 +333,16 @@ int tucube_IHttp_onRequestUri(char* token, ssize_t tokenSize, void* args[]) {
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
-    lua_gettable(tlModule->L, -2); // tucube requests request
-    lua_pushstring(tlModule->L, "requestUri"); // tucube requests request "requestUri"
-    lua_pushlstring(tlModule->L, token, tokenSize); // tucube requests request "requestUri" requestUri 
-    lua_settable(tlModule->L, -3); // tucube requests request
-    lua_pop(tlModule->L, 3); //
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_pushstring(tlModule->L, "request"); // tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // tucube clients client request
+    lua_pushstring(tlModule->L, "requestUri"); // tucube clients client request "requestUri"
+    lua_pushlstring(tlModule->L, token, tokenSize); // tucube clients client request "requestUri" requestUri 
+    lua_settable(tlModule->L, -3); // tucube clients client request
+    lua_pop(tlModule->L, 4); //
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
@@ -361,14 +353,16 @@ int tucube_IHttp_onRequestVersionMajor(int major, void* args[]) {
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
-    lua_gettable(tlModule->L, -2); // tucube requests request
-    lua_pushstring(tlModule->L, "versionMajor"); // tucube requests request "versionMajor"
-    lua_pushinteger(tlModule->L, major); // tucube requests request "versionMajor" versionMajor 
-    lua_settable(tlModule->L, -3); // tucube requests request
-    lua_pop(tlModule->L, 3); //
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_pushstring(tlModule->L, "request"); // tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // tucube clients client request
+    lua_pushstring(tlModule->L, "versionMajor"); // tucube clients client request "versionMajor"
+    lua_pushinteger(tlModule->L, major); // tucube clients client request "versionMajor" versionMajor 
+    lua_settable(tlModule->L, -3); // tucube clients client request
+    lua_pop(tlModule->L, 4); //
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
@@ -379,14 +373,16 @@ int tucube_IHttp_onRequestVersionMinor(int minor, void* args[]) {
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
-    lua_gettable(tlModule->L, -2); // tucube requests request
-    lua_pushstring(tlModule->L, "versionMinor"); // tucube requests request "versionMinor"
-    lua_pushinteger(tlModule->L, minor); // tucube requests request "versionMinor" versionMinor
-    lua_settable(tlModule->L, -3); // tucube requests request
-    lua_pop(tlModule->L, 3); //
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_pushstring(tlModule->L, "request"); // tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // tucube clients client request
+    lua_pushstring(tlModule->L, "versionMinor"); // tucube clients client request "versionMinor"
+    lua_pushinteger(tlModule->L, minor); // tucube clients client request "versionMinor" versionMinor
+    lua_settable(tlModule->L, -3); // tucube clients client request
+    lua_pop(tlModule->L, 4); //
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
@@ -397,14 +393,16 @@ int tucube_IHttp_onRequestContentLength(char* token, ssize_t tokenSize, void* ar
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
-    lua_gettable(tlModule->L, -2); // tucube requests request
-    lua_pushstring(tlModule->L, "contentLength"); // tucube requests request "contentLength"
-    lua_pushlstring(tlModule->L, token, tokenSize); // tucube requests request "contentLength" contentLength
-    lua_settable(tlModule->L, -3); // tucube requests request
-    lua_pop(tlModule->L, 3); // 
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_pushstring(tlModule->L, "request"); // tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // tucube clients client request
+    lua_pushstring(tlModule->L, "contentLength"); // tucube clients client request "contentLength"
+    lua_pushlstring(tlModule->L, token, tokenSize); // tucube clients client request "contentLength" contentLength
+    lua_settable(tlModule->L, -3); // tucube clients client request
+    lua_pop(tlModule->L, 4); // 
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
@@ -415,14 +413,16 @@ int tucube_IHttp_onRequestContentType(char* token, ssize_t tokenSize, void* args
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
-    lua_gettable(tlModule->L, -2); // tucube requests request
-    lua_pushstring(tlModule->L, "contentType"); // tucube requests request "contentType"
-    lua_pushlstring(tlModule->L, token, tokenSize); // tucube requests request "contentType" contentType
-    lua_settable(tlModule->L, -3); // tucube requests request
-    lua_pop(tlModule->L, 3); //
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_pushstring(tlModule->L, "request"); // tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // tucube clients client request
+    lua_pushstring(tlModule->L, "contentType"); // tucube clients client request "contentType"
+    lua_pushlstring(tlModule->L, token, tokenSize); // tucube clients client request "contentType" contentType
+    lua_settable(tlModule->L, -3); // tucube clients client request
+    lua_pop(tlModule->L, 4); //
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
@@ -433,14 +433,16 @@ int tucube_IHttp_onRequestScriptPath(char* token, ssize_t tokenSize, void* args[
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
-    lua_gettable(tlModule->L, -2); // tucube requests request
-    lua_pushstring(tlModule->L, "scriptPath"); // tucube requests request "scriptPath"
-    lua_pushlstring(tlModule->L, token, tokenSize); // tucube requests request "scriptPath" scriptPath
-    lua_settable(tlModule->L, -3); // tucube requests request
-    lua_pop(tlModule->L, 3); // 
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clientss clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client 
+    lua_pushstring(tlModule->L, "request"); // tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // tucube clients client request
+    lua_pushstring(tlModule->L, "scriptPath"); // tucube clients client request "scriptPath"
+    lua_pushlstring(tlModule->L, token, tokenSize); // tucube clients client request "scriptPath" scriptPath
+    lua_settable(tlModule->L, -3); // tucube clients client request
+    lua_pop(tlModule->L, 4); //
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
@@ -451,42 +453,47 @@ int tucube_IHttp_onRequestHeaderField(char* token, ssize_t tokenSize, void* args
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
-    lua_gettable(tlModule->L, -2); // tucube requests request
-    lua_pushstring(tlModule->L, "recentHeaderField"); // tucube requests request "recentHeaderField"
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_pushstring(tlModule->L, "request"); // tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // tucube clients client request
+    lua_pushstring(tlModule->L, "recentHeaderField"); // tucube clients client request "recentHeaderField"
     for(ssize_t index = 0; index < tokenSize; ++index)
         token[index] = toupper(token[index]);
-    lua_pushlstring(tlModule->L, token, tokenSize); // tucube requests request "recentHeaderField" recentHeaderField
-    lua_settable(tlModule->L, -3); // tucube requests request
-    lua_pop(tlModule->L, 3); //
+    lua_pushlstring(tlModule->L, token, tokenSize); // tucube clients client request "recentHeaderField" recentHeaderField
+    lua_settable(tlModule->L, -3); // tucube clients client request
+    lua_pop(tlModule->L, 4); //
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
+
 int tucube_IHttp_onRequestHeaderValue(char* token, ssize_t tokenSize, void* args[]) {
     warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
-    lua_gettable(tlModule->L, -2); // tucube requests request
-    lua_pushstring(tlModule->L, "recentHeaderField"); // tucube requests request "recentHeaderField"
-    lua_gettable(tlModule->L, -2); // tucube requests request recentHeaderField
-    lua_pushvalue(tlModule->L, -2); // tucube requests request recentHeaderField request
-    lua_pushstring(tlModule->L, "headers"); // tucube requests request recentHeaderField request "headers"
-    lua_gettable(tlModule->L, -2); // tucube requests request recentHeaderField request headers
-    lua_pushvalue(tlModule->L, -3); // tucube requests request recentHeaderField request headers requestHeaderField
-    lua_pushlstring(tlModule->L, token, tokenSize); // tucube requests request recentHeaderField request headers recentHeaderField token
-    lua_settable(tlModule->L, -3); // tucube requests request recentHeaderField request headers
-    lua_pop(tlModule->L, 3); // tucube requests request
-    lua_pushstring(tlModule->L, "recentHeaderField"); // tucube requests request "recentHeaderField"
-    lua_pushnil(tlModule->L); // tucube requests request "recentHeaderField" nil
-    lua_settable(tlModule->L, -3); // tucube requests request
-    lua_pop(tlModule->L, 3); //
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_pushstring(tlModule->L, "request"); // tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // tucube clients client request
+    lua_pushstring(tlModule->L, "recentHeaderField"); // tucube clients client request "recentHeaderField"
+    lua_gettable(tlModule->L, -2); // tucube clients client request recentHeaderField
+    lua_pushvalue(tlModule->L, -2); // tucube clients client request recentHeaderField request
+    lua_pushstring(tlModule->L, "headers"); // tucube clients client request recentHeaderField request "headers"
+    lua_gettable(tlModule->L, -2); // tucube clients client request recentHeaderField request headers
+    lua_pushvalue(tlModule->L, -3); // tucube clients client request recentHeaderField request headers requestHeaderField
+    lua_pushlstring(tlModule->L, token, tokenSize); // tucube clients client request recentHeaderField request headers recentHeaderField token
+    lua_settable(tlModule->L, -3); // tucube clients client request recentHeaderField request headers
+    lua_pop(tlModule->L, 3); // tucube clients client request
+    lua_pushstring(tlModule->L, "recentHeaderField"); // tucube clients client request "recentHeaderField"
+    lua_pushnil(tlModule->L); // tucube clients client request "recentHeaderField" nil
+    lua_settable(tlModule->L, -3); // tucube clients client request
+    lua_pop(tlModule->L, 4); //
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
@@ -497,25 +504,20 @@ int tucube_IHttp_onRequestHeadersFinish(void* args[]) {
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_getglobal(tlModule->L, "onRequestHeadersFinish"); // tucube onRequestHeadersFinish
-    if(lua_isnil(tlModule->L, -1)) { // tucube nil
-        lua_pop(tlModule->L, 2); //
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_getglobal(tlModule->L, "onRequestHeadersFinish"); // tucube clients client onRequestHeadersFinish
+    if(lua_isnil(tlModule->L, -1)) { // tucube clients client nil
+        lua_pop(tlModule->L, 4); //
         assert(lua_gettop(tlModule->L) == 0);
         return 0;
     }
-    lua_pushstring(tlModule->L, "requests"); // tucube onRequestHeadersFinish "requests"
-    lua_gettable(tlModule->L, -3); // tucube onRequestHeadersFinish requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube onRequestHeadersFinish requests clientId
-    lua_gettable(tlModule->L, -2); // tucube onRequestHeadersFinish requests request
-    lua_remove(tlModule->L, -2); // tucube onRequestHeadersFinish request
-    lua_pushstring(tlModule->L, "responses"); // tucube onRequestHeadersFinish request "responses"
-    lua_gettable(tlModule->L, -4); // tucube onRequestHeadersFinish request responses
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube onRequestHeadersFinish requests responses clientId
-    lua_gettable(tlModule->L, -2); // tucube onRequestHeadersFinish requests responses response
-    lua_remove(tlModule->L, -2); // tucube onRequestHeadersFinish requests response
-    if(lua_pcall(tlModule->L, 2, 0, 0) != 0) { // tucube errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube errorString
-        lua_pop(tlModule->L, 2); //
+    lua_pushvalue(tlModule->L, -2); // tucube clients client onRequestHeadersFinish client
+    if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // tucube clients client errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1));
+        lua_pop(tlModule->L, 4); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
     }
@@ -525,10 +527,13 @@ int tucube_IHttp_onRequestHeadersFinish(void* args[]) {
 }
 
 static int tucube_http_lua_onRequestBodyStart(lua_State* L) {
-    // * request
-    lua_pushstring(L, "body"); // * request "body"
-    lua_newtable(L); // * request "body" body
-    lua_settable(L, -3); // * request
+    // * client
+    lua_pushstring(L, "request"); // * client "request"
+    lua_gettable(L, -2); // * client request
+    lua_pushstring(L, "body"); // * client request "body"
+    lua_newtable(L); // * client request "body" body
+    lua_settable(L, -3); // * client request
+    lua_pop(L, 1); // * client
     return 0;
 }
 
@@ -565,21 +570,23 @@ int tucube_IHttp_onRequestBodyStart(void* args[]) {
 }
 
 static int tucube_http_lua_onRequestBody(lua_State* L) {
-    // * request response bodyChunk
-    lua_getglobal(L, "table"); // * request response bodyChunk table
-    lua_pushstring(L, "insert"); // * request response bodyChunk table "insert"
-    lua_gettable(L, -2); // * request response bodyChunk table insert
-    lua_pushvalue(L, -5); // * request response bodyChunk table insert request
-    lua_pushstring(L, "body"); // * request response bodyChunk table insert request "body"
-    lua_gettable(L, -2); // * request response bodyChunk table insert request body
-    lua_remove(L, -2); // * request response bodyChunk table insert body
-    lua_pushvalue(L, 2); // * request response bodyChunk table insert body bodyChunk
-    if(lua_pcall(L, 2, 0, 0) != 0) { // * request response bodyChunk table errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(L, -1)); // * request response bodyChunk table errorString
-        lua_pop(L, 1); // * request response bodyChunk
+    // * client bodyChunk
+    lua_pushstring(L, "request"); // * client bodyChunk "request"
+    lua_gettable(L, -3); // * client bodyChunk request
+    lua_getglobal(L, "table"); // * client bodyChunk request table
+    lua_pushstring(L, "insert"); // * client bodyChunk request table "insert"
+    lua_gettable(L, -2); // * client bodyChunk request table insert
+    lua_pushvalue(L, -3); // * client bodyChunk request table insert request
+    lua_pushstring(L, "body"); // * client bodyChunk request table insert request "body"
+    lua_gettable(L, -2); // * client bodyChunk request table insert request body
+    lua_remove(L, -2); // * client bodyChunk request table insert body
+    lua_pushvalue(L, -5); // * client bodyChunk request table insert body bodyChunk
+    if(lua_pcall(L, 2, 0, 0) != 0) { // * client bodyChunk request table errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(L, -1));
+        lua_pop(L, 3); // * client bodyChunk
         luaL_error(L, "tucube_http_lua_onRequestBody() failed"); //
     }
-    lua_pop(L, 1); // * request response bodyChunk
+    lua_pop(L, 2); // * client bodyChunk
     return 0;
 }
 
@@ -589,48 +596,46 @@ int tucube_IHttp_onRequestBody(char* bodyChunk, ssize_t bodyChunkSize, void* arg
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushstring(tlModule->L, "responses"); // tucube requests "responses"
-    lua_gettable(tlModule->L, -3); // tucube requests responses
-    lua_getglobal(tlModule->L, "onRequestBody"); // tucube requests onRequestBody
-    if(lua_isnil(tlModule->L, -1)) { // tucube requests responses nil
-        lua_pop(tlModule->L, 1); //  tucube requests responses
-        lua_pushcfunction(tlModule->L, tucube_http_lua_onRequestBody); // tucube requests responses onRequestBody
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_getglobal(tlModule->L, "onRequestBody"); // tucube clients onRequestBody
+    if(lua_isnil(tlModule->L, -1)) { // tucube clients nil
+        lua_pop(tlModule->L, 1); //  tucube clients
+        lua_pushcfunction(tlModule->L, tucube_http_lua_onRequestBody); // tucube clients onRequestBody
     }
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests responses onRequestBody clientId
-    lua_gettable(tlModule->L, -4); // tucube requests responses onRequestBody request
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests responses onRequestBody request clientId
-    lua_gettable(tlModule->L, -4); // tucube requests responses onRequestBody request response
-    lua_pushlstring(tlModule->L, bodyChunk, bodyChunkSize); // tucube requests responses onRequestBody request response bodyChunk
-    if(lua_pcall(tlModule->L, 2, 0, 0) != 0) { // tucube requests responses errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube requests responses errorString
-        lua_pop(tlModule->L, 4); //
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients onRequestBody clientId
+    lua_gettable(tlModule->L, -3); // tucube clients onRequestBody client
+    lua_pushlstring(tlModule->L, bodyChunk, bodyChunkSize); // tucube clients onRequestBody client bodyChunk
+    if(lua_pcall(tlModule->L, 2, 0, 0) != 0) { // tucube clients errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube clients errorString
+        lua_pop(tlModule->L, 3); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
     }
-    lua_pop(tlModule->L, 3); //
+    lua_pop(tlModule->L, 2); //
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
 static int tucube_http_lua_onRequestBodyFinish(lua_State* L) {
-    // * request response
-    lua_pushstring(L, "body"); // * request response "body"
-    lua_gettable(L, -2); // * request response body
-    lua_getglobal(L, "table"); // * request response body table
-    lua_pushstring(L, "concat"); // * request response body table "concat"
-    lua_gettable(L, -2); // * request response body table concat
-    lua_pushvalue(L, -3); // * request response body table concat body
-    if(lua_pcall(L, 1, 1, 0) != 0) { // * request response body table errorString
-        warnx("%s: %u, %s", __FILE__, __LINE__, lua_tostring(L, -1)); // * request response body table errorString
-        lua_pop(L, 3); // * request response
+    // * client
+    lua_pushstring(L, "request"); // * client "request"
+    lua_gettable(L, -2); // * client request
+    lua_pushstring(L, "body"); // * client request "body"
+    lua_gettable(L, -2); // * client request body
+    lua_getglobal(L, "table"); // * client request body table
+    lua_pushstring(L, "concat"); // * client request body table "concat"
+    lua_gettable(L, -2); // * client request body table concat
+    lua_pushvalue(L, -3); // * client request body table concat body
+    if(lua_pcall(L, 1, 1, 0) != 0) { // * client request body table errorString
+        warnx("%s: %u, %s", __FILE__, __LINE__, lua_tostring(L, -1)); // * client request body table errorString
+        lua_pop(L, 4); // * client
 	luaL_error(L, "tucube_http_lua_onRequestBodyFinish() failed");
     }
-    lua_pushvalue(L, -5); // * request response body table result request
-    lua_pushstring(L, "body"); // * request response body table result request "body"
-    lua_pushvalue(L, -3); // * request response body table result request "body" result
-    lua_settable(L, -3); // * request response body table result request
-    lua_pop(L, 4); // * request response
+    lua_pushvalue(L, -4); // * client request body table result request
+    lua_pushstring(L, "body"); // * client request body table result request "body"
+    lua_pushvalue(L, -3); // * client request body table result request "body" result
+    lua_settable(L, -3); // * client request body table result request
+    lua_pop(L, 5); // * client
     return 0;
 }
 
@@ -640,21 +645,246 @@ int tucube_IHttp_onRequestBodyFinish(void* args[]) {
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushstring(tlModule->L, "responses"); // tucube requests "responses"
-    lua_gettable(tlModule->L, -3); // tucube requests responses
-    lua_getglobal(tlModule->L, "onRequestBodyFinish"); // tucube requests responses onRequestBodyFinish
-    if(lua_isnil(tlModule->L, -1)) { // tucube requests responses nil
-        lua_pop(tlModule->L, 1); // tucube requests responses
-        lua_pushcfunction(tlModule->L, tucube_http_lua_onRequestBodyFinish); // tucube requests responses onRequestBodyFinish
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_getglobal(tlModule->L, "onRequestBodyFinish"); // tucube clients onRequestBodyFinish
+    if(lua_isnil(tlModule->L, -1)) { // tucube clients nil
+        lua_pop(tlModule->L, 1); // tucube clients
+        lua_pushcfunction(tlModule->L, tucube_http_lua_onRequestBodyFinish); // tucube clients onRequestBodyFinish
     } 
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests responses onRequestBodyFinish clientId
-    lua_gettable(tlModule->L, -4); // tucube requests responses onRequestBodyFinish request
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests responses onRequestBodyFinish request clientId
-    lua_gettable(tlModule->L, -4); // tucube requests responses onRequestBodyFinish request response
-    if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // tucube requests responses errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube requests responses errorString
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients onRequestBodyFinish clientId
+    lua_gettable(tlModule->L, -3); // tucube clients onRequestBodyFinish client
+    if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // tucube clients errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube clients errorString
+        lua_pop(tlModule->L, 3); //
+        assert(lua_gettop(tlModule->L) == 0);
+        return -1;
+    }
+    lua_pop(tlModule->L, 2); //
+    assert(lua_gettop(tlModule->L) == 0);
+    return 0;
+}
+
+int tucube_IHttp_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, int* headerValue) {
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    lua_getglobal(tlModule->L, "tucube"); // * tucube
+    lua_pushstring(tlModule->L, "clients"); // * tucube "clients"
+    lua_gettable(tlModule->L, -2); // * tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // * tucube clients clientId
+    lua_gettable(tlModule->L, -2); // * tucube clients client 
+    lua_pushstring(tlModule->L, "request"); // * tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // * tucube clients client request
+    lua_pushstring(tlModule->L, "headers"); // * tucube clients client request "headers"
+    lua_gettable(tlModule->L, -2); // * tucube clients client request headers
+    lua_getglobal(tlModule->L, "string"); // * tucube clients client request headers string
+    lua_pushstring(tlModule->L, "upper"); // * tucube clients client request headers string "upper"
+    lua_gettable(tlModule->L, -2); // * tucube clients client request headers string upper
+    lua_pushstring(tlModule->L, headerField); // * tucube clients client request headers string upper headerField
+    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * tucube clients client request headers string errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // * tucube clients client request headers string errorString
+        lua_pop(tlModule->L, 7); // *
+        return -1;
+    }
+    lua_remove(tlModule->L, -2); // * tucube clients client request headers upperedHeaderField
+    lua_gettable(tlModule->L, -2); // * tucube clients client request headers headerValue
+    if(lua_isnil(tlModule->L, -1)) { // * tucube clients client request headers headerValue
+        warnx("%s: %u: Request header %s not found", __FILE__, __LINE__, headerField);
+        lua_pop(tlModule->L, 6); // *
+        return -1;
+    }
+    *headerValue = lua_tointeger(tlModule->L, -1);
+    lua_pop(tlModule->L, 6); // *
+    return 0;
+}
+int tucube_IHttp_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, double* headerValue) {
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    lua_getglobal(tlModule->L, "tucube"); // * tucube
+    lua_pushstring(tlModule->L, "clients"); // * tucube "clients"
+    lua_gettable(tlModule->L, -2); // * tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // * tucube clients clientId
+    lua_gettable(tlModule->L, -2); // * tucube clients client 
+    lua_pushstring(tlModule->L, "request"); // * tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // * tucube clients client request
+    lua_pushstring(tlModule->L, "headers"); // * tucube clients client request "headers"
+    lua_gettable(tlModule->L, -2); // * tucube clients client request headers
+    lua_getglobal(tlModule->L, "string"); // * tucube clients client request headers string
+    lua_pushstring(tlModule->L, "upper"); // * tucube clients client request headers string "upper"
+    lua_gettable(tlModule->L, -2); // * tucube clients client request headers string upper
+    lua_pushstring(tlModule->L, headerField); // * tucube clients client request headers string upper headerField
+    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * tucube clients client request headers string errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // * tucube clients client request headers string errorString
+        lua_pop(tlModule->L, 7); // *
+        return -1;
+    }
+    lua_remove(tlModule->L, -2); // * tucube clients client request headers upperedHeaderField
+    lua_gettable(tlModule->L, -2); // * tucube clients client request headers headerValue
+    if(lua_isnil(tlModule->L, -1)) { // * tucube clients client request headers headerValue
+        warnx("%s: %u: Request header %s not found", __FILE__, __LINE__, headerField);
+        lua_pop(tlModule->L, 6); // *
+        return -1;
+    }
+    *headerValue = lua_tonumber(tlModule->L, -1);
+    lua_pop(tlModule->L, 6); // *
+    return 0;
+}
+
+int tucube_IHttp_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, const char** headerValue) {
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    lua_getglobal(tlModule->L, "tucube"); // * tucube
+    lua_pushstring(tlModule->L, "clients"); // * tucube "clients"
+    lua_gettable(tlModule->L, -2); // * tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // * tucube clients clientId
+    lua_gettable(tlModule->L, -2); // * tucube clients client 
+    lua_pushstring(tlModule->L, "request"); // * tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // * tucube clients client request
+    lua_pushstring(tlModule->L, "headers"); // * tucube clients client request "headers"
+    lua_gettable(tlModule->L, -2); // * tucube clients client request headers
+    lua_getglobal(tlModule->L, "string"); // * tucube clients client request headers string
+    lua_pushstring(tlModule->L, "upper"); // * tucube clients client request headers string "upper"
+    lua_gettable(tlModule->L, -2); // * tucube clients client request headers string upper
+    lua_pushstring(tlModule->L, headerField); // * tucube clients client request headers string upper headerField
+    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * tucube clients client request headers string errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // * tucube clients client request headers string errorString
+        lua_pop(tlModule->L, 7); // *
+        return -1;
+    }
+    lua_remove(tlModule->L, -2); // * tucube clients client request headers upperedHeaderField
+    lua_gettable(tlModule->L, -2); // * tucube clients client request headers headerValue
+    if(lua_isnil(tlModule->L, -1)) { // * tucube clients client request headers headerValue
+        warnx("%s: %u: Request header %s not found", __FILE__, __LINE__, headerField);
+        lua_pop(tlModule->L, 6); // *
+        return -1;
+    }
+    *headerValue = lua_tostring(tlModule->L, -1);
+    lua_pop(tlModule->L, 6); // *
+    return 0;
+}
+
+static int tucube_http_lua_onGetRequestContentLength(lua_State* L) {
+    // * client
+    lua_pushstring(L, "request"); // * client "request"
+    lua_gettable(L, -2); // * client request
+    lua_pushstring(L, "contentLength"); // * client request "contentLength"
+    lua_gettable(L, -2); // * client request contentLength
+    lua_remove(L, -2); // * client contentLength
+    return 1;
+}
+
+int tucube_IHttp_onGetRequestContentLength(struct tucube_Module* module, struct tucube_ClData* clData, ssize_t* contentLength) {
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    lua_getglobal(tlModule->L, "tucube"); // * tucube
+    lua_pushstring(tlModule->L, "clients"); // * tucube "clients"
+    lua_gettable(tlModule->L, -2); // * tucube clients
+    lua_getglobal(tlModule->L, "onGetRequestContentLength"); // * tucube clients onGetRequestContentLength
+    if(lua_isnil(tlModule->L, -1)) { // * tucube clients nil 
+        lua_pop(tlModule->L, 3); //
+        lua_pushcfunction(tlModule->L, tucube_http_lua_onGetRequestContentLength); // * tucube clients onGetRequestContentLength
+    }
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // * tucube clients onGetRequestContentLength clientId
+    lua_gettable(tlModule->L, -3); // * tucube clients onGetRequestContentLength client
+    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * tucube clients errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1));
+        lua_pop(tlModule->L, 3); //
+        return -1;
+    }
+    if(lua_isnil(tlModule->L, -1)) { // * tucube clients nil 
+        lua_pop(tlModule->L, 3); // *
+        return -1;
+    }
+    *contentLength = lua_tointeger(tlModule->L, -1); // * tucube clients requestContentLength
+    lua_pop(tlModule->L, 3); // *
+    return 0;
+}
+
+int tucube_IHttp_onRequestFinish(struct tucube_Module* module, struct tucube_ClData* clData, void* args[]) {
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    lua_getglobal(tlModule->L, "tucube"); // tucube
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_pushstring(tlModule->L, "request"); // tucube clients client "request"
+    lua_gettable(tlModule->L, -2); // tucube clients client request
+    const char* requestUri;
+    const char* scriptPath;
+    size_t scriptPathSize;
+    const char* pathInfo;
+    const char* queryString;
+    lua_pushstring(tlModule->L, "requestUri"); // tucube clients client request "requestUri"
+    lua_gettable(tlModule->L, -2); // tucube clients client request requestUri
+    requestUri = lua_tostring(tlModule->L, -1);
+    lua_pop(tlModule->L, 1); // tucube clients client request
+    lua_pushstring(tlModule->L, "scriptPath"); // tucube clients client request "scriptPath"
+    lua_gettable(tlModule->L, -2); // tucube clients client request scriptPath
+    if(lua_isnil(tlModule->L, -1)) { // tucube clients client request nil
+        lua_pop(tlModule->L, 1); // tucube clients client request
+        lua_pushstring(tlModule->L, "scriptPath"); // tucube clients client request "scriptPath"
+        scriptPath = "";
+        scriptPathSize = sizeof("") - 1;
+        lua_pushstring(tlModule->L, ""); // tucube clients client request "scriptPath" "" 
+        lua_settable(tlModule->L, -3); // tucube clients client request
+    } else { // tucube clients client request scriptPath
+        scriptPath = lua_tolstring(tlModule->L, -1, &scriptPathSize);
+        if(strncmp(scriptPath + scriptPathSize - 1, "/", sizeof("/") - 1) == 0) {
+            warnx("%s: %u: scriptPath should not  end with /", __FILE__, __LINE__);
+            lua_pop(tlModule->L, 5); //
+            assert(lua_gettop(tlModule->L) == 0);
+            return -1;
+        }
+        lua_pop(tlModule->L, 1); // tucube clients client request
+    }
+    if((pathInfo = strstr(requestUri, scriptPath)) != requestUri) { // if request uri doesn't begin with script name
+        warnx("%s: %u: Request uri doesn't begin with script name", __FILE__, __LINE__);
+        lua_pop(tlModule->L, 4); //
+        assert(lua_gettop(tlModule->L) == 0);
+        return -1;
+    }
+    pathInfo += scriptPathSize;
+    if((queryString = strstr(pathInfo, "?")) != NULL) { // check if there is query string
+        ++queryString; // query string begins after the question mark
+        if(strstr(queryString, "?") != NULL) { // check if there is unnecessary question mark after query string
+            warnx("%s: %u: Unnecessary question mark after query string", __FILE__, __LINE__);
+            lua_pop(tlModule->L, 4); //
+            assert(lua_gettop(tlModule->L) == 0);
+            return -1;
+        }
+ 
+        lua_pushstring(tlModule->L, "pathInfo"); // tucube clients client request "pathInfo"
+        if(queryString - pathInfo - 1 != 0) // check if path info is not empty string
+            lua_pushlstring(tlModule->L, pathInfo, queryString - pathInfo - 1); // tucube clients client request "pathInfo" pathInfo
+        else
+            lua_pushstring(tlModule->L, "/"); // tucube clients client request "pathInfo" pathInfo 
+        lua_settable(tlModule->L, -3); // tucube clients client request
+	lua_pushstring(tlModule->L, "queryString"); // tucube clients client request "queryString"
+        lua_pushstring(tlModule->L, queryString); // tucube clients client request "queryString" queryString 
+        lua_settable(tlModule->L, -3); // tucube clients client request
+    } else {
+        lua_pushstring(tlModule->L, "queryString"); // tucube clients client request "queryString"
+        lua_pushstring(tlModule->L, ""); // tucube clients client request "queryString" ""
+        lua_settable(tlModule->L, -3); // tucube clients client request
+        lua_pushstring(tlModule->L, "pathInfo"); // tucube clients client request "pathInfo"
+        if(strlen(pathInfo) != 0) // check if path info is not empty string
+            lua_pushstring(tlModule->L, pathInfo); // tucube clients client request "pathInfo" pathInfo 
+        else
+            lua_pushstring(tlModule->L, "/"); // tucube clients client request "pathInfo" pathInfo 
+        lua_settable(tlModule->L, -3); // tucube clients client request
+    }
+    lua_pop(tlModule->L, 1); // tucube clients client 
+    lua_getglobal(tlModule->L, "onRequestFinish"); // tucube clients client onRequestFinish
+    if(lua_isnil(tlModule->L, -1)) { // tucube clients client nil
+        warnx("%s: %u: onRequestFinish() is not found in the script", __FILE__, __LINE__);
+        lua_pop(tlModule->L, 4); //
+        assert(lua_gettop(tlModule->L) == 0);
+        return -1;
+    }
+    lua_pushvalue(tlModule->L, -2); // tucube clients client onRequestFinish client
+    if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // tucube clients client errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1));
         lua_pop(tlModule->L, 4); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
@@ -664,236 +894,12 @@ int tucube_IHttp_onRequestBodyFinish(void* args[]) {
     return 0;
 }
 
-int tucube_IHttp_onGetRequestIntHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, int* headerValue) {
-    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
-    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-    lua_getglobal(tlModule->L, "tucube"); // * tucube
-    lua_pushstring(tlModule->L, "requests"); // * tucube "requests"
-    lua_gettable(tlModule->L, -2); // * tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // * tucube requests clientId
-    lua_gettable(tlModule->L, -2); // * tucube requests request
-    lua_pushstring(tlModule->L, "headers"); // * tucube requests request "headers"
-    lua_gettable(tlModule->L, -2); // * tucube requests request headers
-    lua_getglobal(tlModule->L, "string"); // * tucube requests request headers string
-    lua_pushstring(tlModule->L, "upper"); // * tucube requests request headers string "upper"
-    lua_gettable(tlModule->L, -2); // * tucube requests request headers string upper
-    lua_pushstring(tlModule->L, headerField); // * tucube requests request headers string upper headerField
-    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * tucube requests request headers string errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // * tucube requests request headers string errorString
-        lua_pop(tlModule->L, 6); // *
-        return -1;
-    }
-    lua_remove(tlModule->L, -2); // * tucube requests request headers upperedHeaderField
-    lua_gettable(tlModule->L, -2); // * tucube requests request headers headerValue
-    if(lua_isnil(tlModule->L, -1)) { // * tucube requests request headers headerValue
-        warnx("%s: %u: Request header %s not found", __FILE__, __LINE__, headerField);
-        lua_pop(tlModule->L, 5); // *
-        return -1;
-    }
-    *headerValue = lua_tointeger(tlModule->L, -1); // * tucube requests request headers headerValue;
-    lua_pop(tlModule->L, 5); // *
-    return 0;
-}
-int tucube_IHttp_onGetRequestDoubleHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, double* headerValue) {
-    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
-    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-    lua_getglobal(tlModule->L, "tucube"); // * tucube
-    lua_pushstring(tlModule->L, "requests"); // * tucube "requests"
-    lua_gettable(tlModule->L, -2); // * tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // * tucube requests clientId
-    lua_gettable(tlModule->L, -2); // * tucube requests request
-    lua_pushstring(tlModule->L, "headers"); // * tucube requests request "headers"
-    lua_gettable(tlModule->L, -2); // * tucube requests request headers
-    lua_getglobal(tlModule->L, "string"); // * tucube requests request headers string
-    lua_pushstring(tlModule->L, "upper"); // * tucube requests request headers string "upper"
-    lua_gettable(tlModule->L, -2); // * tucube requests request headers string upper
-    lua_pushstring(tlModule->L, headerField); // * tucube requests request headers string upper headerField
-    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * tucube requests request headers string upperedHeaderField
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // * tucube requests request headers string errorString
-        lua_pop(tlModule->L, 6); // *
-        return -1;
-    }
-    lua_remove(tlModule->L, -2); // * tucube requests request headers upperedHeaderField
-    lua_gettable(tlModule->L, -2); // * tucube requests request headers headerValue
-    if(lua_isnil(tlModule->L, -1)) { // * tucube requests request headers headerValue
-        warnx("%s: %u: Request header %s not found", __FILE__, __LINE__, headerField);
-        lua_pop(tlModule->L, 5); // *
-        return -1;
-    }
-    *headerValue = lua_tonumber(tlModule->L, -1); // * tucube requests request headers headerValue;
-    lua_pop(tlModule->L, 5); // * 
-    return 0;
-}
-
-int tucube_IHttp_onGetRequestStringHeader(struct tucube_Module* module, struct tucube_ClData* clData, const char* headerField, const char** headerValue) {
-    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
-    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-    lua_getglobal(tlModule->L, "tucube"); // * tucube
-    lua_pushstring(tlModule->L, "requests"); // * tucube "requests"
-    lua_gettable(tlModule->L, -2); // * tucube requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // * tucube requests clientId
-    lua_gettable(tlModule->L, -2); // * tucube requests request
-    lua_pushstring(tlModule->L, "headers"); // * tucube requests request "headers"
-    lua_gettable(tlModule->L, -2); // * tucube requests request headers
-    lua_getglobal(tlModule->L, "string"); // * tucube requests request headers string
-    lua_pushstring(tlModule->L, "upper"); // * tucube requests request headers string "upper"
-    lua_gettable(tlModule->L, -2); // * tucube requests request headers string upper
-    lua_pushstring(tlModule->L, headerField); // * tucube requests request headers string upper headerField
-    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * tucube requests request headers string errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // * tucube requests request headers string errorString
-        lua_pop(tlModule->L, 6); // *
-        return -1;
-    }
-    lua_remove(tlModule->L, -2); // * tucube requests request headers upperedHeaderField
-    lua_gettable(tlModule->L, -2); // * tucube requests request headers headerValue
-    if(lua_isnil(tlModule->L, -1)) { // * tucube requests request headers headerValue
-        warnx("%s: %u: Request header %s not found", __FILE__, __LINE__, headerField);
-        lua_pop(tlModule->L, 5); // *
-        return -1;
-    }
-    // You need to allocate a new memory to use lua_tostring() because of the garbage collection?? <- but headerValue may not be garbage collected because it is inside headers ?!?!
-    *headerValue = lua_tostring(tlModule->L, -1); // * tucube requests request headers headerValue
-    lua_pop(tlModule->L, 5); // *
-    return 0;
-}
-
-static int tucube_http_lua_onGetRequestContentLength(lua_State* L) {
-    lua_pushstring(L, "contentLength"); // * request "contentLength"
-    lua_gettable(L, -2); // * request contentLength
-    return 1;
-}
-
-int tucube_IHttp_onGetRequestContentLength(struct tucube_Module* module, struct tucube_ClData* clData, ssize_t* contentLength) {
-    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
-    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-    lua_getglobal(tlModule->L, "tucube"); // * tucube
-    lua_getglobal(tlModule->L, "onGetRequestContentLength"); // * tucube onGetRequestContentLength
-    if(lua_isnil(tlModule->L, -1)) { // * tucube nil 
-        lua_pop(tlModule->L, 2); //
-        lua_pushcfunction(tlModule->L, tucube_http_lua_onGetRequestContentLength); // * tucube onGetRequestContentLength
-    }
-    lua_pushstring(tlModule->L, "requests"); // * tucube onGetRequestContentLength "requests"
-    lua_gettable(tlModule->L, -3); // * tucube onGetRequestContentLength requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // * tucube onGetRequestContentLength requests clientId
-    lua_gettable(tlModule->L, -2); // * tucube onGetRequestContentLength requests request
-    lua_remove(tlModule->L, -2); // * tucube onGetRequestContentLength request
-    if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * tucube errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // * tucube errorString
-        lua_pop(tlModule->L, 2); //
-        return -1;
-    }
-    if(lua_isnil(tlModule->L, -1)) { // * tucube nil 
-        lua_pop(tlModule->L, 2); // *
-        return -1;
-    }
-    *contentLength = lua_tointeger(tlModule->L, -1); // * tucube requestContentLength
-    lua_pop(tlModule->L, 2); // *
-    return 0;
-}
-
-int tucube_IHttp_onRequestFinish(struct tucube_Module* module, struct tucube_ClData* clData, void* args[]) {
-    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
-    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-    lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
-    lua_gettable(tlModule->L, -2); // tucube requests
-    lua_pushstring(tlModule->L, "responses"); // tucube requests "responses"
-    lua_gettable(tlModule->L, -3); // tucube requests responses
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests responses clientId
-    lua_gettable(tlModule->L, -3); // tucube requests responses request
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests responses request clientId
-    lua_gettable(tlModule->L, -3); // tucube requests responses request response
-
-    const char* requestUri;
-    const char* scriptPath;
-    size_t scriptPathSize;
-    const char* pathInfo;
-    const char* queryString;
-    lua_pushstring(tlModule->L, "requestUri"); // tucube requests responses request response "requestUri"
-    lua_gettable(tlModule->L, -3); // tucube requests responses request response requestUri
-    requestUri = lua_tostring(tlModule->L, -1); // tucube requests responses request response requestUri
-    lua_pop(tlModule->L, 1); // tucube requests responses request respons
-    lua_pushstring(tlModule->L, "scriptPath"); // tucube requests responses request response "scriptPath"
-    lua_gettable(tlModule->L, -3); // tucube requests responses request response scriptPath
-    if(lua_isnil(tlModule->L, -1)) { // tucube requests responses request response nil
-        lua_pop(tlModule->L, 1); // tucube requests responses request response
-        lua_pushstring(tlModule->L, "scriptPath"); // tucube requests responses request response "scriptPath"
-        scriptPath = "";
-        scriptPathSize = sizeof("") - 1;
-        lua_pushstring(tlModule->L, ""); // tucube requests responses request response "scriptPath" "" 
-        lua_settable(tlModule->L, -4); // tucube requests responses request response
-    } else { // tucube requests responses request response scriptPath
-        scriptPath = lua_tolstring(tlModule->L, -1, &scriptPathSize); // tucube requests responses request response scriptPath 
-        if(strncmp(scriptPath + scriptPathSize - 1, "/", sizeof("/") - 1) == 0) { // tucube requests responses request response scriptPath
-            warnx("%s: %u: scriptPath should not  end with /", __FILE__, __LINE__);
-            lua_pop(tlModule->L, 6); //
-            assert(lua_gettop(tlModule->L) == 0);
-            return -1;
-        }
-        lua_pop(tlModule->L, 1); // tucube requests responses request response
-    }
-    if((pathInfo = strstr(requestUri, scriptPath)) != requestUri) { // tucube requests responses request response // if request uri doesn't begin with script name
-        warnx("%s: %u: Request uri doesn't begin with script name", __FILE__, __LINE__);
-        lua_pop(tlModule->L, 5); //
-        assert(lua_gettop(tlModule->L) == 0);
-        return -1;
-    }
-    pathInfo += scriptPathSize;
-    if((queryString = strstr(pathInfo, "?")) != NULL) { // check if there is query string
-        ++queryString; // query string begins after the question mark
-        if(strstr(queryString, "?") != NULL) { // check if there is unnecessary question mark after query string
-            warnx("%s: %u: Unnecessary question mark after query string", __FILE__, __LINE__);
-            lua_pop(tlModule->L, 5); //
-            assert(lua_gettop(tlModule->L) == 0);
-            return -1;
-        }
- 
-        lua_pushstring(tlModule->L, "pathInfo"); // tucube requests responses request response "pathInfo"
-        if(queryString - pathInfo - 1 != 0) // check if path info is not empty string
-            lua_pushlstring(tlModule->L, pathInfo, queryString - pathInfo - 1); // tucube requests responses request request "pathInfo" pathInfo 
-        else
-            lua_pushstring(tlModule->L, "/"); // tucube requests responses request response "pathInfo" pathInfo 
-        lua_settable(tlModule->L, -4); // tucube requests responses request response
-        lua_pushstring(tlModule->L, "queryString"); // tucube requests responses request response "queryString"
-        lua_pushstring(tlModule->L, queryString); // tucube requests responses request response "queryString" queryString 
-        lua_settable(tlModule->L, -4); // tucube requests responses request response
-    } else {
-        lua_pushstring(tlModule->L, "queryString"); // tucube requests responses request response "queryString"
-        lua_pushstring(tlModule->L, ""); // tucube requests responses request response "queryString" ""
-        lua_settable(tlModule->L, -4); // tucube requests responses request response
-        lua_pushstring(tlModule->L, "pathInfo"); // tucube requests responses request response "pathInfo"
-        if(strlen(pathInfo) != 0) // check if path info is not empty string
-            lua_pushstring(tlModule->L, pathInfo); // tucube requests responses request response "pathInfo" pathInfo 
-        else
-            lua_pushstring(tlModule->L, "/"); // tucube requests responses request response "pathInfo" pathInfo 
-        lua_settable(tlModule->L, -4); // tucube requests responses request response
-    }
-    lua_getglobal(tlModule->L, "onRequestFinish"); // tucube requests responses request response onRequestFinish
-    if(lua_isnil(tlModule->L, -1)) { // tucube requests responses request response nil
-        warnx("%s: %u: onRequestFinish() is not found in the script", __FILE__, __LINE__);
-        lua_pop(tlModule->L, 6); //
-        assert(lua_gettop(tlModule->L) == 0);
-        return -1;
-    }
-    lua_pushvalue(tlModule->L, -3); // tucube requests responses request response onRequestFinish request
-    lua_pushvalue(tlModule->L, -3); // tucube requests responses request response onRequestFinish request response
-    if(lua_pcall(tlModule->L, 2, 0, 0) != 0) { // tucube requests responses request response errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube requests responses request response errorString
-        lua_pop(tlModule->L, 6); //
-        assert(lua_gettop(tlModule->L) == 0);
-        return -1;
-    }
-    lua_pop(tlModule->L, 5); //
-    assert(lua_gettop(tlModule->L) == 0);
-    return 0;
-}
-
-
 int tucube_ICLocal_destroy(struct tucube_Module* module, struct tucube_ClData* clData) {
     warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     free(clData->generic.pointer);
     free(clData);
+    assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
 
