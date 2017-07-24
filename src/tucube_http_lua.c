@@ -355,7 +355,7 @@ int tucube_IHttp_onRequestUri(char* token, ssize_t tokenSize, void* args[]) {
     return 0;
 }
 
-int tucube_IHttp_onRequestProtocol(char* token, ssize_t tokenSize, void* args[]) {
+int tucube_IHttp_onRequestVersionMajor(int major, void* args[]) {
     warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_Module* module = args[0];
     struct tucube_ClData* clData = args[1];
@@ -365,8 +365,26 @@ int tucube_IHttp_onRequestProtocol(char* token, ssize_t tokenSize, void* args[])
     lua_gettable(tlModule->L, -2); // tucube requests
     lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
     lua_gettable(tlModule->L, -2); // tucube requests request
-    lua_pushstring(tlModule->L, "protocol"); // tucube requests request "protocol"
-    lua_pushlstring(tlModule->L, token, tokenSize); // tucube requests request "protocol" protocol 
+    lua_pushstring(tlModule->L, "versionMajor"); // tucube requests request "versionMajor"
+    lua_pushinteger(tlModule->L, major); // tucube requests request "versionMajor" versionMajor 
+    lua_settable(tlModule->L, -3); // tucube requests request
+    lua_pop(tlModule->L, 3); //
+    assert(lua_gettop(tlModule->L) == 0);
+    return 0;
+}
+
+int tucube_IHttp_onRequestVersionMinor(int minor, void* args[]) {
+    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    struct tucube_Module* module = args[0];
+    struct tucube_ClData* clData = args[1];
+    struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
+    lua_getglobal(tlModule->L, "tucube"); // tucube
+    lua_pushstring(tlModule->L, "requests"); // tucube "requests"
+    lua_gettable(tlModule->L, -2); // tucube requests
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube requests clientId
+    lua_gettable(tlModule->L, -2); // tucube requests request
+    lua_pushstring(tlModule->L, "versionMinor"); // tucube requests request "versionMinor"
+    lua_pushinteger(tlModule->L, minor); // tucube requests request "versionMinor" versionMinor
     lua_settable(tlModule->L, -3); // tucube requests request
     lua_pop(tlModule->L, 3); //
     assert(lua_gettop(tlModule->L) == 0);
