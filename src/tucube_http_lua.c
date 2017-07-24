@@ -71,8 +71,11 @@ static int tucube_http_lua_writeIo(lua_State* L) {
     lua_gettable(L, -3); // * response file cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response file cObject
     struct gaio_Io io;
+    struct gaio_Io_Callbacks ioCallbacks;
+    GAIO_NOP_INIT(&ioCallbacks);
+    ioCallbacks.read = gaio_Fd_read;
     io.object.integer = fileno(bodyFile->f);
-    io.read = gaio_Fd_read;
+    io.callbacks = &ioCallbacks;
     struct stat statBuffer;
     fstat(io.object.integer, &statBuffer);
     response->callbacks->writeIo(response, &io, statBuffer.st_size);
