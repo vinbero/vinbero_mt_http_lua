@@ -218,6 +218,15 @@ static int tucube_http_lua_writeChunkedBody(lua_State* L) {
     return 0;
 }
 
+static int tucube_http_lua_writeChunkedBodyEnd(lua_State* L) {
+    // * response
+    lua_pushstring(L, "cObject"); // * response "cObject"
+    lua_gettable(L, -2); // * response cObject
+    struct tucube_IHttp_Response* response = lua_touserdata(L, -1);
+    response->methods->writeChunkedBodyEnd(response);
+    return 0;
+}
+
 int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Config* moduleConfig, void* args[]) {
     const char* scriptFile = NULL;
     if(json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptFile") != NULL) {
@@ -287,6 +296,9 @@ int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Confi
     lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
     lua_pushstring(tlModule->L, "writeChunkedBody"); // tucube "responseMethods" responseMethods "writeChunkedBody"
     lua_pushcfunction(tlModule->L, tucube_http_lua_writeChunkedBody); // tucube "responseMethods" responseMethods "writeChunkedBody" writeChunkedBody
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeChunkedBodyEnd"); // tucube "responseMethods" responseMethods "writeChunkedBodyEnd"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeChunkedBodyEnd); // tucube "responseMethods" responseMethods "writeChunkedBodyEnd" writeChunkedBodyEnd
     lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
 
     lua_settable(tlModule->L, -3); // tucube
