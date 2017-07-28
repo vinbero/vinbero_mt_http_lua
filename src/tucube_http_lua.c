@@ -113,7 +113,8 @@ static int tucube_http_lua_writeStatusCode(lua_State* L) {
     lua_pushstring(L, "cObject"); // * response statusCode "cObject"
     lua_gettable(L, -3); // * response statusCode cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response statusCode cObject
-    lua_pop(L, 1); // * response major minor
+    response->methods->writeStatusCode(response, statusCode);
+    lua_pop(L, 1); // * response statusCode
     return 0;
 }
 
