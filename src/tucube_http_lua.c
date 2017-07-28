@@ -59,7 +59,7 @@ static int tucube_http_lua_writeBytes(lua_State* L) {
     lua_pushstring(L, "cObject"); // * bytes string "cObject"
     lua_gettable(L, -3); // * response bytes cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response bytes cObject
-    response->callbacks->writeBytes(response, bytes, bytesSize);
+    response->methods->writeBytes(response, bytes, bytesSize);
     lua_pop(L, 1); // * response bytes 
     return 0;
 }
@@ -71,14 +71,14 @@ static int tucube_http_lua_writeIo(lua_State* L) {
     lua_gettable(L, -3); // * response file cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response file cObject
     struct gaio_Io io;
-    struct gaio_Io_Callbacks ioCallbacks;
-    GAIO_NOP_INIT(&ioCallbacks);
-    ioCallbacks.read = gaio_Fd_read;
+    struct gaio_Io_Methods ioMethods;
+    GAIO_NOP_INIT(&ioMethods);
+    ioMethods.read = gaio_Fd_read;
     io.object.integer = fileno(bodyFile->f);
-    io.callbacks = &ioCallbacks;
+    io.methods = &ioMethods;
     struct stat statBuffer;
     fstat(io.object.integer, &statBuffer);
-    response->callbacks->writeIo(response, &io, statBuffer.st_size);
+    response->methods->writeIo(response, &io, statBuffer.st_size);
     fclose(bodyFile->f);
     bodyFile->closef = NULL;
     lua_pop(L, 1); // * response file 
@@ -90,7 +90,7 @@ static int tucube_http_lua_writeCrLf(lua_State* L) {
     lua_pushstring(L, "cObject"); // * response "cObject"
     lua_gettable(L, -2); // * response cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response cObject
-    response->callbacks->writeCrLf(response);
+    response->methods->writeCrLf(response);
     lua_pop(L, 1); // * response
     return 0;
 }
@@ -102,7 +102,7 @@ static int tucube_http_lua_writeVersion(lua_State* L) {
     lua_pushstring(L, "cObject"); // * response major minor "cObject"
     lua_gettable(L, -4); // * response major minor cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response major minor cObject
-    response->callbacks->writeVersion(response, major, minor);
+    response->methods->writeVersion(response, major, minor);
     lua_pop(L, 1); // * response major minor
     return 0;
 }
@@ -126,7 +126,7 @@ static int tucube_http_lua_writeIntHeader(lua_State* L) {
     lua_pushstring(L, "cObject"); // * response headerField headerValue "cObject"
     lua_gettable(L, -4); // * response headerField headerValue cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
-    response->callbacks->writeIntHeader(response, headerField, headerFieldSize, headerValue);
+    response->methods->writeIntHeader(response, headerField, headerFieldSize, headerValue);
     lua_pop(L, 1); // * response headerField headerValue
     return 0;
 }
@@ -140,7 +140,7 @@ static int tucube_http_lua_writeDoubleHeader(lua_State* L) {
     lua_pushstring(L, "cObject"); // * response headerField headerValue "cObject"
     lua_gettable(L, -4); // * response headerField headerValue cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
-    response->callbacks->writeDoubleHeader(response, headerField, headerFieldSize, headerValue);
+    response->methods->writeDoubleHeader(response, headerField, headerFieldSize, headerValue);
     lua_pop(L, 1); // * response headerField headerValue
     return 0;
 }
@@ -156,7 +156,7 @@ static int tucube_http_lua_writeStringHeader(lua_State* L) {
     lua_pushstring(L, "cObject"); // * response headerField headerValue "cObject"
     lua_gettable(L, -4); // * response headerField headerValue cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
-    response->callbacks->writeStringHeader(response, headerField, headerFieldSize, headerValue, headerValueSize);
+    response->methods->writeStringHeader(response, headerField, headerFieldSize, headerValue, headerValueSize);
     lua_pop(L, 1); // * response headerField headerValue
     return 0;
 }
@@ -190,35 +190,35 @@ int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Confi
     lua_pushstring(tlModule->L, "clients"); // tucube "clients"
     lua_newtable(tlModule->L); // tucube "clients" clients
     lua_settable(tlModule->L, -3); // tucube
-    lua_pushstring(tlModule->L, "responseCallbacks"); // tucube "responseCallbacks"
-    lua_newtable(tlModule->L); // tucube "responseCallbacks" reponseCallbacks
-    lua_pushstring(tlModule->L, "__index"); // tucube "responseCallbacks" responseCallbacks "__index"
-    lua_pushvalue(tlModule->L, -2); // tucube "responseCallbacks" responseCallbacks "__index" responseCallbacks
-    lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks
-    lua_pushstring(tlModule->L, "writeBytes"); // tucube "responseCallbacks" responseCallbacks "writeBytes"
-    lua_pushcfunction(tlModule->L, tucube_http_lua_writeBytes); // tucube "responseCallbacks" responseCallbacks "writeBytes" writeBytes
-    lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks
-    lua_pushstring(tlModule->L, "writeIo"); // tucube "responseCallbacks" responseCallbacks "writeIo"
-    lua_pushcfunction(tlModule->L, tucube_http_lua_writeIo); // tucube "responseCallbacks" responseCallbacks "writeIo" writeIo
-    lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks
-    lua_pushstring(tlModule->L, "writeCrLf"); // tucube "responseCallbacks" responseCallbacks "writeCrLf"
-    lua_pushcfunction(tlModule->L, tucube_http_lua_writeCrLf); // tucube "responseCallbacks" responseCallbacks "writeCrLf" writeCrLf"
-    lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks 
-    lua_pushstring(tlModule->L, "writeVersion"); // tucube "responseCallbacks" responseCallbacks "writeVersion"
-    lua_pushcfunction(tlModule->L, tucube_http_lua_writeVersion); // tucube "responseCallbacks" responseCallbacks "writeVersion" writeVersion
-    lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks
-    lua_pushstring(tlModule->L, "writeStatusCode"); // tucube "responseCallbacks" responseCallbacks "writeStatusCode"
-    lua_pushcfunction(tlModule->L, tucube_http_lua_writeStatusCode); // tucube "responseCallbacks" responseCallbacks "writeStatusCode" writeStatusCode
-    lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks
-    lua_pushstring(tlModule->L, "writeIntHeader"); // tucube "responseCallbacks" responseCallbacks "writeIntHeader"
-    lua_pushcfunction(tlModule->L, tucube_http_lua_writeIntHeader); // tucube "responseCallbacks" responseCallbacks "writeIntHeader" writeIntHeader
-    lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks
-    lua_pushstring(tlModule->L, "writeDoubleHeader"); // tucube "responseCallbacks" responseCallbacks "writeDoubleHeader"
-    lua_pushcfunction(tlModule->L, tucube_http_lua_writeDoubleHeader); // tucube "responseCallbacks" responseCallbacks "writeDoubleHeader" writeDoubleHeader
-    lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks
-    lua_pushstring(tlModule->L, "writeStringHeader"); // tucube "responseCallbacks" responseCallbacks "writeStringHeader" writeStringHeader
-    lua_pushcfunction(tlModule->L, tucube_http_lua_writeStringHeader); // tucube "responseCallbacks" responseCallbacks "writeStringHeader" writeStringHeader
-    lua_settable(tlModule->L, -3); // tucube "responseCallbacks" responseCallbacks
+    lua_pushstring(tlModule->L, "responseMethods"); // tucube "responseMethods"
+    lua_newtable(tlModule->L); // tucube "responseMethods" reponseMethods
+    lua_pushstring(tlModule->L, "__index"); // tucube "responseMethods" responseMethods "__index"
+    lua_pushvalue(tlModule->L, -2); // tucube "responseMethods" responseMethods "__index" responseMethods
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeBytes"); // tucube "responseMethods" responseMethods "writeBytes"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeBytes); // tucube "responseMethods" responseMethods "writeBytes" writeBytes
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeIo"); // tucube "responseMethods" responseMethods "writeIo"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeIo); // tucube "responseMethods" responseMethods "writeIo" writeIo
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeCrLf"); // tucube "responseMethods" responseMethods "writeCrLf"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeCrLf); // tucube "responseMethods" responseMethods "writeCrLf" writeCrLf"
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods 
+    lua_pushstring(tlModule->L, "writeVersion"); // tucube "responseMethods" responseMethods "writeVersion"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeVersion); // tucube "responseMethods" responseMethods "writeVersion" writeVersion
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeStatusCode"); // tucube "responseMethods" responseMethods "writeStatusCode"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeStatusCode); // tucube "responseMethods" responseMethods "writeStatusCode" writeStatusCode
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeIntHeader"); // tucube "responseMethods" responseMethods "writeIntHeader"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeIntHeader); // tucube "responseMethods" responseMethods "writeIntHeader" writeIntHeader
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeDoubleHeader"); // tucube "responseMethods" responseMethods "writeDoubleHeader"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeDoubleHeader); // tucube "responseMethods" responseMethods "writeDoubleHeader" writeDoubleHeader
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeStringHeader"); // tucube "responseMethods" responseMethods "writeStringHeader" writeStringHeader
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeStringHeader); // tucube "responseMethods" responseMethods "writeStringHeader" writeStringHeader
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
     lua_settable(tlModule->L, -3); // tucube
     lua_setglobal(tlModule->L, "tucube"); //
     if(luaL_loadfile(tlModule->L, scriptFile) != LUA_OK) { // chunk
@@ -284,8 +284,8 @@ int tucube_IHttp_onRequestStart(void* args[]) {
     lua_pushstring(tlModule->L, "cObject"); // tucube clients clientId client "response" response "cObject"
     lua_pushlightuserdata(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->response); // tucube clients clientId client "response" response "cObject" cObject
     lua_settable(tlModule->L, -3); // tucube clients clientId client "response" response
-    lua_pushstring(tlModule->L, "responseCallbacks"); // tucube clients clientId client "response" response "responseCallbacks"
-    lua_gettable(tlModule->L, -7); // tucube clients clientId client "response" response responseCallbacks
+    lua_pushstring(tlModule->L, "responseMethods"); // tucube clients clientId client "response" response "responseMethods"
+    lua_gettable(tlModule->L, -7); // tucube clients clientId client "response" response responseMethods
     lua_setmetatable(tlModule->L, -2); // tucube clients clientId client "response" response
     lua_settable(tlModule->L, -3); // tucube clients clientId client
     lua_settable(tlModule->L, -3); // tucube clients
