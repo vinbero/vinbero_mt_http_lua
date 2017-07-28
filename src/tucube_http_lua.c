@@ -547,28 +547,23 @@ int tucube_IHttp_onRequestBodyStart(void* args[]) {
     struct tucube_ClData* clData = args[1];
     struct tucube_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "tucube"); // tucube
-    lua_getglobal(tlModule->L, "onRequestBodyStart"); // tucube onRequestBodyStart
-    if(lua_isnil(tlModule->L, -1)) { // tucube nil
-        lua_pop(tlModule->L, 1); // tucube
-        lua_pushcfunction(tlModule->L, tucube_http_lua_onRequestBodyStart); // tucube onRequestBodyStart
+    lua_pushstring(tlModule->L, "clients"); // tucube "clients"
+    lua_gettable(tlModule->L, -2); // tucube clients
+    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube clients clientId
+    lua_gettable(tlModule->L, -2); // tucube clients client
+    lua_getglobal(tlModule->L, "onRequestBodyStart"); // tucube clients client onRequestBodyStart
+    if(lua_isnil(tlModule->L, -1)) { // tucube clients client nil
+        lua_pop(tlModule->L, 1); // tucube clients client
+        lua_pushcfunction(tlModule->L, tucube_http_lua_onRequestBodyStart); // tucube clients client onRequestBodyStart
     }
-    lua_pushstring(tlModule->L, "requests"); // tucube onRequestBodyStart "requests"
-    lua_gettable(tlModule->L, -3); // tucube onRequestBodyStart requests
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube onRequestBodyStart requests clientId
-    lua_gettable(tlModule->L, -2); // tucube onRequestBodyStart requests request
-    lua_remove(tlModule->L, -2); // tucube onRequestBodyStart request
-    lua_pushstring(tlModule->L, "responses"); // tucube onRequestBodyStart request "responses"
-    lua_gettable(tlModule->L, -4); // tucube onRequestBodyStart request responses
-    lua_pushinteger(tlModule->L, GENC_CAST(clData->generic.pointer, struct tucube_http_lua_ClData*)->clientId); // tucube onRequestBodyStart request responses clientId
-    lua_gettable(tlModule->L, -2); // tucube onRequestBodyStart request responses response
-    lua_remove(tlModule->L, -2); // tucube onRequestBodyStart request response
-    if(lua_pcall(tlModule->L, 2, 0, 0) != 0) { // tucube errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube errorString
-        lua_pop(tlModule->L, 2); //
+    lua_pushvalue(tlModule->L, -2); // tucube clients client onRequestBodyStart client
+    if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // tucube clients client errorString
+        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // tucube clients client errorString
+        lua_pop(tlModule->L, 4); //
         assert(lua_gettop(tlModule->L) == 0);
 	return -1;
     }
-    lua_pop(tlModule->L, 1); //
+    lua_pop(tlModule->L, 3); //
     assert(lua_gettop(tlModule->L) == 0);
     return 0;
 }
