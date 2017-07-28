@@ -66,7 +66,7 @@ static int tucube_http_lua_writeBytes(lua_State* L) {
 
 static int tucube_http_lua_writeIo(lua_State* L) {
     // * response file
-    luaL_Stream* bodyFile = lua_touserdata(L, -1); // * response file 
+    luaL_Stream* file = lua_touserdata(L, -1); // * response file 
     lua_pushstring(L, "cObject"); // * response file "cObject"
     lua_gettable(L, -3); // * response file cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response file cObject
@@ -74,13 +74,13 @@ static int tucube_http_lua_writeIo(lua_State* L) {
     struct gaio_Io_Methods ioMethods;
     GAIO_NOP_INIT(&ioMethods);
     ioMethods.read = gaio_Fd_read;
-    io.object.integer = fileno(bodyFile->f);
+    io.object.integer = fileno(file->f);
     io.methods = &ioMethods;
     struct stat statBuffer;
     fstat(io.object.integer, &statBuffer);
     response->methods->writeIo(response, &io, statBuffer.st_size);
-    fclose(bodyFile->f);
-    bodyFile->closef = NULL;
+    fclose(file->f);
+    file->closef = NULL;
     lua_pop(L, 1); // * response file 
     return 0;
 }
@@ -162,6 +162,60 @@ static int tucube_http_lua_writeStringHeader(lua_State* L) {
     return 0;
 }
 
+static int tucube_http_lua_writeStringBody(lua_State* L) {
+    // * response stringBody
+    char* stringBody;
+    size_t stringBodySize;
+    stringBody = lua_tolstring(L, -1, &stringBodySize);
+    lua_pushstring(L, "cObject"); // * response stringBody "cObject"
+    lua_gettable(L, -3); // * response stringBody cObject
+    struct tucube_IHttp_Response* response = lua_touserdata(L, -1);
+    response->methods->writeStringBody(response, stringBody, stringBodySize);
+    return 0;
+}
+
+static int tucube_http_lua_writeIoBody(lua_State* L) {
+    // * response fileBody
+    luaL_Stream* fileBody = lua_touserdata(L, -1);
+    lua_pushstring(L, "cObject"); // * response fileBody "cObject"
+    lua_gettable(L, -3); // * response fileBody cObject
+    struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response fileBody cObject
+    struct gaio_Io io;
+    struct gaio_Io_Methods ioMethods;
+    GAIO_NOP_INIT(&ioMethods);
+    ioMethods.read = gaio_Fd_read;
+    io.object.integer = fileno(fileBody->f);
+    io.methods = &ioMethods;
+    struct stat statBuffer;
+    fstat(io.object.integer, &statBuffer);
+    response->methods->writeIoBody(response, &io, statBuffer.st_size);
+    fclose(fileBody->f);
+    fileBody->closef = NULL;
+    lua_pop(L, 1); // * response fileBody
+    return 0;
+}
+
+static int tucube_http_lua_writeChunkedBodyStart(lua_State* L) {
+    // * response
+    lua_pushstring(L, "cObject"); // * response "cObject"
+    lua_gettable(L, -2); // * response cObject
+    struct tucube_IHttp_Response* response = lua_touserdata(L, -1);
+    response->methods->writeChunkedBodyStart(response);
+    return 0;
+}
+
+static int tucube_http_lua_writeChunkedBody(lua_State* L) {
+    // * response chunkedBody
+    char* chunkedBody;
+    size_t chunkedBodySize;
+    chunkedBody = lua_tolstring(L, -1, &chunkedBodySize);
+    lua_pushstring(L, "cObject"); // * response chunkedBody "cObject"
+    lua_gettable(L, -3); // * response chunkedBody cObject
+    struct tucube_IHttp_Response* response = lua_touserdata(L, -1);
+    response->methods->writeChunkedBody(response, chunkedBody, chunkedBodySize);
+    return 0;
+}
+
 int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Config* moduleConfig, void* args[]) {
     const char* scriptFile = NULL;
     if(json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptFile") != NULL) {
@@ -220,6 +274,19 @@ int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Confi
     lua_pushstring(tlModule->L, "writeStringHeader"); // tucube "responseMethods" responseMethods "writeStringHeader" writeStringHeader
     lua_pushcfunction(tlModule->L, tucube_http_lua_writeStringHeader); // tucube "responseMethods" responseMethods "writeStringHeader" writeStringHeader
     lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeStringBody"); // tucube "responseMethods" responseMethods "writeStringBody"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeStringBody); // tucube "responseMethods" responseMethods "writeStringBody" writeStringBody
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeIoBody"); // tucube "responseMethods" responseMethods "writeIoBody"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeIoBody); // tucube "responseMethods" responseMethods "writeIoBody" writeIoBody
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeChunkedBodyStart"); // tucube "responseMethods" responseMethods "writeChunkedBodyStart"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeChunkedBodyStart); // tucube "responseMethods" responseMethods "writeChunkedBodyStart" writeChunkedBodyStart
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+    lua_pushstring(tlModule->L, "writeChunkedBody"); // tucube "responseMethods" responseMethods "writeChunkedBody"
+    lua_pushcfunction(tlModule->L, tucube_http_lua_writeChunkedBody); // tucube "responseMethods" responseMethods "writeChunkedBody" writeChunkedBody
+    lua_settable(tlModule->L, -3); // tucube "responseMethods" responseMethods
+
     lua_settable(tlModule->L, -3); // tucube
     lua_setglobal(tlModule->L, "tucube"); //
     if(luaL_loadfile(tlModule->L, scriptFile) != LUA_OK) { // chunk
