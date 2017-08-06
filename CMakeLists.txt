@@ -1,0 +1,5 @@
+project(tucube_http_lua)
+set(CMAKE_BUILD_TYPE Debug)
+add_library(tucube_http_lua SHARED src/tucube_http_lua.c)
+set_target_properties(tucube_http_lua PROPERTIES PREFIX "")
+target_link_libraries(tucube_http_lua lua)
