@@ -3,7 +3,7 @@
 #include <err.h>
 #include <gaio.h>
 #include <libgenc/genc_cast.h>
-#include <libgenc/genc_list.h>
+#include <libgenc/genc_List.h>
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
