@@ -15,7 +15,6 @@
 #include <unistd.h>
 #include <tucube/tucube_Module.h>
 #include <tucube/tucube_ClData.h>
-#include <tucube/tucube_epoll_http_ResponseBody.h>
 #include <tucube/tucube_IBase.h>
 #include <tucube/tucube_ICLocal.h>
 #include <tucube/tucube_IHttp.h>
