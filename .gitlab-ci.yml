@@ -33,6 +33,15 @@ before_script:
   - make install
   - cd ../../
   
+  - git clone "$BASE_URL/gonapps/tucube_epoll_http" tucube_epoll_http
+  - cd tucube_epoll_http
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - make install
+  - cd ../../
+  
   - cd ../
 
 build:
