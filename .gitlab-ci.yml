@@ -24,6 +24,15 @@ before_script:
   - make install
   - cd ../../
   
+  - git clone "$BASE_URL/gonapps/libgon_http_parser" libgon_http_parser
+  - cd libgon_http_parser
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - make install
+  - cd ../../
+  
   - git clone "$BASE_URL/gonapps/tucube" tucube
   - cd tucube
   - mkdir build
