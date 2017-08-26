@@ -238,7 +238,7 @@ int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Confi
     char* scriptArgs;
     TUCUBE_MODULE_GET_CONFIG(moduleConfig, "tucube_http_lua.scriptArgs", string, &scriptArgs, NULL);
     if(scriptArgs != NULL)
-        lua_pushstring(tlModule->L, scriptArgs) // tucube "args" args
+        lua_pushstring(tlModule->L, scriptArgs); // tucube "args" args
     else
         lua_pushnil(tlModule->L); // tucube "args" nil
     lua_settable(tlModule->L, -3); // tucube 
