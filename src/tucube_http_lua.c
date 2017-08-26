@@ -228,28 +228,18 @@ static int tucube_http_lua_writeChunkedBodyEnd(lua_State* L) {
 
 int tucube_IBase_tlInit(struct tucube_Module* module, struct tucube_Module_Config* moduleConfig, void* args[]) {
     const char* scriptFile = NULL;
-    if(json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptFile") != NULL) {
-        scriptFile = json_string_value(
-            json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptFile")
-        );
-    }
-    if(scriptFile == NULL) {
-        warnx("%s: %u: Argument tucube_http_lua.scriptFile is required", __FILE__, __LINE__);
-        pthread_exit(NULL);
-    }
+    
+    TUCUBE_MODULE_GET_REQUIRED_CONFIG(moduleConfig, "tucube_http_lua.scriptFile", string, &scriptFile);
     struct tucube_http_lua_TlModule* tlModule = malloc(sizeof(struct tucube_http_lua_TlModule));
     tlModule->L = luaL_newstate();
     luaL_openlibs(tlModule->L);
     lua_newtable(tlModule->L); // tucube
     lua_pushstring(tlModule->L, "args"); // tucube "args"
-    if(json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptArgs") != NULL) {
-        lua_pushstring(
-            tlModule->L,
-            json_string_value(
-                json_object_get(json_array_get(moduleConfig->json, 1), "tucube_http_lua.scriptArgs")
-            )
-        ); // tucube "args" args
-    } else
+    char* scriptArgs;
+    TUCUBE_MODULE_GET_CONFIG(moduleConfig, "tucube_http_lua.scriptArgs", string, &scriptArgs, NULL);
+    if(scriptArgs != NULL)
+        lua_pushstring(tlModule->L, scriptArgs) // tucube "args" args
+    else
         lua_pushnil(tlModule->L); // tucube "args" nil
     lua_settable(tlModule->L, -3); // tucube 
     lua_pushstring(tlModule->L, "clients"); // tucube "clients"
