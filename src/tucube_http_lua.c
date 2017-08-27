@@ -70,8 +70,8 @@ static int tucube_http_lua_writeIo(lua_State* L) {
     lua_gettable(L, -3); // * response file cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response file cObject
     struct gaio_Io io;
-    struct gaio_Io_Methods ioMethods;
-    GAIO_NOP_INIT(&ioMethods);
+    struct gaio_Methods ioMethods;
+    GAIO_METHODS_NOP_INIT(&ioMethods);
     ioMethods.read = gaio_Fd_read;
     ioMethods.fileno = gaio_Fd_fileno;
     io.object.integer = fileno(file->f);
@@ -181,8 +181,8 @@ static int tucube_http_lua_writeIoBody(lua_State* L) {
     lua_gettable(L, -3); // * response fileBody cObject
     struct tucube_IHttp_Response* response = lua_touserdata(L, -1); // * response fileBody cObject
     struct gaio_Io io;
-    struct gaio_Io_Methods ioMethods;
-    GAIO_NOP_INIT(&ioMethods);
+    struct gaio_Methods ioMethods;
+    GAIO_METHODS_NOP_INIT(&ioMethods);
     ioMethods.read = gaio_Fd_read;
     ioMethods.fileno = gaio_Fd_fileno;
     io.object.integer = fileno(fileBody->f);
