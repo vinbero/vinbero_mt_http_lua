@@ -1,0 +1,31 @@
+{
+    "core": {
+        "config": {"tucube.setUid": 1001},
+        "next": ["tucube_tcp"]
+    },
+    "tucube_tcp": {
+        "path": "/usr/local/lib/tucube/tucube_tcp.so",
+        "config": {"tucube_tcp.port": 8000, "tucube_tcp.reuseAddress": true},
+        "next": ["tucube_mt"]
+    }, 
+    "tucube_mt": {
+        "path": "/usr/local/lib/tucube/tucube_mt.so",
+        "config": {"tucube_mt.workerCount": 4},
+        "next": ["tucube_tcp_mt_epoll"]
+    },
+    "tucube_tcp_mt_epoll": {
+        "path": "/usr/local/lib/tucube/tucube_tcp_epoll.so",
+        "config": {},
+        "next": ["tucube_epoll_http"]
+    },
+    "tucube_epoll_http": {
+        "path": "/usr/local/lib/tucube/tucube_epoll_http.so",
+        "config": {},
+        "next": ["tucube_http_lua"]
+    },
+    "tucube_http_lua": {
+        "path": "/usr/local/lib/tucube/tucube_http_lua.so",
+        "config": {"tucube_http_lua.scriptFile": "/home/webmaster/workspace/tucube_http_lua/test/test.lua"},
+        "next": []
+    }
+}
