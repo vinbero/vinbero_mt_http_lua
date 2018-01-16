@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(tucube_http_lua)
+project(vinbero_mt_http_lua)
 enable_testing()
 set(CMAKE_BUILD_TYPE Debug)
 add_subdirectory(src)

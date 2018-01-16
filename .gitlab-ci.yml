@@ -33,8 +33,8 @@ before_script:
   - make install
   - cd ../../
   
-  - git clone "$BASE_URL/gonapps/tucube" tucube
-  - cd tucube
+  - git clone "$BASE_URL/gonapps/vinbero" vinbero
+  - cd vinbero
   - mkdir build
   - cd build
   - cmake ..
@@ -42,8 +42,8 @@ before_script:
   - make install
   - cd ../../
   
-  - git clone "$BASE_URL/gonapps/tucube_epoll_http" tucube_epoll_http
-  - cd tucube_epoll_http
+  - git clone "$BASE_URL/gonapps/vinbero_mt_epoll_http" vinbero_mt_epoll_http
+  - cd vinbero_mt_epoll_http
   - mkdir build
   - cd build
   - cmake ..

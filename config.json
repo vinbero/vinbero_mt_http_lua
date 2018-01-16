@@ -1,31 +1,31 @@
 {
     "core": {
-        "config": {"tucube.setUid": 1001},
-        "next": ["tucube_tcp"]
+        "config": {"vinbero.setUid": 1001},
+        "next": ["vinbero_tcp"]
     },
-    "tucube_tcp": {
-        "path": "/usr/local/lib/tucube/tucube_tcp.so",
-        "config": {"tucube_tcp.port": 8000, "tucube_tcp.reuseAddress": true},
-        "next": ["tucube_mt"]
+    "vinbero_tcp": {
+        "path": "/usr/local/lib/vinbero/vinbero_tcp.so",
+        "config": {"vinbero_tcp.port": 8000, "vinbero_tcp.reuseAddress": true},
+        "next": ["vinbero_mt"]
     }, 
-    "tucube_mt": {
-        "path": "/usr/local/lib/tucube/tucube_mt.so",
-        "config": {"tucube_mt.workerCount": 4},
-        "next": ["tucube_tcp_mt_epoll"]
+    "vinbero_mt": {
+        "path": "/usr/local/lib/vinbero/vinbero_mt.so",
+        "config": {"vinbero_mt.workerCount": 4},
+        "next": ["vinbero_tcp_mt_epoll"]
     },
-    "tucube_tcp_mt_epoll": {
-        "path": "/usr/local/lib/tucube/tucube_tcp_epoll.so",
+    "vinbero_tcp_mt_epoll": {
+        "path": "/usr/local/lib/vinbero/vinbero_tcp_mt_epoll.so",
         "config": {},
-        "next": ["tucube_epoll_http"]
+        "next": ["vinbero_mt_epoll_http"]
     },
-    "tucube_epoll_http": {
-        "path": "/usr/local/lib/tucube/tucube_epoll_http.so",
+    "vinbero_mt_epoll_http": {
+        "path": "/usr/local/lib/vinbero/vinbero_mt_epoll_http.so",
         "config": {},
-        "next": ["tucube_http_lua"]
+        "next": ["vinbero_mt_http_lua"]
     },
-    "tucube_http_lua": {
-        "path": "/usr/local/lib/tucube/tucube_http_lua.so",
-        "config": {"tucube_http_lua.scriptFile": "/home/webmaster/workspace/tucube_http_lua/test/test.lua"},
+    "vinbero_mt_http_lua": {
+        "path": "/usr/local/lib/vinbero/vinbero_mt_http_lua.so",
+        "config": {"vinbero_mt_http_lua.scriptFile": "/home/webmaster/workspace/vinbero_mt_http_lua/test/test.lua"},
         "next": []
     }
 }
