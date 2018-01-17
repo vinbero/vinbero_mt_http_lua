@@ -26,14 +26,8 @@
     "vinbero_mt_http_lua": {
         "path": "/usr/local/lib/vinbero/vinbero_mt_http_lua.so",
         "config": {
-            "vinbero_mt_http_lua.scriptFile": "/home/webmaster/workspace/vinbero_mt_http_lua/test/test.lua",
-            "vinbero_http_lua.scriptArg": {
-                "database": "cublog.db",
-                "admin.id": "admin",
-                "admin.password": "password",
-                "jwt.key": "jwt-key",
-                "jwt.issuer": "cublog"
-            }
+            "vinbero_mt_http_lua.scriptFile": "test/test.lua",
+            "vinbero_mt_http_lua.scriptArg": {}
         },
         "next": []
     }
