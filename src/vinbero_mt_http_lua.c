@@ -892,7 +892,7 @@ int vinbero_Interface_HTTP_onGetRequestStringHeader(struct vinbero_common_Module
     lua_remove(tlModule->L, -2); // * vinbero clients client request headers upperedHeaderField
     lua_gettable(tlModule->L, -2); // * vinbero clients client request headers headerValue
     if(lua_isnil(tlModule->L, -1)) { // * vinbero clients client request headers headerValue
-        VINBERO_COMMON_LOG_ERROR("Request header %s not found", headerField);
+        VINBERO_COMMON_LOG_WARN("Request header %s not found", headerField);
         lua_pop(tlModule->L, 6); // *
         return -1;
     }
