@@ -14,12 +14,13 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <vinbero/vinbero_Module.h>
-#include <vinbero/vinbero_ClData.h>
-#include <vinbero/vinbero_IModule.h>
-#include <vinbero/vinbero_ICLocal.h>
-#include <vinbero/vinbero_ITLocal.h>
-#include <vinbero/vinbero_IHttp.h>
+#include <vinbero_common/vinbero_common_Log.h>
+#include <vinbero_common/vinbero_common_Module.h>
+#include <vinbero_common/vinbero_common_ClData.h>
+#include <vinbero/vinbero_Interface_MODULE.h>
+#include <vinbero/vinbero_Interface_CLOCAL.h>
+#include <vinbero/vinbero_Interface_TLOCAL.h>
+#include <vinbero/vinbero_Interface_HTTP.h>
 
 struct vinbero_mt_http_lua_TlModule {
    lua_State* L;
@@ -27,24 +28,25 @@ struct vinbero_mt_http_lua_TlModule {
 
 struct vinbero_mt_http_lua_ClData {
     int clientId;
-    struct vinbero_IHttp_Response* response;
+    struct vinbero_Interface_HTTP_Response* response;
     lua_State* L;
 };
 
-VINBERO_IMODULE_FUNCTIONS;
-VINBERO_ITLOCAL_FUNCTIONS;
-VINBERO_ICLOCAL_FUNCTIONS;
-VINBERO_IHTTP_FUNCTIONS;
+VINBERO_INTERFACE_MODULE_FUNCTIONS;
+VINBERO_INTERFACE_TLOCAL_FUNCTIONS;
+VINBERO_INTERFACE_CLOCAL_FUNCTIONS;
+VINBERO_INTERFACE_HTTP_FUNCTIONS;
 
-int vinbero_IModule_init(struct vinbero_Module* module, struct vinbero_Config* config, void* args[]) {
-    module->name = "vinbero_mt_http_lua";
-    module->version = "0.0.1";
+int vinbero_Interface_MODULE_init(struct vinbero_common_Module* module) {
+    VINBERO_COMMON_LOG_TRACE2();
+    vinbero_common_Module_init(module, "vinbero_mt_http_lua", "0.0.1", false);
     module->tlModuleKey = malloc(1 * sizeof(pthread_key_t));
     pthread_key_create(module->tlModuleKey, NULL);
     return 0;
 }
 
-int vinbero_IModule_rInit(struct vinbero_Module* module, struct vinbero_Config* config, void* args[]) {
+int vinbero_Interface_MODULE_rInit(struct vinbero_common_Module* module) {
+    VINBERO_COMMON_LOG_TRACE2();
     return 0;
 }
 
@@ -55,7 +57,7 @@ static int vinbero_mt_http_lua_writeBytes(lua_State* L) {
     bytes = lua_tolstring(L, -1, &bytesSize); // * response bytess
     lua_pushstring(L, "cObject"); // * bytes string "cObject"
     lua_gettable(L, -3); // * response bytes cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1); // * response bytes cObject
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1); // * response bytes cObject
     response->methods->writeBytes(response, bytes, bytesSize);
     lua_pop(L, 1); // * response bytes 
     return 0;
@@ -66,7 +68,7 @@ static int vinbero_mt_http_lua_writeIo(lua_State* L) {
     luaL_Stream* file = lua_touserdata(L, -1); // * response file 
     lua_pushstring(L, "cObject"); // * response file "cObject"
     lua_gettable(L, -3); // * response file cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1); // * response file cObject
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1); // * response file cObject
     struct gaio_Io io;
     struct gaio_Methods ioMethods;
     GAIO_METHODS_NOP_INIT(&ioMethods);
@@ -87,7 +89,7 @@ static int vinbero_mt_http_lua_writeCrLf(lua_State* L) {
     // * response
     lua_pushstring(L, "cObject"); // * response "cObject"
     lua_gettable(L, -2); // * response cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1); // * response cObject
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1); // * response cObject
     response->methods->writeCrLf(response);
     lua_pop(L, 1); // * response
     return 0;
@@ -99,7 +101,7 @@ static int vinbero_mt_http_lua_writeVersion(lua_State* L) {
     int minor = lua_tointeger(L, -1); // * response major minor
     lua_pushstring(L, "cObject"); // * response major minor "cObject"
     lua_gettable(L, -4); // * response major minor cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1); // * response major minor cObject
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1); // * response major minor cObject
     response->methods->writeVersion(response, major, minor);
     lua_pop(L, 1); // * response major minor
     return 0;
@@ -110,7 +112,7 @@ static int vinbero_mt_http_lua_writeStatusCode(lua_State* L) {
     int statusCode = lua_tointeger(L, -1); // * response statusCode
     lua_pushstring(L, "cObject"); // * response statusCode "cObject"
     lua_gettable(L, -3); // * response statusCode cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1); // * response statusCode cObject
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1); // * response statusCode cObject
     response->methods->writeStatusCode(response, statusCode);
     lua_pop(L, 1); // * response statusCode
     return 0;
@@ -124,7 +126,7 @@ static int vinbero_mt_http_lua_writeIntHeader(lua_State* L) {
     int headerValue = lua_tointeger(L, -1); // * response headerField headerValue
     lua_pushstring(L, "cObject"); // * response headerField headerValue "cObject"
     lua_gettable(L, -4); // * response headerField headerValue cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
     response->methods->writeIntHeader(response, headerField, headerFieldSize, headerValue);
     lua_pop(L, 1); // * response headerField headerValue
     return 0;
@@ -138,7 +140,7 @@ static int vinbero_mt_http_lua_writeDoubleHeader(lua_State* L) {
     double headerValue = lua_tonumber(L, -1); // * response headerField headerValue
     lua_pushstring(L, "cObject"); // * response headerField headerValue "cObject"
     lua_gettable(L, -4); // * response headerField headerValue cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
     response->methods->writeDoubleHeader(response, headerField, headerFieldSize, headerValue);
     lua_pop(L, 1); // * response headerField headerValue
     return 0;
@@ -154,7 +156,7 @@ static int vinbero_mt_http_lua_writeStringHeader(lua_State* L) {
     headerValue = lua_tolstring(L, -1, &headerValueSize); // * response headerField headerValue
     lua_pushstring(L, "cObject"); // * response headerField headerValue "cObject"
     lua_gettable(L, -4); // * response headerField headerValue cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
     response->methods->writeStringHeader(response, headerField, headerFieldSize, headerValue, headerValueSize);
     lua_pop(L, 1); // * response headerField headerValue
     return 0;
@@ -167,7 +169,7 @@ static int vinbero_mt_http_lua_writeStringBody(lua_State* L) {
     stringBody = lua_tolstring(L, -1, &stringBodySize);
     lua_pushstring(L, "cObject"); // * response stringBody "cObject"
     lua_gettable(L, -3); // * response stringBody cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1);
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1);
     response->methods->writeStringBody(response, stringBody, stringBodySize);
     return 0;
 }
@@ -177,7 +179,7 @@ static int vinbero_mt_http_lua_writeIoBody(lua_State* L) {
     luaL_Stream* fileBody = lua_touserdata(L, -1);
     lua_pushstring(L, "cObject"); // * response fileBody "cObject"
     lua_gettable(L, -3); // * response fileBody cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1); // * response fileBody cObject
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1); // * response fileBody cObject
     struct gaio_Io io;
     struct gaio_Methods ioMethods;
     GAIO_METHODS_NOP_INIT(&ioMethods);
@@ -198,7 +200,7 @@ static int vinbero_mt_http_lua_writeChunkedBodyStart(lua_State* L) {
     // * response
     lua_pushstring(L, "cObject"); // * response "cObject"
     lua_gettable(L, -2); // * response cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1);
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1);
     response->methods->writeChunkedBodyStart(response);
     return 0;
 }
@@ -210,7 +212,7 @@ static int vinbero_mt_http_lua_writeChunkedBody(lua_State* L) {
     chunkedBody = lua_tolstring(L, -1, &chunkedBodySize);
     lua_pushstring(L, "cObject"); // * response chunkedBody "cObject"
     lua_gettable(L, -3); // * response chunkedBody cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1);
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1);
     response->methods->writeChunkedBody(response, chunkedBody, chunkedBodySize);
     return 0;
 }
@@ -219,19 +221,18 @@ static int vinbero_mt_http_lua_writeChunkedBodyEnd(lua_State* L) {
     // * response
     lua_pushstring(L, "cObject"); // * response "cObject"
     lua_gettable(L, -2); // * response cObject
-    struct vinbero_IHttp_Response* response = lua_touserdata(L, -1);
+    struct vinbero_Interface_HTTP_Response* response = lua_touserdata(L, -1);
     response->methods->writeChunkedBodyEnd(response);
     return 0;
 }
 
-int vinbero_ITLocal_init(struct vinbero_Module* module, struct vinbero_Config* config, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_TLOCAL_init(struct vinbero_common_Module* module) {
+    VINBERO_COMMON_LOG_TRACE2();
     const char* scriptFile;
-    int errorVariable;
-    VINBERO_CONFIG_GET_REQUIRED(config, module, "vinbero_mt_http_lua.scriptFile", string, &scriptFile, &errorVariable);
-    if(errorVariable == 1) {
-        warnx("%s: %u: %s: vinbero_mt_http_lua.scriptFile is required", __FILE__, __LINE__, __FUNCTION__);
-        return -1;
+    int ret;
+    if((ret = vinbero_common_Config_getRequiredString(module->config, module, "vinbero_mt_http_lua.scriptFile", &scriptFile))) {
+        VINBERO_COMMON_LOG_ERROR("vinbero_mt_http_lua.scriptFile is required");
+        return ret;
     }
     struct vinbero_mt_http_lua_TlModule* tlModule = malloc(sizeof(struct vinbero_mt_http_lua_TlModule));
     tlModule->L = luaL_newstate();
@@ -239,7 +240,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_newtable(tlModule->L); // vinbero
     lua_pushstring(tlModule->L, "args"); // vinbero "args"
     char* scriptArgs;
-    VINBERO_CONFIG_GET(config, module, "vinbero_mt_http_lua.scriptArgs", string, &scriptArgs, NULL);
+    vinbero_common_Config_getString(module->config, module, "vinbero_mt_http_lua.scriptArgs", &scriptArgs, NULL);
     if(scriptArgs != NULL)
         lua_pushstring(tlModule->L, scriptArgs); // vinbero "args" args
     else
@@ -296,11 +297,11 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_settable(tlModule->L, -3); // vinbero
     lua_setglobal(tlModule->L, "vinbero"); //
     if(luaL_loadfile(tlModule->L, scriptFile) != LUA_OK) { // chunk
-        warnx("%s: %u: luaL_loadfile() failed", __FILE__, __LINE__);
+        VINBERO_COMMON_LOG_ERROR("luaL_loadfile() failed");
         pthread_exit(NULL);
     }
     if(lua_pcall(tlModule->L, 0, 0, 0) != 0) { // errorString 
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // errorString
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1)); // errorString
         lua_pop(tlModule->L, 1); //
         pthread_exit(NULL);
     }
@@ -309,7 +310,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
         lua_pop(tlModule->L, 1); //
     else { // onInit
         if(lua_pcall(tlModule->L, 0, 0, 0) != 0) { //
-            warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // errorString
+            VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1)); // errorString
             lua_pop(tlModule->L, 1); //
 	    pthread_exit(NULL);
         }
@@ -319,30 +320,30 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_ITLocal_rInit(struct vinbero_Module* module, struct vinbero_Config* config, void* args[]) {
+int vinbero_Interface_TLOCAL_rInit(struct vinbero_common_Module* module) {
     return 0;
 }
 
-int vinbero_ICLocal_init(struct vinbero_Module* module, struct vinbero_ClData* clData, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_CLOCAL_init(struct vinbero_common_Module* module, struct vinbero_common_ClData* clData, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 1) return -1;
     clData->generic.pointer = malloc(1 * sizeof(struct vinbero_mt_http_lua_ClData));
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
-    localClData->clientId = gaio_Fd_fileno(GENC_CAST(args[0], struct vinbero_IHttp_Response*)->io);
+    localClData->clientId = gaio_Fd_fileno(GENC_CAST(args[0], struct vinbero_Interface_HTTP_Response*)->io);
     localClData->response = args[0];
     return 0;
 }
 
-int vinbero_IHttp_onRequestStart(void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestStart(void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -383,7 +384,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     }
     lua_pushvalue(tlModule->L, -2); // vinbero client onRequestStart client
     if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // vinbero client errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // vinbero client errorString
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1)); // vinbero client errorString
         lua_pop(tlModule->L, 3); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
@@ -393,13 +394,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestMethod(char* token, ssize_t tokenSize, void* args[]) {
- warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestMethod(char* token, ssize_t tokenSize, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -417,13 +418,13 @@ int vinbero_IHttp_onRequestMethod(char* token, ssize_t tokenSize, void* args[]) 
     return 0;
 }
 
-int vinbero_IHttp_onRequestUri(char* token, ssize_t tokenSize, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestUri(char* token, ssize_t tokenSize, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -441,13 +442,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestVersionMajor(int major, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestVersionMajor(int major, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -465,13 +466,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestVersionMinor(int minor, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestVersionMinor(int minor, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -489,13 +490,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestContentLength(char* token, ssize_t tokenSize, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestContentLength(char* token, ssize_t tokenSize, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -513,13 +514,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestContentType(char* token, ssize_t tokenSize, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestContentType(char* token, ssize_t tokenSize, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -537,13 +538,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestScriptPath(char* token, ssize_t tokenSize, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestScriptPath(char* token, ssize_t tokenSize, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -561,13 +562,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestHeaderField(char* token, ssize_t tokenSize, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestHeaderField(char* token, ssize_t tokenSize, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -587,13 +588,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestHeaderValue(char* token, ssize_t tokenSize, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestHeaderValue(char* token, ssize_t tokenSize, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -620,13 +621,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestHeadersFinish(void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestHeadersFinish(void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -642,7 +643,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     }
     lua_pushvalue(tlModule->L, -2); // vinbero clients client onRequestHeadersFinish client
     if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // vinbero clients client errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1));
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1));
         lua_pop(tlModule->L, 4); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
@@ -653,7 +654,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
 }
 
 static int vinbero_mt_http_lua_onRequestBodyStart(lua_State* L) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    VINBERO_COMMON_LOG_TRACE2();
     // * client
     lua_pushstring(L, "request"); // * client "request"
     lua_gettable(L, -2); // * client request
@@ -664,13 +665,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestBodyStart(void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestBodyStart(void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -685,7 +686,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     }
     lua_pushvalue(tlModule->L, -2); // vinbero clients client onRequestBodyStart client
     if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // vinbero clients client errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // vinbero clients client errorString
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1)); // vinbero clients client errorString
         lua_pop(tlModule->L, 4); //
         assert(lua_gettop(tlModule->L) == 0);
 	return -1;
@@ -708,7 +709,7 @@ static int vinbero_mt_http_lua_onRequestBody(lua_State* L) {
     lua_remove(L, -2); // * client bodyChunk request table insert body
     lua_pushvalue(L, -5); // * client bodyChunk request table insert body bodyChunk
     if(lua_pcall(L, 2, 0, 0) != 0) { // * client bodyChunk request table errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(L, -1));
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(L, -1));
         lua_pop(L, 3); // * client bodyChunk
         luaL_error(L, "vinbero_mt_http_lua_onRequestBody() failed"); //
     }
@@ -716,13 +717,13 @@ static int vinbero_mt_http_lua_onRequestBody(lua_State* L) {
     return 0;
 }
 
-int vinbero_IHttp_onRequestBody(char* bodyChunk, ssize_t bodyChunkSize, void* args[]) {
-    warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestBody(char* bodyChunk, ssize_t bodyChunkSize, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -737,7 +738,7 @@ int vinbero_IHttp_onRequestBody(char* bodyChunk, ssize_t bodyChunkSize, void* ar
     lua_gettable(tlModule->L, -3); // vinbero clients onRequestBody client
     lua_pushlstring(tlModule->L, bodyChunk, bodyChunkSize); // vinbero clients onRequestBody client bodyChunk
     if(lua_pcall(tlModule->L, 2, 0, 0) != 0) { // vinbero clients errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // vinbero clients errorString
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1)); // vinbero clients errorString
         lua_pop(tlModule->L, 3); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
@@ -757,7 +758,7 @@ static int vinbero_mt_http_lua_onRequestBodyFinish(lua_State* L) {
     lua_gettable(L, -2); // * client request body table concat
     lua_pushvalue(L, -3); // * client request body table concat body
     if(lua_pcall(L, 1, 1, 0) != 0) { // * client request body table errorString
-        warnx("%s: %u, %s", __FILE__, __LINE__, lua_tostring(L, -1)); // * client request body table errorString
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(L, -1)); // * client request body table errorString
         lua_pop(L, 4); // * client
 	luaL_error(L, "vinbero_mt_http_lua_onRequestBodyFinish() failed");
     }
@@ -769,13 +770,13 @@ static int vinbero_mt_http_lua_onRequestBodyFinish(lua_State* L) {
     return 0;
 }
 
-int vinbero_IHttp_onRequestBodyFinish(void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestBodyFinish(void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int argc;
     GENC_ARGS_COUNT(args, &argc);
     if(argc != 2) return -1;
-    struct vinbero_Module* module = args[0];
-    struct vinbero_ClData* clData = args[1];
+    struct vinbero_common_Module* module = args[0];
+    struct vinbero_common_ClData* clData = args[1];
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -789,7 +790,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_pushinteger(tlModule->L, localClData->clientId); // vinbero clients onRequestBodyFinish clientId
     lua_gettable(tlModule->L, -3); // vinbero clients onRequestBodyFinish client
     if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // vinbero clients errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // vinbero clients errorString
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1)); // vinbero clients errorString
         lua_pop(tlModule->L, 3); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
@@ -799,8 +800,8 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onGetRequestIntHeader(struct vinbero_Module* module, struct vinbero_ClData* clData, const char* headerField, int* headerValue) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onGetRequestIntHeader(struct vinbero_common_Module* module, struct vinbero_common_ClData* clData, const char* headerField, int* headerValue) {
+    VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     lua_getglobal(tlModule->L, "vinbero"); // * vinbero
@@ -817,14 +818,14 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_gettable(tlModule->L, -2); // * vinbero clients client request headers string upper
     lua_pushstring(tlModule->L, headerField); // * vinbero clients client request headers string upper headerField
     if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * vinbero clients client request headers string errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // * vinbero clients client request headers string errorString
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1)); // * vinbero clients client request headers string errorString
         lua_pop(tlModule->L, 7); // *
         return -1;
     }
     lua_remove(tlModule->L, -2); // * vinbero clients client request headers upperedHeaderField
     lua_gettable(tlModule->L, -2); // * vinbero clients client request headers headerValue
     if(lua_isnil(tlModule->L, -1)) { // * vinbero clients client request headers headerValue
-        warnx("%s: %u: Request header %s not found", __FILE__, __LINE__, headerField);
+        VINBERO_COMMON_LOG_ERROR("Request header %s not found", headerField);
         lua_pop(tlModule->L, 6); // *
         return -1;
     }
@@ -832,8 +833,8 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_pop(tlModule->L, 6); // *
     return 0;
 }
-int vinbero_IHttp_onGetRequestDoubleHeader(struct vinbero_Module* module, struct vinbero_ClData* clData, const char* headerField, double* headerValue) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onGetRequestDoubleHeader(struct vinbero_common_Module* module, struct vinbero_common_ClData* clData, const char* headerField, double* headerValue) {
+    VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     lua_getglobal(tlModule->L, "vinbero"); // * vinbero
@@ -850,14 +851,14 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_gettable(tlModule->L, -2); // * vinbero clients client request headers string upper
     lua_pushstring(tlModule->L, headerField); // * vinbero clients client request headers string upper headerField
     if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * vinbero clients client request headers string errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // * vinbero clients client request headers string errorString
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1)); // * vinbero clients client request headers string errorString
         lua_pop(tlModule->L, 7); // *
         return -1;
     }
     lua_remove(tlModule->L, -2); // * vinbero clients client request headers upperedHeaderField
     lua_gettable(tlModule->L, -2); // * vinbero clients client request headers headerValue
     if(lua_isnil(tlModule->L, -1)) { // * vinbero clients client request headers headerValue
-        warnx("%s: %u: Request header %s not found", __FILE__, __LINE__, headerField);
+        VINBERO_COMMON_LOG_ERROR("Request header %s not found", headerField);
         lua_pop(tlModule->L, 6); // *
         return -1;
     }
@@ -866,8 +867,8 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onGetRequestStringHeader(struct vinbero_Module* module, struct vinbero_ClData* clData, const char* headerField, const char** headerValue) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onGetRequestStringHeader(struct vinbero_common_Module* module, struct vinbero_common_ClData* clData, const char* headerField, const char** headerValue) {
+    VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     lua_getglobal(tlModule->L, "vinbero"); // * vinbero
@@ -884,14 +885,14 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_gettable(tlModule->L, -2); // * vinbero clients client request headers string upper
     lua_pushstring(tlModule->L, headerField); // * vinbero clients client request headers string upper headerField
     if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * vinbero clients client request headers string errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); // * vinbero clients client request headers string errorString
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1)); // * vinbero clients client request headers string errorString
         lua_pop(tlModule->L, 7); // *
         return -1;
     }
     lua_remove(tlModule->L, -2); // * vinbero clients client request headers upperedHeaderField
     lua_gettable(tlModule->L, -2); // * vinbero clients client request headers headerValue
     if(lua_isnil(tlModule->L, -1)) { // * vinbero clients client request headers headerValue
-        warnx("%s: %u: Request header %s not found", __FILE__, __LINE__, headerField);
+        VINBERO_COMMON_LOG_ERROR("Request header %s not found", headerField);
         lua_pop(tlModule->L, 6); // *
         return -1;
     }
@@ -910,8 +911,8 @@ static int vinbero_mt_http_lua_onGetRequestContentLength(lua_State* L) {
     return 1;
 }
 
-int vinbero_IHttp_onGetRequestContentLength(struct vinbero_Module* module, struct vinbero_ClData* clData, ssize_t* contentLength) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onGetRequestContentLength(struct vinbero_common_Module* module, struct vinbero_common_ClData* clData, ssize_t* contentLength) {
+    VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     lua_getglobal(tlModule->L, "vinbero"); // * vinbero
@@ -925,7 +926,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_pushinteger(tlModule->L, localClData->clientId); // * vinbero clients onGetRequestContentLength clientId
     lua_gettable(tlModule->L, -3); // * vinbero clients onGetRequestContentLength client
     if(lua_pcall(tlModule->L, 1, 1, 0) != 0) { // * vinbero clients errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1));
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1));
         lua_pop(tlModule->L, 3); //
         return -1;
     }
@@ -938,8 +939,8 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IHttp_onRequestFinish(struct vinbero_Module* module, struct vinbero_ClData* clData, void* args[]) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_HTTP_onRequestFinish(struct vinbero_common_Module* module, struct vinbero_common_ClData* clData, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     struct vinbero_mt_http_lua_ClData* localClData = clData->generic.pointer;
     lua_getglobal(tlModule->L, "vinbero"); // vinbero
@@ -970,7 +971,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     } else { // vinbero clients client request scriptPath
         scriptPath = lua_tolstring(tlModule->L, -1, &scriptPathSize);
         if(strncmp(scriptPath + scriptPathSize - 1, "/", sizeof("/") - 1) == 0) {
-            warnx("%s: %u: scriptPath should not  end with /", __FILE__, __LINE__);
+            VINBERO_COMMON_LOG_ERROR("scriptPath should not  end with /");
             lua_pop(tlModule->L, 5); //
             assert(lua_gettop(tlModule->L) == 0);
             return -1;
@@ -978,7 +979,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
         lua_pop(tlModule->L, 1); // vinbero clients client request
     }
     if((pathInfo = strstr(requestUri, scriptPath)) != requestUri) { // if request uri doesn't begin with script name
-        warnx("%s: %u: Request uri doesn't begin with script name", __FILE__, __LINE__);
+        VINBERO_COMMON_LOG_ERROR("Request uri doesn't begin with script name");
         lua_pop(tlModule->L, 4); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
@@ -987,7 +988,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     if((queryString = strstr(pathInfo, "?")) != NULL) { // check if there is query string
         ++queryString; // query string begins after the question mark
         if(strstr(queryString, "?") != NULL) { // check if there is unnecessary question mark after query string
-            warnx("%s: %u: Unnecessary question mark after query string", __FILE__, __LINE__);
+            VINBERO_COMMON_LOG_ERROR("Unnecessary question mark after query string");
             lua_pop(tlModule->L, 4); //
             assert(lua_gettop(tlModule->L) == 0);
             return -1;
@@ -1016,14 +1017,14 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     lua_pop(tlModule->L, 1); // vinbero clients client 
     lua_getglobal(tlModule->L, "onRequestFinish"); // vinbero clients client onRequestFinish
     if(lua_isnil(tlModule->L, -1)) { // vinbero clients client nil
-        warnx("%s: %u: onRequestFinish() is not found in the script", __FILE__, __LINE__);
+        VINBERO_COMMON_LOG_ERROR("onRequestFinish() is not found in the script");
         lua_pop(tlModule->L, 4); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
     }
     lua_pushvalue(tlModule->L, -2); // vinbero clients client onRequestFinish client
     if(lua_pcall(tlModule->L, 1, 0, 0) != 0) { // vinbero clients client errorString
-        warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1));
+        VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1));
         lua_pop(tlModule->L, 4); //
         assert(lua_gettop(tlModule->L) == 0);
         return -1;
@@ -1033,8 +1034,8 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_ICLocal_destroy(struct vinbero_Module* module, struct vinbero_ClData* clData) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_CLOCAL_destroy(struct vinbero_common_Module* module, struct vinbero_common_ClData* clData) {
+    VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     free(clData->generic.pointer);
     free(clData);
@@ -1042,12 +1043,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_ITLocal_destroy(struct vinbero_Module* module) {
+int vinbero_Interface_TLOCAL_destroy(struct vinbero_common_Module* module) {
+    VINBERO_COMMON_LOG_TRACE2();
     return 0;
 }
 
-int vinbero_ITLocal_rDestroy(struct vinbero_Module* module) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_TLOCAL_rDestroy(struct vinbero_common_Module* module) {
+    VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_TlModule* tlModule = pthread_getspecific(*module->tlModuleKey);
     if(tlModule != NULL) {
         lua_getglobal(tlModule->L, "onDestroy"); // onDestroy
@@ -1055,7 +1057,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
             lua_pop(tlModule->L, 1); //
         else {
             if(lua_pcall(tlModule->L, 0, 0, 0) != 0) {
-                warnx("%s: %u: %s", __FILE__, __LINE__, lua_tostring(tlModule->L, -1)); //errorString
+                VINBERO_COMMON_LOG_ERROR("%s", lua_tostring(tlModule->L, -1)); //errorString
                 lua_pop(tlModule->L, 1); //
             }
         }
@@ -1065,13 +1067,13 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int vinbero_IModule_destroy(struct vinbero_Module* module) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_MODULE_destroy(struct vinbero_common_Module* module) {
+    VINBERO_COMMON_LOG_TRACE2();
     return 0;
 }
 
-int vinbero_IModule_rDestroy(struct vinbero_Module* module) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+int vinbero_Interface_MODULE_rDestroy(struct vinbero_common_Module* module) {
+    VINBERO_COMMON_LOG_TRACE2();
     pthread_key_delete(*module->tlModuleKey);
     free(module->tlModuleKey);
     free(module);
