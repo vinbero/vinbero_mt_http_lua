@@ -6,7 +6,7 @@ function onRequestFinish(client)
         print(k, v)
     end
 
-    client.response:writeVersion(client.request.versionMajor, versionMinor)
+    client.response:writeVersion(client.request.versionMajor, client.request.versionMinor)
     client.response:writeStatusCode(200)
     client.response:writeStringHeader("Content-Length", 5)
     client.response:writeCrLf()
