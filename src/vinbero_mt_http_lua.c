@@ -519,6 +519,25 @@ int vinbero_interface_HTTP_onRequestScriptPath(struct vinbero_common_ClModule* c
     return VINBERO_COMMON_STATUS_SUCCESS;
 }
 
+int vinbero_interface_HTTP_onRequestKeepAlive(struct vinbero_common_ClModule* clModule, bool isKeepAlive) {
+    VINBERO_COMMON_LOG_TRACE2();
+    struct vinbero_mt_http_lua_ClModule* localClModule = clModule->localClModule.pointer;
+    struct vinbero_mt_http_lua_TlModule* localTlModule = clModule->tlModule->localTlModule.pointer;
+    lua_getglobal(localTlModule->L, "vinbero"); // vinbero
+    lua_pushstring(localTlModule->L, "clients"); // vinbero "clients"
+    lua_gettable(localTlModule->L, -2); // vinbero clients
+    lua_pushinteger(localTlModule->L, localClModule->clientId); // vinbero clients clientId
+    lua_gettable(localTlModule->L, -2); // vinbero clients client
+    lua_pushstring(localTlModule->L, "request"); // vinbero clients client "request"
+    lua_gettable(localTlModule->L, -2); // vinbero clients client request
+    lua_pushstring(localTlModule->L, "isKeepAlive"); // vinbero clients client request "isKeepAlive"
+    lua_pushboolean(localTlModule->L, isKeepAlive); // vinbero clients client request "isKeepAlive" isKeepAlive
+    lua_settable(localTlModule->L, -3); // vinbero clients client request
+    lua_pop(localTlModule->L, 4); // 
+    assert(lua_gettop(localTlModule->L) == 0);
+    return VINBERO_COMMON_STATUS_SUCCESS;
+}
+
 int vinbero_interface_HTTP_onRequestHeaderField(struct vinbero_common_ClModule* clModule, const char* token, size_t tokenSize) {
     VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_ClModule* localClModule = clModule->localClModule.pointer;

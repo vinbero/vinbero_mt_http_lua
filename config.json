@@ -15,7 +15,7 @@
     },
     "vinbero_tcp_mt_epoll": {
         "path": "/usr/local/lib/vinbero/vinbero_tcp_mt_epoll.so",
-        "config": {},
+        "config": {"vinbero_tcp_mt_epoll.clientTimeoutSeconds": 3},
         "next": ["vinbero_mt_epoll_http"]
     },
     "vinbero_mt_epoll_http": {
