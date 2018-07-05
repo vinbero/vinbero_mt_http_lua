@@ -20,9 +20,9 @@ before_install:
   - autoreconf -i
   - ./configure --prefix=/usr
   - cd ../
-
   - pwd
   - git clone https://github.com/nodejs/http-parser
+
 
   - pwd
   - curl -R -O http://www.lua.org/ftp/lua-5.3.4.tar.gz
@@ -82,12 +82,6 @@ install:
   - make
   - make check
   - sudo make install
-  - cd ../
-
-  - pwd
-  - cd http-parser
-  - make
-  - PREFIX=/usr sudo make install
   - cd ../
 
   - pwd
