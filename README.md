@@ -1,4 +1,8 @@
 # vinbero_mt_http_lua
+[![GitHub release](http://img.shields.io/github/release/vinbero/vinbero_mt_http_lua.svg)](https://github.com/vinbero/vinbero_mt_http_lua/releases)
+[![Github All Releases](http://img.shields.io/github/downloads/vinbero/vinbero_mt_http_lua/total.svg)](https://github.com/vinbero/vinbero_mt_http_lua/releases)
+[![Build Status](https://travis-ci.org/vinbero/vinbero_mt_http_lua.svg?branch=master)](https://travis-ci.org/vinbero/vinbero_mt_http_lua)
+[![license](http://img.shields.io/github/license/vinbero/vinbero_mt_http_lua.svg)](https://raw.githubusercontent.com/vinbero/vinbero_mt_http_lua/master/LICENSE)
 A vinbero module for writing lua web application.
 
 ## Intoduction
