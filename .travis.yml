@@ -4,7 +4,7 @@ language: c
 compiler:
   - gcc
 before_install:
- - sudo apt-get install -y libreadline-dev
+  - sudo apt-get install -y libreadline-dev
 
   - pwd
   - git clone git://git.cryptomilk.org/projects/cmocka.git 
