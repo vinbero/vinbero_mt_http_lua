@@ -239,13 +239,13 @@ int vinbero_interface_TLOCAL_init(struct vinbero_common_TlModule* tlModule) {
     localTlModule->L = luaL_newstate();
     luaL_openlibs(localTlModule->L);
     lua_newtable(localTlModule->L); // vinbero
-    lua_pushstring(localTlModule->L, "args"); // vinbero "args"
-    const char* scriptArgs;
-    vinbero_common_Config_getString(tlModule->module->config, tlModule->module, "vinbero_mt_http_lua.scriptArgs", &scriptArgs, NULL);
-    if(scriptArgs != NULL)
-        lua_pushstring(localTlModule->L, scriptArgs); // vinbero "args" args
+    lua_pushstring(localTlModule->L, "arg"); // vinbero "arg"
+    const char* scriptArg;
+    vinbero_common_Config_getString(tlModule->module->config, tlModule->module, "vinbero_mt_http_lua.scriptArg", &scriptArg, NULL);
+    if(scriptArg != NULL)
+        lua_pushstring(localTlModule->L, scriptArg); // vinbero "arg" arg
     else
-        lua_pushnil(localTlModule->L); // vinbero "args" nil
+        lua_pushnil(localTlModule->L); // vinbero "arg" nil
     lua_settable(localTlModule->L, -3); // vinbero 
     lua_pushstring(localTlModule->L, "clients"); // vinbero "clients"
     lua_newtable(localTlModule->L); // vinbero "clients" clients
