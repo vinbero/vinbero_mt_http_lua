@@ -1,0 +1,6 @@
+#ifndef _VINBERO_MT_HTTP_LUA_VERSION_H
+#define _VINBERO_MT_HTTP_LUA_VERSION_H
+
+#define VINBERO_MT_HTTP_LUA_VERSION "@vinbero_mt_http_lua_version@"
+
+#endif
