@@ -57,6 +57,13 @@ before_install:
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
   - cd ../../
 
+  - pwd
+  - git clone https://github.com/vinbero/vinbero_mt_epoll_http
+  - cd vinbero_mt_epoll_http
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+  - cd ../../
 
 install:
   - sudo apt-get install -y uthash-dev
@@ -100,6 +107,12 @@ install:
 
   - pwd
   - cd libvinbero_common/build
+  - make
+  - sudo make install
+  - cd ../../
+
+  - pwd
+  - cd vinbero_mt_epoll_http/build
   - make
   - sudo make install
   - cd ../../
