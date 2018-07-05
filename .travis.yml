@@ -77,7 +77,8 @@ install:
   - pwd
   - cd lua-5.3.4
   - make linux
-  - sudo make install
+  - PREFIX=/usr sudo make install
+  - cd ../
 
   - pwd
   - cd libgenc/build
