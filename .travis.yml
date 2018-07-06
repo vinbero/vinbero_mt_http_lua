@@ -4,7 +4,7 @@ language: c
 compiler:
   - gcc
 before_install:
-  - sudo apt-get install -y libreadline-dev
+  - sudo apt-get install -y libreadline-dev uthash-dev doxygen
 
   - pwd
   - git clone git://git.cryptomilk.org/projects/cmocka.git 
@@ -89,9 +89,6 @@ before_install:
   - make
   - sudo make install
   - cd ../../
-
-install:
-  - sudo apt-get install -y uthash-dev
 
 before_script:
   - cmake -version
