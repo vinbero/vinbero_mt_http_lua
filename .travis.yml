@@ -37,7 +37,7 @@ before_install:
   - tar -xvzf lua-5.3.4.tar.gz
   - cd lua-5.3.4
   - make linux
-  - PREFIX=/usr sudo make install
+  - PREFIX=/usr CFLAGS="-fPIC" sudo make install
   - cd ../
 
   - pwd
