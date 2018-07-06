@@ -4,7 +4,7 @@ language: c
 compiler:
   - gcc
 before_install:
-  - sudo apt-get install -y libreadline-dev uthash-dev doxygen graphiz
+  - sudo apt-get install -y libreadline-dev uthash-dev doxygen graphviz
 
   - pwd
   - git clone git://git.cryptomilk.org/projects/cmocka.git 
