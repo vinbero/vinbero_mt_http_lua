@@ -9,8 +9,9 @@ function onRequestFinish(client)
                 else
                     v = 'false'
                 end
+            else
+                v = type(v)
             end
-            v = type(v)
         end
         table.insert(content, "<div>" .. k .. ": " .. v .. "</div>")
     end
