@@ -7,7 +7,7 @@
 
 ## Intoduction
 
-## Interface implmentations
+## Interface implementations
 - MODULE
 - TLOCAL
 - CLOCAL
