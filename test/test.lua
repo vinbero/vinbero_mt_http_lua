@@ -2,7 +2,13 @@ function onRequestFinish(client)
     local content = {}
     table.insert(content, "<h1>Request Info</h1>")
     for k, v in pairs(client.request) do
-        if type(v) ~= 'string' then
+        if type(v) ~= 'string' and type(v) ~= 'number' then
+            if type(v) == 'boolean' then
+                if v == true then
+                    v = 'true'
+                else
+                    v = 'false'
+            end
             v = type(v)
         end
         table.insert(content, "<div>" .. k .. ": " .. v .. "</div>")
