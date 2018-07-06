@@ -22,6 +22,7 @@
 #include <vinbero/vinbero_interface_CLOCAL.h>
 #include <vinbero/vinbero_interface_TLOCAL.h>
 #include <vinbero/vinbero_interface_HTTP.h>
+#include "vinbero_mt_http_lua_Version.h"
 
 struct vinbero_mt_http_lua_TlModule {
    lua_State* L;
@@ -40,7 +41,7 @@ VINBERO_INTERFACE_HTTP_FUNCTIONS;
 
 int vinbero_interface_MODULE_init(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
-    vinbero_common_Module_init(module, "vinbero_mt_http_lua", "0.0.1", false);
+    vinbero_common_Module_init(module, "vinbero_mt_http_lua", VINBERO_MT_HTTP_LUA_VERSION, false);
     return VINBERO_COMMON_STATUS_SUCCESS;
 }
 
