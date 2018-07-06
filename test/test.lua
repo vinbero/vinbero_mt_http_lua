@@ -8,6 +8,7 @@ function onRequestFinish(client)
                     v = 'true'
                 else
                     v = 'false'
+                end
             end
             v = type(v)
         end
