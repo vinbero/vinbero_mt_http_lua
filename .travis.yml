@@ -36,8 +36,8 @@ before_install:
   - curl -R -O http://www.lua.org/ftp/lua-5.3.4.tar.gz
   - tar -xvzf lua-5.3.4.tar.gz
   - cd lua-5.3.4
-  - make linux
-  - PREFIX=/usr CFLAGS="-fPIC" sudo make install
+  - CFLAGS="-fPIC" make linux
+  - PREFIX=/usr sudo make install
   - cd ../
 
   - pwd
