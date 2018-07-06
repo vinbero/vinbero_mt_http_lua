@@ -4,7 +4,7 @@ language: c
 compiler:
   - gcc
 before_install:
-  - sudo apt-get install -y libreadline-dev
+  - sudo apt-get install -y libreadline-dev uthash-dev doxygen graphviz
 
   - pwd
   - git clone git://git.cryptomilk.org/projects/cmocka.git 
@@ -12,6 +12,8 @@ before_install:
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+  - make
+  - sudo make install
   - cd ../../
 
   - pwd
@@ -19,14 +21,24 @@ before_install:
   - cd jansson
   - autoreconf -i
   - ./configure --prefix=/usr
+  - make
+  - sudo make install
   - cd ../
 
   - pwd
   - git clone https://github.com/nodejs/http-parser
+  - cd http-parser
+  - make
+  - PREFIX=/usr sudo make install
+  - cd ../
 
   - pwd
   - curl -R -O http://www.lua.org/ftp/lua-5.3.4.tar.gz
   - tar -xvzf lua-5.3.4.tar.gz
+  - cd lua-5.3.4
+  - make linux MYCFLAGS="-fPIC"
+  - PREFIX=/usr sudo make install
+  - cd ../
 
   - pwd
   - git clone https://github.com/vinbero/libgenc
@@ -34,6 +46,8 @@ before_install:
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+  - make
+  - sudo make install
   - cd ../../
 
   - pwd
@@ -42,6 +56,8 @@ before_install:
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+  - make
+  - sudo make install
   - cd ../../
 
   - pwd
@@ -50,6 +66,8 @@ before_install:
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+  - make
+  - sudo make install
   - cd ../../
 
   - pwd
@@ -58,6 +76,8 @@ before_install:
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+  - make
+  - sudo make install
   - cd ../../
 
   - pwd
@@ -66,62 +86,6 @@ before_install:
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
-  - cd ../../
-
-install:
-  - sudo apt-get install -y uthash-dev
-
-  - pwd
-  - cd cmocka/build
-  - make
-  - sudo make install
-  - cd ../../
-
-  - pwd
-  - cd jansson
-  - make
-  - make check
-  - sudo make install
-  - cd ../
-
-  - pwd
-  - cd http-parser
-  - make
-  - PREFIX=/usr sudo make install
-  - cd ../
-
-  - pwd
-  - cd lua-5.3.4
-  - make linux
-  - PREFIX=/usr sudo make install
-  - cd ../
-
-  - pwd
-  - cd libgenc/build
-  - make
-  - sudo make install
-  - cd ../../
-
-  - pwd
-  - cd libgaio/build
-  - make
-  - sudo make install
-  - cd ../../
-
-  - pwd
-  - cd libfastdl/build
-  - make
-  - sudo make install
-  - cd ../../
-
-  - pwd
-  - cd libvinbero_common/build
-  - make
-  - sudo make install
-  - cd ../../
-
-  - pwd
-  - cd vinbero_mt_epoll_http/build
   - make
   - sudo make install
   - cd ../../
