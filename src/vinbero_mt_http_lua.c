@@ -118,35 +118,7 @@ static int vinbero_mt_http_lua_writeStatusCode(lua_State* L) {
     return VINBERO_COMMON_STATUS_SUCCESS;
 }
 
-static int vinbero_mt_http_lua_writeIntHeader(lua_State* L) {
-    // * response headerField headerValue
-    const char* headerField;
-    size_t headerFieldSize;
-    headerField = lua_tolstring(L, -2, &headerFieldSize); // * response headerField headerValue
-    int headerValue = lua_tointeger(L, -1); // * response headerField headerValue
-    lua_pushstring(L, "cObject"); // * response headerField headerValue "cObject"
-    lua_gettable(L, -4); // * response headerField headerValue cObject
-    struct vinbero_interface_HTTP_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
-    response->methods->writeIntHeader(response, headerField, headerFieldSize, headerValue);
-    lua_pop(L, 1); // * response headerField headerValue
-    return VINBERO_COMMON_STATUS_SUCCESS;
-}
-
-static int vinbero_mt_http_lua_writeDoubleHeader(lua_State* L) {
-    // * response headerField headerValue
-    const char* headerField;
-    size_t headerFieldSize;
-    headerField = lua_tolstring(L, -2, &headerFieldSize); // * response headerField headerValue
-    double headerValue = lua_tonumber(L, -1); // * response headerField headerValue
-    lua_pushstring(L, "cObject"); // * response headerField headerValue "cObject"
-    lua_gettable(L, -4); // * response headerField headerValue cObject
-    struct vinbero_interface_HTTP_Response* response = lua_touserdata(L, -1); // * response headerField headerValue cObject
-    response->methods->writeDoubleHeader(response, headerField, headerFieldSize, headerValue);
-    lua_pop(L, 1); // * response headerField headerValue
-    return VINBERO_COMMON_STATUS_SUCCESS;
-}
-
-static int vinbero_mt_http_lua_writeStringHeader(lua_State* L) {
+static int vinbero_mt_http_lua_writeHeader(lua_State* L) {
     // * response headerField headerValue
     const char* headerField;
     size_t headerFieldSize;
@@ -162,15 +134,15 @@ static int vinbero_mt_http_lua_writeStringHeader(lua_State* L) {
     return VINBERO_COMMON_STATUS_SUCCESS;
 }
 
-static int vinbero_mt_http_lua_writeStringBody(lua_State* L) {
-    // * response stringBody
-    const char* stringBody;
-    size_t stringBodySize;
-    stringBody = lua_tolstring(L, -1, &stringBodySize);
-    lua_pushstring(L, "cObject"); // * response stringBody "cObject"
-    lua_gettable(L, -3); // * response stringBody cObject
+static int vinbero_mt_http_lua_writeBody(lua_State* L) {
+    // * response body
+    const char* body;
+    size_t bodySize;
+    body = lua_tolstring(L, -1, &bodySize);
+    lua_pushstring(L, "cObject"); // * response body "cObject"
+    lua_gettable(L, -3); // * response body cObject
     struct vinbero_interface_HTTP_Response* response = lua_touserdata(L, -1);
-    response->methods->writeStringBody(response, stringBody, stringBodySize);
+    response->methods->writeStringBody(response, body, bodySize);
     return VINBERO_COMMON_STATUS_SUCCESS;
 }
 
@@ -271,17 +243,11 @@ int vinbero_interface_TLOCAL_init(struct vinbero_common_TlModule* tlModule) {
     lua_pushstring(localTlModule->L, "writeStatusCode"); // vinbero "responseMethods" responseMethods "writeStatusCode"
     lua_pushcfunction(localTlModule->L, vinbero_mt_http_lua_writeStatusCode); // vinbero "responseMethods" responseMethods "writeStatusCode" writeStatusCode
     lua_settable(localTlModule->L, -3); // vinbero "responseMethods" responseMethods
-    lua_pushstring(localTlModule->L, "writeIntHeader"); // vinbero "responseMethods" responseMethods "writeIntHeader"
-    lua_pushcfunction(localTlModule->L, vinbero_mt_http_lua_writeIntHeader); // vinbero "responseMethods" responseMethods "writeIntHeader" writeIntHeader
+    lua_pushstring(localTlModule->L, "writeHeader"); // vinbero "responseMethods" responseMethods "writeHeader" writeHeader
+    lua_pushcfunction(localTlModule->L, vinbero_mt_http_lua_writeHeader); // vinbero "responseMethods" responseMethods "writeHeader" writeHeader
     lua_settable(localTlModule->L, -3); // vinbero "responseMethods" responseMethods
-    lua_pushstring(localTlModule->L, "writeDoubleHeader"); // vinbero "responseMethods" responseMethods "writeDoubleHeader"
-    lua_pushcfunction(localTlModule->L, vinbero_mt_http_lua_writeDoubleHeader); // vinbero "responseMethods" responseMethods "writeDoubleHeader" writeDoubleHeader
-    lua_settable(localTlModule->L, -3); // vinbero "responseMethods" responseMethods
-    lua_pushstring(localTlModule->L, "writeStringHeader"); // vinbero "responseMethods" responseMethods "writeStringHeader" writeStringHeader
-    lua_pushcfunction(localTlModule->L, vinbero_mt_http_lua_writeStringHeader); // vinbero "responseMethods" responseMethods "writeStringHeader" writeStringHeader
-    lua_settable(localTlModule->L, -3); // vinbero "responseMethods" responseMethods
-    lua_pushstring(localTlModule->L, "writeStringBody"); // vinbero "responseMethods" responseMethods "writeStringBody"
-    lua_pushcfunction(localTlModule->L, vinbero_mt_http_lua_writeStringBody); // vinbero "responseMethods" responseMethods "writeStringBody" writeStringBody
+    lua_pushstring(localTlModule->L, "writeBody"); // vinbero "responseMethods" responseMethods "writeBody"
+    lua_pushcfunction(localTlModule->L, vinbero_mt_http_lua_writeBody); // vinbero "responseMethods" responseMethods "writeBody" writeBody
     lua_settable(localTlModule->L, -3); // vinbero "responseMethods" responseMethods
     lua_pushstring(localTlModule->L, "writeIoBody"); // vinbero "responseMethods" responseMethods "writeIoBody"
     lua_pushcfunction(localTlModule->L, vinbero_mt_http_lua_writeIoBody); // vinbero "responseMethods" responseMethods "writeIoBody" writeIoBody
