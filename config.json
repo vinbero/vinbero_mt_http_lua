@@ -26,7 +26,7 @@
     "vinbero_mt_http_lua": {
         "path": "/usr/lib/vinbero/vinbero_mt_http_lua.so",
         "config": {
-            "vinbero_mt_http_lua.scriptFile": "/vinbero_mt_http_lua/test/test.lua",
+            "vinbero_mt_http_lua.scriptFile": "/srv/app.lua",
             "vinbero_mt_http_lua.scriptArg": {}
         },
         "next": []
