@@ -20,5 +20,16 @@
 - vinbero_mt_http_lua.scriptFile(string) : Path of a lua script file. (relative/absolute)
 - vinbero_mt_http_lua.scriptArg(string) : An argument to pass to the lua script file. You can get the value from vinbero.arg in the lua script.
 
+## Globals in Lua script
+- vinbero
+- onInit()
+- onRequestStart(client)
+- onRequestHeadersFinish(client)
+- onRequestBodyStart(client)
+- onRequestBody(client, bodyChunk)
+- onRequestBodyFinish(client)
+- onRequestFinish(client)
+- onDestroy()
+
 ## License
 MPLv2
