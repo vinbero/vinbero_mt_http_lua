@@ -15,6 +15,7 @@
 #include <vinbero_common/vinbero_common_Log.h>
 #include <vinbero_common/vinbero_common_Error.h>
 #include <vinbero_common/vinbero_common_Status.h>
+#include <vinbero_common/vinbero_common_Config.h>
 #include <vinbero_common/vinbero_common_Module.h>
 #include <vinbero_common/vinbero_common_TlModule.h>
 #include <vinbero_common/vinbero_common_ClModule.h>
