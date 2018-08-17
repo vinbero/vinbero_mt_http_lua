@@ -289,6 +289,7 @@ int vinbero_interface_TLOCAL_init(struct vinbero_common_TlModule* tlModule) {
 }
 
 int vinbero_interface_TLOCAL_rInit(struct vinbero_common_TlModule* tlModule) {
+    VINBERO_COMMON_LOG_TRACE2();
     return VINBERO_COMMON_STATUS_SUCCESS;
 }
 
