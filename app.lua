@@ -12,6 +12,5 @@ function onRequestFinish(client)
     client.response:writeVersion(client.request.versionMajor, client.request.versionMinor)
     client.response:writeStatusCode(200)
     client.response:writeHeader("Content-Type", "html")
-    client.response:writeHeader("Content-Length", #content)
     client.response:writeBody(content)
 end
