@@ -875,7 +875,10 @@ int vinbero_interface_HTTP_onRequestFinish(struct vinbero_common_ClModule* clMod
     const char* queryString;
     lua_pushstring(localTlModule->L, "requestUri"); // vinbero clients client request "requestUri"
     lua_gettable(localTlModule->L, -2); // vinbero clients client request requestUri
-    requestUri = lua_tostring(localTlModule->L, -1);
+    if(lua_isnil(localTlModule->L, -1)) // I don't know why this can be happening
+        requestUri = "/";
+    else
+        requestUri = lua_tostring(localTlModule->L, -1);
     lua_pop(localTlModule->L, 1); // vinbero clients client request
     lua_pushstring(localTlModule->L, "scriptPath"); // vinbero clients client request "scriptPath"
     lua_gettable(localTlModule->L, -2); // vinbero clients client request scriptPath
