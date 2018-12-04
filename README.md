@@ -6,7 +6,8 @@
 [![Docker Build Status](http://img.shields.io/docker/build/vinbero/alpine-vinbero.svg)](https://hub.docker.com/r/vinbero/alpine-vinbero_mt_http_lua/builds)
 [![Docker Stars](http://img.shields.io/docker/stars/vinbero/alpine-vinbero.svg)](https://hub.docker.com/r/vinbero/alpine-vinbero_mt_http_lua)
 [![Docker Pulls](http://img.shields.io/docker/pulls/vinbero/alpine-vinbero.svg)](https://hub.docker.com/r/vinbero/alpine-vinbero_mt_http_lua)
-<br/>A vinbero module for writing lua web application.
+
+A vinbero module for writing lua web application.
 
 ## Intoduction
 
