@@ -13,6 +13,6 @@ function onRequestFinish(client)
     content = table.concat(content)
     client.response:writeVersion(client.request.versionMajor, client.request.versionMinor)
     client.response:writeStatusCode(200)
-    client.response:writeHeader("Content-Type", "html")
+    client.response:writeHeader("Content-Type", "text/html")
     client.response:writeBody(content)
 end
