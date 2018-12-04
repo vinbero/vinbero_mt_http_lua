@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(vinbero_mt_http_lua C)
 
-set(vinbero_mt_http_lua_version "0.1.5")
+set(vinbero_mt_http_lua_version "0.1.6")
 set(vinbero_mt_http_lua_soversion "0.1")
 
 if(CMAKE_VERSION VERSION_LESS "3.1")
