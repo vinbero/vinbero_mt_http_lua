@@ -6,7 +6,7 @@ set_target_properties(vinbero_mt_http_lua PROPERTIES VERSION ${vinbero_mt_http_l
 find_library(fastdl libfastdl.so REQUIRED)
 find_library(gaio libgaio.so.0.3 REQUIRED)
 find_library(vinbero_common libvinbero_common.so REQUIRED)
-find_library(lua NAMES liblua-5.3.so liblua-5.3.so.0 liblua.a REQUIRED)
+find_library(lua NAMES liblua5.3.so liblua-5.3.so liblua-5.3.so.0 REQUIRED)
 target_link_libraries(vinbero_mt_http_lua ${vinbero_common} ${fastdl} ${gaio} ${lua})
 
 install(TARGETS vinbero_mt_http_lua

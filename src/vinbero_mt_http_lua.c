@@ -992,6 +992,5 @@ int vinbero_interface_MODULE_destroy(struct vinbero_common_Module* module) {
 
 int vinbero_interface_MODULE_rDestroy(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
-    free(module);
     return VINBERO_COMMON_STATUS_SUCCESS;
 }
