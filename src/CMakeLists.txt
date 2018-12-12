@@ -8,6 +8,7 @@ find_library(gaio libgaio.so.0.3 REQUIRED)
 find_library(vinbero_common libvinbero_common.so REQUIRED)
 find_library(lua NAMES liblua5.3.so liblua-5.3.so liblua-5.3.so.0 liblua.a REQUIRED)
 target_link_libraries(vinbero_mt_http_lua ${vinbero_common} ${fastdl} ${gaio} ${lua})
+target_include_directories(vinbero_mt_http_lua PRIVATE /usr/include/lua5.3)
 
 install(TARGETS vinbero_mt_http_lua
         LIBRARY DESTINATION lib/vinbero
