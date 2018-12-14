@@ -5,7 +5,7 @@ EXPOSE 80
 COPY config.json /srv/config.json
 COPY app.lua /srv/app.lua
 
-RUN apk update && apk add http-parser-dev lua5.3-dev
+RUN apk update && apk add http-parser-dev lua5.3-dev vim less curl
 
 RUN git clone -b dev https://github.com/vinbero/vinbero_tcp
 RUN git clone -b dev https://github.com/vinbero/vinbero_mt
