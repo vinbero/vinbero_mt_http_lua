@@ -10,6 +10,7 @@ RUN apk update && apk add http-parser-dev lua5.3-dev vim less grep curl musl-dbg
 RUN git clone -b dev https://github.com/vinbero/vinbero_tcp
 RUN git clone -b dev https://github.com/vinbero/vinbero_mt
 RUN git clone -b dev https://github.com/vinbero/vinbero_tcp_mt_epoll
+RUN git clone -b dev https://github.com/vinbero/vinbero_mt_epoll_tls
 RUN git clone -b dev https://github.com/vinbero/vinbero_mt_epoll_http
 RUN git clone -b dev https://github.com/vinbero/vinbero_mt_http_lua
 
