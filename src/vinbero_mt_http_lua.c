@@ -950,7 +950,6 @@ int vinbero_interface_CLOCAL_destroy(struct vinbero_common_ClModule* clModule) {
     VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_TlModule* localTlModule = clModule->tlModule->localTlModule.pointer;
     free(clModule->localClModule.pointer);
-    free(clModule);
     assert(lua_gettop(localTlModule->L) == 0);
     return VINBERO_COMMON_STATUS_SUCCESS;
 }
@@ -974,7 +973,6 @@ int vinbero_interface_TLOCAL_rDestroy(struct vinbero_common_TlModule* tlModule) 
             }
         }
         lua_close(localTlModule->L);
-        free(tlModule);
     }
     return VINBERO_COMMON_STATUS_SUCCESS;
 }
