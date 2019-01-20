@@ -858,6 +858,9 @@ int vinbero_interface_HTTP_onGetRequestContentLength(struct vinbero_common_ClMod
 }
 
 int vinbero_interface_HTTP_onRequestFinish(struct vinbero_common_ClModule* clModule) {
+    int ret;
+    if((ret = vinbero_interface_HTTP_onRequestBodyFinish(clModule) < VINBERO_COMMON_STATUS_SUCCESS)
+        return ret;
     VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_TlModule* localTlModule = clModule->tlModule->localTlModule.pointer;
     struct vinbero_mt_http_lua_ClModule* localClModule = clModule->localClModule.pointer;
