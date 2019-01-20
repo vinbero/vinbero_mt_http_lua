@@ -318,7 +318,7 @@ int vinbero_interface_HTTP_onRequestStart(struct vinbero_common_ClModule* clModu
     lua_newtable(localTlModule->L); // vinbero clients clientId client "request" request "headers" headers
     lua_settable(localTlModule->L, -3); // vinbero clients clientId client "request" request
     lua_pushstring(localTlModule->L, "body"); // vinbero clients clientId client "request" request "body"
-    lua_pushstring(localTlModule->L, ""); // vinbero clients clientId client "request" request "body" ""
+    lua_newtable(localTlModule->L); // vinbero clients clientId client "request" request "body" body
     lua_settable(localTlModule->L, -3); // vinbero clients clientId client "request" request
     lua_pushstring(localTlModule->L, "contentLength"); // vinbero clients clientId client "request" request "contentLength"
     lua_pushinteger(localTlModule->L, 0); // vinbero clients clientId client "request" request "contentLength" 0
@@ -586,18 +586,6 @@ int vinbero_interface_HTTP_onRequestHeadersFinish(struct vinbero_common_ClModule
     return VINBERO_COMMON_STATUS_SUCCESS;
 }
 
-static int vinbero_mt_http_lua_onRequestBodyStart(lua_State* L) {
-    VINBERO_COMMON_LOG_TRACE2();
-    // * client
-    lua_pushstring(L, "request"); // * client "request"
-    lua_gettable(L, -2); // * client request
-    lua_pushstring(L, "body"); // * client request "body"
-    lua_newtable(L); // * client request "body" body
-    lua_settable(L, -3); // * client request
-    lua_pop(L, 1); // * client
-    return VINBERO_COMMON_STATUS_SUCCESS;
-}
-
 int vinbero_interface_HTTP_onRequestBodyStart(struct vinbero_common_ClModule* clModule) {
     VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_mt_http_lua_ClModule* localClModule = clModule->localClModule.pointer;
@@ -609,8 +597,8 @@ int vinbero_interface_HTTP_onRequestBodyStart(struct vinbero_common_ClModule* cl
     lua_gettable(localTlModule->L, -2); // vinbero clients client
     lua_getglobal(localTlModule->L, "onRequestBodyStart"); // vinbero clients client onRequestBodyStart
     if(lua_isnil(localTlModule->L, -1)) { // vinbero clients client nil
-        lua_pop(localTlModule->L, 1); // vinbero clients client
-        lua_pushcfunction(localTlModule->L, vinbero_mt_http_lua_onRequestBodyStart); // vinbero clients client onRequestBodyStart
+        lua_pop(localTlModule->L, 4); //
+        return VINBERO_COMMON_STATUS_SUCCESS;
     }
     lua_pushvalue(localTlModule->L, -2); // vinbero clients client onRequestBodyStart client
     if(lua_pcall(localTlModule->L, 1, 0, 0) != 0) { // vinbero clients client errorString
