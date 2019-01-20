@@ -203,10 +203,8 @@ int vinbero_interface_TLOCAL_init(struct vinbero_common_TlModule* tlModule) {
     VINBERO_COMMON_LOG_TRACE2();
     const char* scriptFile;
     int ret;
-    if((ret = vinbero_common_Config_getRequiredString(tlModule->module->config, tlModule->module, "vinbero_mt_http_lua.scriptFile", &scriptFile))) {
-        VINBERO_COMMON_LOG_ERROR("vinbero_mt_http_lua.scriptFile is required");
-        return ret;
-    }
+    if(vinbero_common_Config_getRequiredConstring(tlModule->module->config, tlModule->module, "vinbero_mt_http_lua.scriptFile", &scriptFile) == false)
+	return VINBERO_COMMON_ERROR_INVALID_CONFIG;
     tlModule->localTlModule.pointer = malloc(sizeof(struct vinbero_mt_http_lua_TlModule));
 
     struct vinbero_mt_http_lua_TlModule* localTlModule = tlModule->localTlModule.pointer;
@@ -215,7 +213,7 @@ int vinbero_interface_TLOCAL_init(struct vinbero_common_TlModule* tlModule) {
     lua_newtable(localTlModule->L); // vinbero
     lua_pushstring(localTlModule->L, "arg"); // vinbero "arg"
     const char* scriptArg;
-    vinbero_common_Config_getString(tlModule->module->config, tlModule->module, "vinbero_mt_http_lua.scriptArg", &scriptArg, NULL);
+    vinbero_common_Config_getConstring(tlModule->module->config, tlModule->module, "vinbero_mt_http_lua.scriptArg", &scriptArg, NULL);
     if(scriptArg != NULL)
         lua_pushstring(localTlModule->L, scriptArg); // vinbero "arg" arg
     else
