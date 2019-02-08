@@ -32,4 +32,4 @@ A vinbero module for writing lua web application.
 - onDestroy()
 
 ## License
-MPLv2
+MPL-2.0
