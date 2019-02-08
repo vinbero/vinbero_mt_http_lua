@@ -4,8 +4,7 @@
 [![Build Status](https://travis-ci.org/vinbero/vinbero_mt_http_lua.svg?branch=master)](https://travis-ci.org/vinbero/vinbero_mt_http_lua)
 [![license](http://img.shields.io/github/license/vinbero/vinbero_mt_http_lua.svg)](https://raw.githubusercontent.com/vinbero/vinbero_mt_http_lua/master/LICENSE)
 [![Docker Build Status](http://img.shields.io/docker/build/vinbero/alpine-vinbero.svg)](https://hub.docker.com/r/vinbero/alpine-vinbero_mt_http_lua/builds)
-[![Docker Stars](http://img.shields.io/docker/stars/vinbero/alpine-vinbero.svg)](https://hub.docker.com/r/vinbero/alpine-vinbero_mt_http_lua)
-[![Docker Pulls](http://img.shields.io/docker/pulls/vinbero/alpine-vinbero.svg)](https://hub.docker.com/r/vinbero/alpine-vinbero_mt_http_lua)
+[![dockeri.co](https://dockeri.co/image/vinbero/vinbero_mt_http_lua)](https://hub.docker.com/r/vinbero/vinbero_mt_http_lua)
 
 A vinbero module for writing lua web application.
 
