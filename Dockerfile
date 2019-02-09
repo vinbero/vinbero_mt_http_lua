@@ -6,7 +6,6 @@ COPY config.json /srv/config.json
 COPY app.lua /srv/app.lua
 
 RUN apk update && apk add http-parser-dev lua5.3-dev
-RUN apk add tmux vim less grep curl openssl openssl-dev musl-dbg gdb valgrind
 
 RUN git clone https://github.com/vinbero/vinbero_tcp /usr/src/vinbero_tcp
 RUN git clone https://github.com/vinbero/vinbero_mt /usr/src/vinbero_mt

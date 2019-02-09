@@ -3,6 +3,10 @@ sudo: required
 language: c
 compiler:
   - gcc
+branches:
+  only:
+    - master
+    - dev
 before_install:
   - sudo apt-get install -y libreadline-dev uthash-dev doxygen graphviz
 
@@ -41,7 +45,7 @@ before_install:
   - cd ../
 
   - pwd
-  - git clone https://github.com/vinbero/libgenc
+  - git clone -b $TRAVIS_BRANCH https://github.com/vinbero/libgenc
   - cd libgenc
   - mkdir build
   - cd build
@@ -51,7 +55,7 @@ before_install:
   - cd ../../
 
   - pwd
-  - git clone https://github.com/vinbero/libgaio
+  - git clone -b $TRAVIS_BRANCH https://github.com/vinbero/libgaio
   - cd libgaio
   - mkdir build
   - cd build
@@ -61,7 +65,7 @@ before_install:
   - cd ../../
 
   - pwd
-  - git clone https://github.com/vinbero/libfastdl
+  - git clone -b $TRAVIS_BRANCH https://github.com/vinbero/libfastdl
   - cd libfastdl
   - mkdir build
   - cd build
@@ -71,7 +75,17 @@ before_install:
   - cd ../../
 
   - pwd
-  - git clone https://github.com/vinbero/libvinbero_common
+  - git clone -b $TRAVIS_BRANCH https://github.com/vinbero/vinbero-interfaces
+  - cd vinbero-interfaces
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+  - make
+  - sudo make install
+  - cd ../../
+
+  - pwd
+  - git clone -b $TRAVIS_BRANCH https://github.com/vinbero/libvinbero_common
   - cd libvinbero_common
   - mkdir build
   - cd build
@@ -81,7 +95,7 @@ before_install:
   - cd ../../
 
   - pwd
-  - git clone https://github.com/vinbero/vinbero_mt_epoll_http
+  - git clone -b $TRAVIS_BRANCH https://github.com/vinbero/vinbero_mt_epoll_http
   - cd vinbero_mt_epoll_http
   - mkdir build
   - cd build
