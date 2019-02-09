@@ -1,4 +1,4 @@
-FROM vinbero/alpine-vinbero
+FROM vinbero/vinbero
 MAINTAINER Byeonggon Lee (gonny952@gmail.com)
 
 EXPOSE 80
