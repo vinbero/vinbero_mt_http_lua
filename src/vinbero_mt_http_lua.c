@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <err.h>
 #include <gaio.h>
-#include <libgenc/genc_cast.h>
+#include <libgenc/genc_Cast.h>
 #include <libgenc/genc_List.h>
 #include <lua.h>
 #include <lualib.h>
