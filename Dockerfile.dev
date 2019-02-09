@@ -5,19 +5,21 @@ EXPOSE 80
 COPY config.json /srv/config.json
 COPY app.lua /srv/app.lua
 
-RUN apk update && apk add http-parser-dev lua5.3-dev tmux vim less grep curl openssl openssl-dev musl-dbg gdb valgrind
+RUN apk update && apk add http-parser-dev lua5.3-dev
+RUN apk add tmux vim less grep curl openssl openssl-dev musl-dbg gdb valgrind
 
-RUN git clone -b dev https://github.com/vinbero/vinbero_tcp
-RUN git clone -b dev https://github.com/vinbero/vinbero_mt
-RUN git clone -b dev https://github.com/vinbero/vinbero_tcp_mt_epoll
-RUN git clone -b dev https://github.com/vinbero/vinbero_mt_epoll_tls
-RUN git clone -b dev https://github.com/vinbero/vinbero_mt_epoll_http
-RUN git clone -b dev https://github.com/vinbero/vinbero_mt_http_lua
+RUN git clone -b dev https://github.com/vinbero/vinbero_tcp /usr/src/vinbero_tcp
+RUN git clone -b dev https://github.com/vinbero/vinbero_mt /usr/src/vinbero_mt
+RUN git clone -b dev https://github.com/vinbero/vinbero_tcp_mt_epoll /usr/src/vinbero_tcp_mt_epoll
+RUN git clone -b dev https://github.com/vinbero/vinbero_mt_epoll_tls /usr/src/vinbero_mt_epoll_tls
+RUN git clone -b dev https://github.com/vinbero/vinbero_mt_epoll_http /usr/src/vinbero_mt_epoll_http
+RUN git clone -b dev https://github.com/vinbero/vinbero_mt_http_lua /usr/src/vinbero_mt_http_lua
 
-RUN mkdir vinbero_tcp/build; cd vinbero_tcp/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
-RUN mkdir vinbero_mt/build; cd vinbero_mt/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
-RUN mkdir vinbero_tcp_mt_epoll/build; cd vinbero_tcp_mt_epoll/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
-RUN mkdir vinbero_mt_epoll_tls/build; cd vinbero_mt_epoll_tls/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
-RUN mkdir vinbero_mt_epoll_http/build; cd vinbero_mt_epoll_http/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
-RUN mkdir vinbero_mt_http_lua/build; cd vinbero_mt_http_lua/build; cmake -DCMAKE_C_FLAGS="-I /usr/include/lua5.3 -L /usr/lib/lua5.3" -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
+RUN mkdir /usr/src/vinbero_tcp/build; cd /usr/src/vinbero_tcp/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
+RUN mkdir /usr/src/vinbero_mt/build; cd /usr/src/vinbero_mt/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
+RUN mkdir /usr/src/vinbero_tcp_mt_epoll/build; cd /usr/src/vinbero_tcp_mt_epoll/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
+RUN mkdir /usr/src/vinbero_mt_epoll_tls/build; cd /usr/src/vinbero_mt_epoll_tls/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
+RUN mkdir /usr/src/vinbero_mt_epoll_http/build; cd /usr/src/vinbero_mt_epoll_http/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
+RUN mkdir /usr/src/vinbero_mt_http_lua/build; cd /usr/src/vinbero_mt_http_lua/build; cmake -DCMAKE_C_FLAGS="-I /usr/include/lua5.3 -L /usr/lib/lua5.3" -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
+
 CMD vinbero -c /srv/config.json -f 63 & sh
