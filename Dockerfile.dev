@@ -21,4 +21,4 @@ RUN mkdir /usr/src/vinbero_mt_epoll_tls/build; cd /usr/src/vinbero_mt_epoll_tls/
 RUN mkdir /usr/src/vinbero_mt_epoll_http/build; cd /usr/src/vinbero_mt_epoll_http/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
 RUN mkdir /usr/src/vinbero_mt_http_lua/build; cd /usr/src/vinbero_mt_http_lua/build; cmake -DCMAKE_C_FLAGS="-I /usr/include/lua5.3 -L /usr/lib/lua5.3" -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
 
-CMD vinbero -c /srv/config.json -f 63 & sh
+CMD ["/usr/bin/vinbero", "-c", "/srv/config.json", "-f", "63"]
