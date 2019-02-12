@@ -1,7 +1,7 @@
 add_library(vinbero_mt_http_lua MODULE vinbero_mt_http_lua.c)
 set_target_properties(vinbero_mt_http_lua PROPERTIES PREFIX "")
-set_target_properties(vinbero_mt_http_lua PROPERTIES VERSION ${vinbero_mt_http_lua_version}
-                                                     SOVERSION ${vinbero_mt_http_lua_soversion}
+set_target_properties(vinbero_mt_http_lua PROPERTIES VERSION ${version}
+                                                     SOVERSION ${soversion}
                                                      PUBLIC_HEADER "")
 find_library(fastdl libfastdl.so REQUIRED)
 find_library(gaio libgaio.so.0.3 REQUIRED)

@@ -51,7 +51,9 @@ VINBERO_COM_MODULE_META_INIT(
 
 int vinbero_iface_MODULE_init(struct vinbero_com_Module* module) {
     VINBERO_COM_LOG_TRACE2();
-    module->childrenRequired =false;
+    int ret;
+    const char* version;
+    const char* name;
     return VINBERO_COM_STATUS_SUCCESS;
 }
 
