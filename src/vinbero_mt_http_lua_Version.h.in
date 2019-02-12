@@ -1,6 +1,9 @@
 #ifndef _VINBERO_MT_HTTP_LUA_VERSION_H
 #define _VINBERO_MT_HTTP_LUA_VERSION_H
 
-#define VINBERO_MT_HTTP_LUA_VERSION "@vinbero_mt_http_lua_version@"
+#define VINBERO_MT_HTTP_LUA_VERSION "@version@"
+#define VINBERO_MT_HTTP_LUA_VERSION_MAJOR @version_major@
+#define VINBERO_MT_HTTP_LUA_VERSION_MINOR @version_minor@
+#define VINBERO_MT_HTTP_LUA_VERSION_PATCH @version_patch@
 
 #endif

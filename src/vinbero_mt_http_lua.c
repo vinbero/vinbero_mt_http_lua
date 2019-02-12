@@ -40,9 +40,18 @@ VINBERO_IFACE_TLOCAL_FUNCTIONS;
 VINBERO_IFACE_CLOCAL_FUNCTIONS;
 VINBERO_IFACE_HTTP_FUNCTIONS;
 
+VINBERO_COM_MODULE_META_INIT(
+    "vinbero_mt_http_lua",
+    VINBERO_MT_HTTP_LUA_VERSION_MAJOR,
+    VINBERO_MT_HTTP_LUA_VERSION_MINOR,
+    VINBERO_MT_HTTP_LUA_VERSION_PATCH,
+    "TLOCAL,CLOCAL,HTTP",
+    ""
+);
+
 int vinbero_iface_MODULE_init(struct vinbero_com_Module* module) {
     VINBERO_COM_LOG_TRACE2();
-    vinbero_com_Module_init(module, "vinbero_mt_http_lua", VINBERO_MT_HTTP_LUA_VERSION, false);
+    module->childrenRequired =false;
     return VINBERO_COM_STATUS_SUCCESS;
 }
 
