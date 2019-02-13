@@ -499,6 +499,14 @@ int vinbero_iface_HTTP_onRequestScriptPath(struct vinbero_com_ClModule* clModule
     return VINBERO_COM_STATUS_SUCCESS;
 }
 
+int vinbero_iface_HTTP_onRequestPathInfo(struct vinbero_com_ClModule* clModule, const char* token, size_t tokenSize) {
+    return VINBERO_COM_STATUS_SUCCESS;
+}
+
+int vinbero_iface_HTTP_onRequestQueryString(struct vinbero_com_ClModule* clModule, const char* token, size_t tokenSize) {
+    return VINBERO_COM_STATUS_SUCCESS;
+}
+
 int vinbero_iface_HTTP_onRequestKeepAlive(struct vinbero_com_ClModule* clModule, bool isKeepAlive) {
     VINBERO_COM_LOG_TRACE2();
     struct vinbero_mt_http_lua_ClModule* localClModule = clModule->localClModule.pointer;
