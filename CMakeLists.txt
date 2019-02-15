@@ -9,14 +9,6 @@ list(GET version_list 0 version_major)
 list(GET version_list 1 version_minor)
 list(GET version_list 2 version_patch)
 
-if(CMAKE_VERSION VERSION_LESS "3.1")
-  if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    set (CMAKE_C_FLAGS "-std=gnu11 ${CMAKE_C_FLAGS}")
-  endif()
-else()
-    set(CMAKE_C_STANDARD 11)
-endif()
-
 configure_file("${PROJECT_SOURCE_DIR}/src/${PROJECT_NAME}_Version.h.in"
                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}_Version.h" @ONLY)
 include_directories(${PROJECT_BINARY_DIR})
