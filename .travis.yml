@@ -8,26 +8,7 @@ branches:
     - master
     - dev
 before_install:
-  - sudo apt-get install -y libreadline-dev uthash-dev doxygen graphviz
-
-  - pwd
-  - git clone git://git.cryptomilk.org/projects/cmocka.git 
-  - cd cmocka
-  - mkdir build
-  - cd build
-  - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
-  - make
-  - sudo make install
-  - cd ../../
-
-  - pwd
-  - git clone https://github.com/akheron/jansson
-  - cd jansson
-  - autoreconf -i
-  - ./configure --prefix=/usr
-  - make
-  - sudo make install
-  - cd ../
+  - sudo apt-get install -y libreadline-dev uthash-dev doxygen graphviz libcmocka-dev libjansson-dev
 
   - pwd
   - git clone https://github.com/nodejs/http-parser
