@@ -8,14 +8,7 @@ branches:
     - master
     - dev
 before_install:
-  - sudo apt-get install -y libreadline-dev uthash-dev doxygen graphviz libcmocka-dev libjansson-dev
-
-  - pwd
-  - git clone https://github.com/nodejs/http-parser
-  - cd http-parser
-  - make
-  - PREFIX=/usr sudo make install
-  - cd ../
+  - sudo apt-get install -y libreadline-dev uthash-dev doxygen graphviz libcmocka-dev libjansson-dev libhttp-parser-dev
 
   - pwd
   - curl -R -O http://www.lua.org/ftp/lua-5.3.4.tar.gz
