@@ -1,5 +1,3 @@
-include(CMakeFindDependencyMacro)
-
 add_library(vinbero_mt_http_lua MODULE)
 
 target_sources(
@@ -7,6 +5,8 @@ target_sources(
     PRIVATE
     vinbero_mt_http_lua.c
 )
+
+target_compile_options(vinbero_mt_http_lua PRIVATE -Wall)
 
 set_target_properties(
     vinbero_mt_http_lua
@@ -20,7 +20,7 @@ set_target_properties(
 
 find_library(fastdl libfastdl.so REQUIRED)
 find_library(gaio libgaio.so REQUIRED)
-find_dependency(vinbero_com REQUIRED)
+find_package(vinbero_com REQUIRED)
 
 find_library(lua_LIBRARIES NAMES liblua5.3.so liblua-5.3.so liblua-5.3.so.0 liblua.a REQUIRED)
 find_path(lua_INCLUDE_DIRS NAMES lua.h lualib.h lauxlib.h PATHS /usr/include/lua5.3 REQUIRED)
