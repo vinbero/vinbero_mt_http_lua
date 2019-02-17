@@ -18,8 +18,8 @@ set_target_properties(
     PUBLIC_HEADER ""
 )
 
-find_library(fastdl libfastdl.so REQUIRED)
-find_library(gaio libgaio.so REQUIRED)
+find_package(fastdl REQUIRED)
+find_package(gaio REQUIRED)
 find_package(vinbero_com REQUIRED)
 
 find_library(lua_LIBRARIES NAMES liblua5.3.so liblua-5.3.so liblua-5.3.so.0 liblua.a REQUIRED)

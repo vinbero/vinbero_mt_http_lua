@@ -53,9 +53,6 @@ struct vinbero_mt_http_lua_ClModule {
 
 int vinbero_iface_MODULE_init(struct vinbero_com_Module* module) {
     VINBERO_COM_LOG_TRACE2();
-    int ret;
-    const char* version;
-    const char* name;
     return VINBERO_COM_STATUS_SUCCESS;
 }
 
@@ -215,7 +212,6 @@ static int vinbero_mt_http_lua_writeChunkedBodyEnd(lua_State* L) {
 int vinbero_iface_TLOCAL_init(struct vinbero_com_TlModule* tlModule) {
     VINBERO_COM_LOG_TRACE2();
     const char* scriptFile;
-    int ret;
     if(vinbero_com_Config_getRequiredConstring(tlModule->module->config, tlModule->module, "vinbero_mt_http_lua.scriptFile", &scriptFile) == false)
         return VINBERO_COM_ERROR_INVALID_CONFIG;
     tlModule->localTlModule.pointer = malloc(sizeof(struct vinbero_mt_http_lua_TlModule));
@@ -308,7 +304,6 @@ int vinbero_iface_CLOCAL_init(struct vinbero_com_ClModule* clModule) {
     VINBERO_COM_LOG_TRACE2();
     clModule->localClModule.pointer = malloc(1 * sizeof(struct vinbero_mt_http_lua_ClModule));
     struct vinbero_mt_http_lua_ClModule* localClModule = clModule->localClModule.pointer;
-    struct vinbero_mt_http_lua_TlModule* localTlModule = clModule->tlModule->localTlModule.pointer;
     localClModule->clientId = gaio_Fd_fileno(GENC_CAST(clModule->arg, struct vinbero_iface_HTTP_Response*)->io);
     localClModule->response = clModule->arg;
     return VINBERO_COM_STATUS_SUCCESS;
@@ -967,7 +962,6 @@ int vinbero_iface_HTTP_onRequestFinish(struct vinbero_com_ClModule* clModule) {
 
 int vinbero_iface_CLOCAL_destroy(struct vinbero_com_ClModule* clModule) {
     VINBERO_COM_LOG_TRACE2();
-    struct vinbero_mt_http_lua_TlModule* localTlModule = clModule->tlModule->localTlModule.pointer;
     free(clModule->localClModule.pointer);
     assert(lua_gettop(localTlModule->L) == 0);
     return VINBERO_COM_STATUS_SUCCESS;
