@@ -7,12 +7,12 @@ COPY app.lua /srv/app.lua
 
 RUN apk update && apk add http-parser-dev lua5.3-dev
 
-RUN git clone https://github.com/vinbero/vinbero_tcp /usr/src/vinbero_tcp
-RUN git clone https://github.com/vinbero/vinbero_mt /usr/src/vinbero_mt
-RUN git clone https://github.com/vinbero/vinbero_strm_mt_epoll /usr/src/vinbero_strm_mt_epoll
-RUN git clone https://github.com/vinbero/vinbero_mt_epoll_tls /usr/src/vinbero_mt_epoll_tls
-RUN git clone https://github.com/vinbero/vinbero_mt_epoll_http /usr/src/vinbero_mt_epoll_http
-RUN git clone https://github.com/vinbero/vinbero_mt_http_lua /usr/src/vinbero_mt_http_lua
+RUN git clone --recurese-submodules -j8 https://github.com/vinbero/vinbero_tcp /usr/src/vinbero_tcp
+RUN git clone --recurese-submodules -j8 https://github.com/vinbero/vinbero_mt /usr/src/vinbero_mt
+RUN git clone --recurese-submodules -j8 https://github.com/vinbero/vinbero_strm_mt_epoll /usr/src/vinbero_strm_mt_epoll
+RUN git clone --recurese-submodules -j8 https://github.com/vinbero/vinbero_mt_epoll_tls /usr/src/vinbero_mt_epoll_tls
+RUN git clone --recurese-submodules -j8 https://github.com/vinbero/vinbero_mt_epoll_http /usr/src/vinbero_mt_epoll_http
+RUN git clone --recurese-submodules -j8 https://github.com/vinbero/vinbero_mt_http_lua /usr/src/vinbero_mt_http_lua
 
 RUN mkdir /usr/src/vinbero_tcp/build; cd /usr/src/vinbero_tcp/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install
 RUN mkdir /usr/src/vinbero_mt/build; cd /usr/src/vinbero_mt/build; cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..; make; make test; make install

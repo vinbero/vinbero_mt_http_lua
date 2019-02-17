@@ -28,8 +28,8 @@ find_path(lua_INCLUDE_DIRS NAMES lua.h lualib.h lauxlib.h PATHS /usr/include/lua
 target_link_libraries(
     vinbero_mt_http_lua
     vinbero_com::vinbero_com
-    ${fastdl}
-    ${gaio}
+    fastdl::fastdl
+    gaio::gaio
     ${lua_LIBRARIES}
 )
 
