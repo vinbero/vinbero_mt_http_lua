@@ -23,7 +23,7 @@
 #include <vinbero/vinbero_iface_CLOCAL.h>
 #include <vinbero/vinbero_iface_TLOCAL.h>
 #include <vinbero/vinbero_iface_HTTP.h>
-#include "vinbero_mt_http_lua_Version.h"
+#include "config.h"
 
 VINBERO_COM_MODULE_META_NAME("vinbero_mt_http_lua")
 VINBERO_COM_MODULE_META_LICENSE("MPL-2.0")
