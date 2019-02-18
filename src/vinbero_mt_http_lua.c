@@ -996,6 +996,7 @@ int vinbero_iface_TLOCAL_rDestroy(struct vinbero_com_TlModule* tlModule) {
             }
         }
         lua_close(localTlModule->L);
+        free(localTlModule);
     }
     return VINBERO_COM_STATUS_SUCCESS;
 }
