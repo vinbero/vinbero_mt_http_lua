@@ -966,14 +966,14 @@ int vinbero_iface_HTTP_onRequestFinish(struct vinbero_com_ClModule* clModule) {
 
 int vinbero_iface_CLOCAL_destroy(struct vinbero_com_ClModule* clModule) {
     VINBERO_COM_LOG_TRACE2();
-    struct vinbero_mt_http_lua_TlModule* localTlModule = clModule->tlModule->localTlModule.pointer;
-    free(clModule->localClModule.pointer);
-    assert(lua_gettop(localTlModule->L) == 0);
     return VINBERO_COM_STATUS_SUCCESS;
 }
 
 int vinbero_iface_CLOCAL_rDestroy(struct vinbero_com_ClModule* clModule) {
     VINBERO_COM_LOG_TRACE2();
+    struct vinbero_mt_http_lua_TlModule* localTlModule = clModule->tlModule->localTlModule.pointer;
+    free(clModule->localClModule.pointer);
+    assert(lua_gettop(localTlModule->L) == 0);
     return VINBERO_COM_STATUS_SUCCESS;
 }
 
