@@ -85,6 +85,16 @@ before_install:
   - sudo make install
   - cd ../../
 
+  - pwd
+  - git clone -b $TRAVIS_BRANCH --recurse-submodules -j8 https://github.com/vinbero/vinbero_iplogger
+  - cd vinbero_iplogger
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+  - make
+  - sudo make install
+  - cd ../../
+
 before_script:
   - cmake -version
   - make --version 
