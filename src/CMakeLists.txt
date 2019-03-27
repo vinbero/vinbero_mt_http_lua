@@ -28,6 +28,7 @@ target_include_directories(
     vinbero_mt_http_lua
     PRIVATE
     ${PROJECT_BINARY_DIR}
+    ${PROJECT_BINARY_DIR}/iface
     ${lua_INCLUDE_DIRS}
 )
 
