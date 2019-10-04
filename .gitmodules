@@ -1,3 +1,15 @@
 [submodule "cmake"]
 	path = cmake
 	url = https://github.com/gonapps-org/gonapps-cmake-helper
+[submodule "iface/vinbero_iface_MODULE"]
+	path = iface/vinbero_iface_MODULE
+	url = https://github.com/vinbero/vinbero_iface_MODULE
+[submodule "iface/vinbero_iface_CLOCAL"]
+	path = iface/vinbero_iface_CLOCAL
+	url = https://github.com/vinbero/vinbero_iface_CLOCAL
+[submodule "iface/vinbero_iface_TLOCAL"]
+	path = iface/vinbero_iface_TLOCAL
+	url = https://github.com/vinbero/vinbero_iface_TLOCAL
+[submodule "iface/vinbero_iface_HTTP"]
+	path = iface/vinbero_iface_HTTP
+	url = https://github.com/vinbero/vinbero_iface_HTTP

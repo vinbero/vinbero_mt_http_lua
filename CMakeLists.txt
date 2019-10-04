@@ -4,8 +4,8 @@ project(vinbero_mt_http_lua C)
 
 gonapps_setVersion("0.3.1" "0.3")
 gonapps_setBuildType()
-gonapps_genAuthors()
 
+add_subdirectory(iface)
 add_subdirectory(src)
 enable_testing()
 add_subdirectory(test)

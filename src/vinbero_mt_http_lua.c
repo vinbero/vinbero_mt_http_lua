@@ -19,10 +19,10 @@
 #include <vinbero_com/vinbero_com_Module.h>
 #include <vinbero_com/vinbero_com_TlModule.h>
 #include <vinbero_com/vinbero_com_ClModule.h>
-#include <vinbero/vinbero_iface_MODULE.h>
-#include <vinbero/vinbero_iface_CLOCAL.h>
-#include <vinbero/vinbero_iface_TLOCAL.h>
-#include <vinbero/vinbero_iface_HTTP.h>
+#include <vinbero_iface_MODULE/vinbero_iface_MODULE.h>
+#include <vinbero_iface_CLOCAL/vinbero_iface_CLOCAL.h>
+#include <vinbero_iface_TLOCAL/vinbero_iface_TLOCAL.h>
+#include <vinbero_iface_HTTP/vinbero_iface_HTTP.h>
 #include "config.h"
 
 VINBERO_COM_MODULE_META_NAME("vinbero_mt_http_lua")

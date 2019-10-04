@@ -4,6 +4,7 @@ MAINTAINER Byeonggon Lee (gonny952@gmail.com)
 EXPOSE 80
 COPY config.json /srv/config.json
 COPY config2.json /srv/config2.json
+COPY config.yaml /srv/config.yaml
 COPY app.lua /srv/app.lua
 
 RUN apk update && apk add http-parser-dev lua5.3-dev
